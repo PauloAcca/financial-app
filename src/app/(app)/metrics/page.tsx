@@ -22,13 +22,16 @@ export default async function MetricsPage() {
   // Cargar transacciones
   const { data: transactions } = await supabase
     .from('transactions')
-    .select(`
-      id, amount, type, occurred_at, category_id,
-      category:categories(name, color)
-    `)
+    .select('id, amount, type, occurred_at, category_id')
     .eq('user_id', uid)
     .gte('occurred_at', startStr)
     .order('occurred_at', { ascending: true })
+
+  // Cargar categorías para poder cruzar padres e hijos
+  const { data: allCategories } = await supabase
+    .from('categories')
+    .select('id, name, color, parent_id')
+    .or(`user_id.eq.${uid},is_system.eq.true`)
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -76,26 +79,33 @@ export default async function MetricsPage() {
     return label === currentMonthLabel && tx.type === 'expense'
   }) || []
 
-  const categoryMap: Record<string, { value: number; fill: string }> = {}
-  currentMonthExpenses.forEach((tx) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cat = tx.category as any
-    const catName = cat?.name || 'Sin categoría'
-    const catColor = cat?.color || '#94a3b8'
+  const generalMap: Record<string, { value: number; fill: string }> = {}
+  const detailedMap: Record<string, { value: number; fill: string }> = {}
 
-    if (!categoryMap[catName]) {
-      categoryMap[catName] = { value: 0, fill: catColor }
-    }
-    categoryMap[catName].value += Number(tx.amount)
+  currentMonthExpenses.forEach((tx) => {
+    const cat = allCategories?.find(c => c.id === tx.category_id)
+    const parentCat = cat?.parent_id ? allCategories?.find(c => c.id === cat.parent_id) : cat
+
+    // General (Agrupado por Padre)
+    const gName = parentCat?.name || 'Sin categoría'
+    const gColor = parentCat?.color || '#94a3b8'
+    if (!generalMap[gName]) generalMap[gName] = { value: 0, fill: gColor }
+    generalMap[gName].value += Number(tx.amount)
+
+    // Detallado (Subcategorías específicas)
+    const dName = cat?.name || 'Sin categoría'
+    const dColor = cat?.color || '#94a3b8'
+    if (!detailedMap[dName]) detailedMap[dName] = { value: 0, fill: dColor }
+    detailedMap[dName].value += Number(tx.amount)
   })
 
-  const pieChartData = Object.entries(categoryMap)
-    .map(([name, data]) => ({
-      name,
-      value: data.value,
-      fill: data.fill,
-    }))
-    .sort((a, b) => b.value - a.value) // Ordenar de mayor a menor
+  const generalChartData = Object.entries(generalMap)
+    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
+    .sort((a, b) => b.value - a.value)
+
+  const detailedChartData = Object.entries(detailedMap)
+    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
+    .sort((a, b) => b.value - a.value)
 
   return (
     <div className="flex flex-col gap-8 pb-10">
@@ -107,21 +117,8 @@ export default async function MetricsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Gastos por Categoría */}
-        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)]">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-              Gastos por Categoría
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] capitalize mt-1">
-              {currentMonthLabel}
-            </p>
-          </div>
-          <CategoryPieChart data={pieChartData} currency={defaultCurrency} />
-        </div>
-
         {/* Evolución Mensual */}
-        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)]">
+        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)] lg:col-span-2">
           <div className="mb-6">
             <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
               Evolución de Ingresos y Gastos
@@ -131,6 +128,32 @@ export default async function MetricsPage() {
             </p>
           </div>
           <MonthlyBarChart data={barChartData} currency={defaultCurrency} />
+        </div>
+
+        {/* Gastos por Categoría General */}
+        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)]">
+          <div className="mb-6">
+            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
+              Gastos por Categoría General
+            </h2>
+            <p className="text-xs text-[var(--color-text-muted)] capitalize mt-1">
+              {currentMonthLabel} (Agrupado)
+            </p>
+          </div>
+          <CategoryPieChart data={generalChartData} currency={defaultCurrency} />
+        </div>
+
+        {/* Gastos Detallados */}
+        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)]">
+          <div className="mb-6">
+            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
+              Gastos Detallados (Subcategorías)
+            </h2>
+            <p className="text-xs text-[var(--color-text-muted)] capitalize mt-1">
+              {currentMonthLabel} (Específico)
+            </p>
+          </div>
+          <CategoryPieChart data={detailedChartData} currency={defaultCurrency} />
         </div>
       </div>
     </div>
