@@ -71,6 +71,32 @@ function CategoryRow({ category, onEdit }: CategoryRowProps) {
   )
 }
 
+function renderCategoryTree(categories: Category[], isSystem: boolean, onEdit: (cat: Category) => void) {
+  const filtered = categories.filter(c => c.is_system === isSystem)
+  if (filtered.length === 0) return null
+
+  const parents = filtered.filter(c => !c.parent_id)
+  const children = filtered.filter(c => c.parent_id)
+
+  return (
+    <>
+      {parents.map(parent => {
+        const subcategories = children.filter(c => c.parent_id === parent.id)
+        return (
+          <div key={parent.id} className="flex flex-col">
+            <CategoryRow category={parent} onEdit={onEdit} />
+            {subcategories.map(child => (
+              <div key={child.id} className="pl-6 border-l-2 border-l-[var(--color-border-subtle)] ml-5">
+                <CategoryRow category={child} onEdit={onEdit} />
+              </div>
+            ))}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 interface SectionProps {
   title: string
   kind: CategoryKind
@@ -113,9 +139,7 @@ function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProp
             {/* Categorías del sistema */}
             {system.length > 0 && (
               <div className="px-1 py-1">
-                {system.map((cat) => (
-                  <CategoryRow key={cat.id} category={cat} onEdit={onEdit} />
-                ))}
+                {renderCategoryTree(categories, true, onEdit)}
               </div>
             )}
 
@@ -127,9 +151,7 @@ function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProp
                     Personalizadas
                   </p>
                 )}
-                {custom.map((cat) => (
-                  <CategoryRow key={cat.id} category={cat} onEdit={onEdit} />
-                ))}
+                {renderCategoryTree(categories, false, onEdit)}
               </div>
             )}
           </>
@@ -182,6 +204,7 @@ export function CategoryList({ categories }: CategoryListProps) {
         onClose={() => { setFormOpen(false); setEditingCat(null) }}
         editingCategory={editingCat}
         defaultKind={defaultKind}
+        categories={categories}
       />
     </>
   )

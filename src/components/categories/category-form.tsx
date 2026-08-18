@@ -21,20 +21,23 @@ interface CategoryFormProps {
   onClose: () => void
   editingCategory?: Category | null
   defaultKind?: CategoryKind
+  categories?: Category[]
 }
 
-export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'expense' }: CategoryFormProps) {
+export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'expense', categories = [] }: CategoryFormProps) {
   const isEditing = !!editingCategory
   const [isPending, startTransition] = useTransition()
 
   const [name, setName]   = useState(editingCategory?.name ?? '')
   const [kind, setKind]   = useState<CategoryKind>(editingCategory?.kind ?? defaultKind)
+  const [parentId, setParentId] = useState<string>(editingCategory?.parent_id ?? '')
   const [color, setColor] = useState(editingCategory?.color ?? ACCOUNT_COLORS[0])
   const [error, setError] = useState<string | null>(null)
 
   function resetForm() {
     setName(editingCategory?.name ?? '')
     setKind(editingCategory?.kind ?? defaultKind)
+    setParentId(editingCategory?.parent_id ?? '')
     setColor(editingCategory?.color ?? ACCOUNT_COLORS[0])
     setError(null)
   }
@@ -50,9 +53,10 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
     if (!name.trim()) { setError('El nombre es obligatorio.'); return }
 
     startTransition(async () => {
+      const parent_id = parentId ? parentId : null
       const result = isEditing
-        ? await updateCategory({ id: editingCategory!.id, name, color })
-        : await createCategory({ name, kind, color })
+        ? await updateCategory({ id: editingCategory!.id, name, color, parent_id })
+        : await createCategory({ name, kind, color, parent_id })
 
       if (result.success) {
         toast.success(isEditing ? 'Categoría actualizada.' : 'Categoría creada.')
@@ -95,6 +99,18 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
             options={KIND_OPTIONS}
           />
         )}
+
+        {/* Agrupar bajo (solo permitimos seleccionar padres del mismo tipo que no sean hijos a su vez) */}
+        <Select
+          id="category-form-parent"
+          label="Agrupar bajo (opcional)"
+          value={parentId}
+          onChange={(e) => setParentId(e.target.value)}
+          options={categories
+            .filter(c => c.kind === kind && c.parent_id === null && c.id !== editingCategory?.id)
+            .map(c => ({ value: c.id, label: c.name }))}
+          placeholder="Ninguna (Categoría principal)"
+        />
 
         {/* Color picker */}
         <div className="flex flex-col gap-1.5">

@@ -85,6 +85,14 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'No autenticado.' }
 
+  // 1. Soltar a los hijos (convertirlos en categorías principales)
+  await supabase
+    .from('categories')
+    .update({ parent_id: null })
+    .eq('parent_id', id)
+    .eq('user_id', user.id)
+
+  // 2. Eliminar la categoría
   const { error } = await supabase
     .from('categories')
     .delete()

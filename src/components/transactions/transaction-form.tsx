@@ -41,6 +41,18 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
     (c) => c.kind === (type === 'income' ? 'income' : 'expense')
   )
 
+  const sortedCategories: { value: string; label: string }[] = []
+  const parents = filteredCategories.filter(c => !c.parent_id)
+  const children = filteredCategories.filter(c => c.parent_id)
+
+  parents.forEach(parent => {
+    sortedCategories.push({ value: parent.id, label: parent.name })
+    const subcats = children.filter(c => c.parent_id === parent.id)
+    subcats.forEach(child => {
+      sortedCategories.push({ value: child.id, label: `— ${child.name}` })
+    })
+  })
+
   const transferDestAccounts = accounts.filter((a) => a.id !== accountId && !a.archived)
 
   function resetForm() {
@@ -190,7 +202,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
             label="Categoría"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            options={filteredCategories.map((c) => ({ value: c.id, label: c.name }))}
+            options={sortedCategories}
             placeholder="Sin categoría"
           />
         )}
