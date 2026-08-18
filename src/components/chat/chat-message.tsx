@@ -1,11 +1,15 @@
 'use client'
 
-import { User, Sparkles, CheckCircle2, Loader2 } from 'lucide-react'
+import { User, Sparkles, CheckCircle2, Loader2, Mic } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface Message {
   role: 'user' | 'assistant'
   content: string
+  audioData?: {
+    base64: string
+    mimeType: string
+  }
   isStreaming?: boolean
   toolsUsed?: string[]
 }
@@ -57,7 +61,17 @@ export function ChatMessage({ message }: ChatMessageProps) {
               <span>Pensando...</span>
             </span>
           ) : (
-            <MessageContent content={message.content} isStreaming={message.isStreaming} />
+            <div className="flex flex-col gap-2">
+              {message.audioData && (
+                <div className="flex items-center gap-2 text-xs opacity-90 pb-1 mb-1 border-b border-white/20">
+                  <Mic size={14} />
+                  <span>Audio adjunto</span>
+                </div>
+              )}
+              {message.content && (
+                <MessageContent content={message.content} isStreaming={message.isStreaming} />
+              )}
+            </div>
           )}
         </div>
 

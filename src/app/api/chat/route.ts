@@ -13,7 +13,7 @@ import { toISODate } from '@/lib/utils'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
-const MODEL = 'gemini-2.5-flash-preview-05-20'
+const MODEL = 'gemini-3.5-flash-lite'
 
 interface ChatMessage {
   role: 'user' | 'model'
@@ -57,11 +57,14 @@ export async function POST(req: Request) {
       tools: AI_TOOLS,
     })
 
-    // 5. Separar history del último mensaje
-    const history = messages.slice(0, -1)
-    const lastMessage = messages[messages.length - 1]
-
-    const chat = model.startChat({ history })
+    // 5. Preparar historial manual para evitar bugs del SDK con ChatSession
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const contents: any[] = messages.slice(0, -1).map(m => ({
+      role: m.role,
+      parts: m.parts,
+    }))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let currentParts: any[] = messages[messages.length - 1].parts
 
     // 6. Streaming con tool use loop
     const encoder = new TextEncoder()
@@ -70,15 +73,18 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          let currentParts = lastMessage.parts
           let continueLoop = true
 
           while (continueLoop) {
-            // Llamada a Gemini con streaming
-            const result = await chat.sendMessageStream(currentParts)
+            contents.push({ role: 'user', parts: currentParts })
+
+            // Llamada a Gemini usando el historial explícito en lugar de ChatSession
+            const result = await model.generateContentStream({ contents })
 
             let fullText = ''
             const functionCalls: { name: string; args: Record<string, unknown> }[] = []
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const modelParts: any[] = []
 
             // Iterar chunks del stream
             for await (const chunk of result.stream) {
@@ -99,7 +105,29 @@ export async function POST(req: Request) {
                     args: part.functionCall.args as Record<string, unknown>,
                   })
                 }
+
+                // Guardar la parte del chunk para preservar el thoughtSignature
+                if (part.functionCall) {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const exists = modelParts.find((p: any) => p.functionCall?.name === part.functionCall!.name && JSON.stringify(p.functionCall?.args) === JSON.stringify(part.functionCall!.args))
+                  if (!exists) modelParts.push(part)
+                } else if (part.text && part.text.trim() !== '') {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const textPart = modelParts.find((p: any) => 'text' in p)
+                  if (textPart) {
+                    textPart.text += part.text
+                  } else {
+                    modelParts.push({ text: part.text })
+                  }
+                }
               }
+            }
+
+            // Esperar la respuesta completa para no dejar colgada la promesa, pero ignoramos el objeto devuelto (bug SDK: pierde thoughtSignature y agrega text="")
+            await result.response.catch(() => {})
+
+            if (modelParts.length > 0) {
+               contents.push({ role: 'model', parts: modelParts })
             }
 
             // Si no hay tool calls, terminamos

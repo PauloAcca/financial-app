@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Plus } from 'lucide-react'
 import { ChatMessage, type Message } from './chat-message'
 import { ChatInput } from './chat-input'
 
@@ -16,10 +16,33 @@ const QUICK_ACTIONS = [
 export function ChatInterface() {
   const router = useRouter()
   const [messages, setMessages] = useState<Message[]>([])
+  const [isInitialized, setIsInitialized] = useState(false)
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+
+  // Cargar estado inicial desde localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('app_finanzas_chat_history')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Message[]
+        // Al cargar, nos aseguramos que ningún mensaje esté en estado de streaming
+        setMessages(parsed.map(m => m.role === 'assistant' ? { ...m, isStreaming: false } : m))
+      } catch (e) {
+        console.error('Failed to parse chat history', e)
+      }
+    }
+    setIsInitialized(true)
+  }, [])
+
+  // Guardar en localStorage cuando hay cambios
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem('app_finanzas_chat_history', JSON.stringify(messages))
+    }
+  }, [messages, isInitialized])
 
   // Scroll al último mensaje
   useEffect(() => {
@@ -27,15 +50,15 @@ export function ChatInterface() {
   }, [messages])
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, audioData?: { base64: string; mimeType: string }) => {
       const trimmed = text.trim()
-      if (!trimmed || isLoading) return
+      if ((!trimmed && !audioData) || isLoading) return
 
       setInput('')
       setIsLoading(true)
 
       // Agregar mensaje del usuario
-      const userMessage: Message = { role: 'user', content: trimmed }
+      const userMessage: Message = { role: 'user', content: trimmed, audioData }
       const updatedMessages = [...messages, userMessage]
       setMessages(updatedMessages)
 
@@ -47,10 +70,27 @@ export function ChatInterface() {
       ])
 
       // Preparar historial para la API
-      const apiMessages = updatedMessages.map((m) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }],
-      }))
+      const apiMessages = updatedMessages.map((m) => {
+        const parts: any[] = []
+        if (m.audioData) {
+          parts.push({
+            inlineData: {
+              data: m.audioData.base64,
+              mimeType: m.audioData.mimeType,
+            },
+          })
+        }
+        if (m.content) {
+          parts.push({ text: m.content })
+        } else if (m.audioData) {
+          parts.push({ text: 'Analizá este audio' })
+        }
+
+        return {
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts,
+        }
+      })
 
       try {
         abortRef.current = new AbortController()
@@ -158,16 +198,37 @@ export function ChatInterface() {
     [messages, isLoading, router]
   )
 
+  // Evitar renderizado con estado vacío antes de inicializar localStorage
+  if (!isInitialized) {
+    return <div className="flex flex-col h-full items-center justify-center"><div className="w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin"></div></div>
+  }
+
   const isEmpty = messages.length === 0
 
+  const handleNewChat = () => {
+    if (window.confirm('¿Seguro que querés iniciar un nuevo chat? Se borrará el historial actual.')) {
+      setMessages([])
+      abortRef.current?.abort()
+    }
+  }
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex flex-col flex-1 overflow-y-auto px-4 py-6">
         {isEmpty ? (
           <EmptyState onQuickAction={sendMessage} />
         ) : (
-          <div className="flex flex-col gap-5 max-w-3xl mx-auto">
+          <div className="flex flex-col gap-5 max-w-3xl w-full mx-auto relative pt-8 mt-auto">
+            <div className="absolute top-0 right-0 z-10">
+              <button
+                onClick={handleNewChat}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)] transition-colors"
+              >
+                <Plus size={14} className="rotate-45" />
+                Nuevo chat
+              </button>
+            </div>
             {messages.map((msg, i) => (
               <ChatMessage key={i} message={msg} />
             ))}
@@ -182,7 +243,7 @@ export function ChatInterface() {
           <ChatInput
             value={input}
             onChange={setInput}
-            onSubmit={() => sendMessage(input)}
+            onSubmit={(audioData) => sendMessage(input, audioData)}
             isLoading={isLoading}
           />
           <p className="text-center text-[10px] text-[var(--color-text-muted)] mt-2">

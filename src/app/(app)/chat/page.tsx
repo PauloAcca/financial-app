@@ -20,7 +20,7 @@ export default async function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-full -mx-4 sm:-mx-6 -my-6 lg:-my-8">
+    <div className="flex-1 flex flex-col -mx-4 sm:-mx-6 -my-6 lg:-my-8">
       <ChatInterface />
     </div>
   )

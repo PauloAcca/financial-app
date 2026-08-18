@@ -8,6 +8,7 @@ import { AccountCard } from '@/components/accounts/account-card'
 import { InsightsBanner } from '@/components/dashboard/insights-banner'
 import { getCurrentMonth, getMonthRange, formatCurrency } from '@/lib/utils'
 import type { MonthSummary } from '@/types'
+import { AddTransactionMenu } from '@/components/transactions/add-transaction-menu'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -69,17 +70,9 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{greeting}</h1>
           <p className="text-sm text-[var(--color-text-secondary)] mt-0.5 capitalize">{monthLabel}</p>
         </div>
-        <Link
-          href="/transactions"
-          className="inline-flex items-center gap-2 h-10 px-4 rounded-[var(--radius-md)]
-                     bg-[var(--color-accent)] text-white text-sm font-medium
-                     hover:bg-[var(--color-accent-hover)] transition-colors
-                     shadow-[0_0_16px_rgba(99,102,241,0.3)]"
-        >
-          <Plus size={16} />
-          <span className="hidden sm:inline">Nueva transacción</span>
-          <span className="sm:hidden">Agregar</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <AddTransactionMenu />
+        </div>
       </div>
 
       {/* Insights proactivos */}
