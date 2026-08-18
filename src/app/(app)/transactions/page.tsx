@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { TransactionForm } from '@/components/transactions/transaction-form'
 import { TransactionList } from '@/components/transactions/transaction-list'
+import { CsvImporter } from '@/components/transactions/csv-importer'
 import { getCurrentMonth, getMonthRange } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Transacciones' }
@@ -64,13 +65,17 @@ export default async function TransactionsPage() {
 
       {/* Columna derecha: lista del mes */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-            Movimientos — {new Date(year, month - 1).toLocaleString('es-AR', { month: 'long', year: 'numeric' })}
-          </h2>
-          <span className="text-xs text-[var(--color-text-muted)] tabular-nums">
-            {transactions?.length ?? 0} registros
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
+              Movimientos — {new Date(year, month - 1).toLocaleString('es-AR', { month: 'long', year: 'numeric' })}
+            </h2>
+            <span className="text-xs text-[var(--color-text-muted)] tabular-nums">
+              {transactions?.length ?? 0} registros
+            </span>
+          </div>
+          
+          <CsvImporter accounts={accounts ?? []} />
         </div>
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-xl)] overflow-hidden">
           <TransactionList transactions={transactions ?? []} />
