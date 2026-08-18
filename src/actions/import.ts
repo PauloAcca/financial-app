@@ -89,7 +89,7 @@ export async function importCsvTransactions(rows: ImportRow[], accountId: string
 
       if (!catError && newCat) {
         categoryId = newCat.id
-        categoryMap.set(catKey, categoryId)
+        categoryMap.set(catKey, newCat.id)
         newCategoriesCount++
       }
     }
