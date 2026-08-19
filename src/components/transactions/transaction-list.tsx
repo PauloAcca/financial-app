@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Trash2, ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, ReceiptText } from 'lucide-react'
+import { Trash2, Pencil, ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, ReceiptText } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { deleteTransaction } from '@/actions/transactions'
 import { toast } from '@/components/ui/toast'
-import { Badge } from '@/components/ui/badge'
-import type { Transaction, TransactionType } from '@/types/database'
+import { TransactionEditModal } from '@/components/transactions/transaction-edit-modal'
+import type { Account, Category, Transaction, TransactionType } from '@/types/database'
 
 const TYPE_ICON: Record<TransactionType, React.ReactNode> = {
   income:   <ArrowUpCircle  size={16} />,
@@ -26,13 +26,16 @@ const TYPE_SIGN: Record<TransactionType, string> = {
 
 interface TransactionListProps {
   transactions: Transaction[]
+  accounts?: Account[]
+  categories?: Category[]
 }
 
 interface TransactionRowProps {
   tx: Transaction
+  onEdit: (tx: Transaction) => void
 }
 
-function TransactionRow({ tx }: TransactionRowProps) {
+function TransactionRow({ tx, onEdit }: TransactionRowProps) {
   const [isPending, startTransition] = useTransition()
 
   function handleDelete() {
@@ -96,7 +99,7 @@ function TransactionRow({ tx }: TransactionRowProps) {
         </div>
       </div>
 
-      {/* Monto */}
+      {/* Monto y acciones */}
       <div className="flex items-center gap-3 shrink-0">
         <span
           className="text-sm font-bold tabular-nums"
@@ -105,18 +108,33 @@ function TransactionRow({ tx }: TransactionRowProps) {
           {TYPE_SIGN[tx.type]}{formatCurrency(tx.amount, tx.currency)}
         </span>
 
-        {/* Botón eliminar */}
-        <button
-          onClick={handleDelete}
-          disabled={isPending}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5
-                     rounded-[var(--radius-md)] text-[var(--color-text-muted)]
-                     hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)]
-                     cursor-pointer disabled:opacity-40"
-          aria-label="Eliminar transacción"
-        >
-          <Trash2 size={14} />
-        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Botón editar */}
+          <button
+            onClick={() => onEdit(tx)}
+            disabled={isPending}
+            className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
+                       hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)]
+                       cursor-pointer disabled:opacity-40"
+            aria-label="Editar transacción"
+            title="Editar"
+          >
+            <Pencil size={14} />
+          </button>
+
+          {/* Botón eliminar */}
+          <button
+            onClick={handleDelete}
+            disabled={isPending}
+            className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
+                       hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)]
+                       cursor-pointer disabled:opacity-40"
+            aria-label="Eliminar transacción"
+            title="Eliminar"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -132,7 +150,9 @@ function groupByDate(transactions: Transaction[]): Map<string, Transaction[]> {
   return groups
 }
 
-export function TransactionList({ transactions }: TransactionListProps) {
+export function TransactionList({ transactions, accounts = [], categories = [] }: TransactionListProps) {
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null)
+
   if (transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -147,26 +167,36 @@ export function TransactionList({ transactions }: TransactionListProps) {
   const groups = groupByDate(transactions)
 
   return (
-    <div className="flex flex-col gap-1">
-      {Array.from(groups.entries()).map(([date, txs]) => (
-        <div key={date}>
-          {/* Cabecera de fecha */}
-          <div className="flex items-center gap-3 px-1 py-2 sticky top-0 bg-[var(--color-background)] z-10">
-            <span className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-              {formatDate(date, 'long')}
-            </span>
-            <div className="flex-1 h-px bg-[var(--color-border-subtle)]" />
-            <span className="text-xs text-[var(--color-text-muted)] tabular-nums">
-              {txs.length} mov.
-            </span>
-          </div>
+    <>
+      <div className="flex flex-col gap-1">
+        {Array.from(groups.entries()).map(([date, txs]) => (
+          <div key={date}>
+            {/* Cabecera de fecha */}
+            <div className="flex items-center gap-3 px-1 py-2 sticky top-0 bg-[var(--color-background)] z-10">
+              <span className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
+                {formatDate(date, 'long')}
+              </span>
+              <div className="flex-1 h-px bg-[var(--color-border-subtle)]" />
+              <span className="text-xs text-[var(--color-text-muted)] tabular-nums">
+                {txs.length} mov.
+              </span>
+            </div>
 
-          {/* Filas */}
-          {txs.map((tx) => (
-            <TransactionRow key={tx.id} tx={tx} />
-          ))}
-        </div>
-      ))}
-    </div>
+            {/* Filas */}
+            {txs.map((tx) => (
+              <TransactionRow key={tx.id} tx={tx} onEdit={(t) => setEditingTx(t)} />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <TransactionEditModal
+        open={!!editingTx}
+        onClose={() => setEditingTx(null)}
+        transaction={editingTx}
+        accounts={accounts}
+        categories={categories}
+      />
+    </>
   )
 }

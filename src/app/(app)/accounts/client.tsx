@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Wallet } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { Plus, Wallet, RotateCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AccountCard } from '@/components/accounts/account-card'
 import { AccountForm } from '@/components/accounts/account-form'
+import { recalculateAccountBalances } from '@/actions/accounts'
+import { toast } from '@/components/ui/toast'
 import type { Account } from '@/types/database'
 
 interface AccountsClientProps {
@@ -14,6 +16,7 @@ interface AccountsClientProps {
 export function AccountsClient({ accounts }: AccountsClientProps) {
   const [formOpen, setFormOpen] = useState(false)
   const [editingAccount, setEditingAccount] = useState<Account | null>(null)
+  const [isRecalculating, startRecalculate] = useTransition()
 
   const active   = accounts.filter((a) => !a.archived)
   const archived = accounts.filter((a) => a.archived)
@@ -28,6 +31,17 @@ export function AccountsClient({ accounts }: AccountsClientProps) {
     setEditingAccount(null)
   }
 
+  function handleRecalculate() {
+    startRecalculate(async () => {
+      const res = await recalculateAccountBalances()
+      if (res.success) {
+        toast.success('Saldos recalculados según tus transacciones actuales.')
+      } else {
+        toast.error('Error al recalcular saldos.')
+      }
+    })
+  }
+
   return (
     <>
       {/* Header */}
@@ -38,13 +52,24 @@ export function AccountsClient({ accounts }: AccountsClientProps) {
             {active.length} cuenta{active.length !== 1 ? 's' : ''} activa{active.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button
-          id="btn-new-account"
-          onClick={() => { setEditingAccount(null); setFormOpen(true) }}
-        >
-          <Plus size={16} />
-          Nueva cuenta
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            id="btn-recalculate-balances"
+            variant="secondary"
+            onClick={handleRecalculate}
+            loading={isRecalculating}
+          >
+            <RotateCw size={16} className={isRecalculating ? 'animate-spin' : ''} />
+            Recalcular saldos
+          </Button>
+          <Button
+            id="btn-new-account"
+            onClick={() => { setEditingAccount(null); setFormOpen(true) }}
+          >
+            <Plus size={16} />
+            Nueva cuenta
+          </Button>
+        </div>
       </div>
 
       {/* Cuentas activas */}

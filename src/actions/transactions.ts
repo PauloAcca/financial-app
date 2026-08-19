@@ -19,6 +19,10 @@ export async function createTransaction(
     return { success: false, error: 'El monto debe ser mayor a cero.' }
   }
 
+  if ((input.type === 'expense' || input.type === 'income') && !input.category_id) {
+    return { success: false, error: 'La categoría es obligatoria para gastos e ingresos.' }
+  }
+
   if (input.type === 'transfer' && !input.transfer_account_id) {
     return { success: false, error: 'Las transferencias requieren una cuenta destino.' }
   }

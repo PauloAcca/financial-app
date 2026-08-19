@@ -11,7 +11,10 @@ export type CreateAccountInput = {
   icon?: string
 }
 
-export type UpdateAccountInput = Partial<CreateAccountInput> & { id: string }
+export type UpdateAccountInput = Partial<CreateAccountInput> & { 
+  id: string
+  current_balance?: number 
+}
 
 export type CreateCategoryInput = {
   name: string
@@ -36,6 +39,21 @@ export type CreateTransactionInput = {
 }
 
 export type UpdateTransactionInput = Partial<CreateTransactionInput> & { id: string }
+
+export type CreateRecurringInput = {
+  account_id: string
+  category_id?: string
+  type: import('./database').TransactionType
+  amount: number
+  currency: string
+  description: string
+  frequency: import('./database').RecurrenceFrequency
+  day_of_month?: number
+  next_run_date: string
+  is_subscription?: boolean
+}
+
+export type UpdateRecurringInput = Partial<CreateRecurringInput> & { id: string }
 
 // Tipo de respuesta unificado para Server Actions
 export type ActionResult<T = void> =

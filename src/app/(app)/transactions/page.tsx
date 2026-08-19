@@ -78,7 +78,11 @@ export default async function TransactionsPage() {
           <CsvImporter accounts={accounts ?? []} />
         </div>
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-xl)] overflow-hidden">
-          <TransactionList transactions={transactions ?? []} />
+          <TransactionList
+            transactions={transactions ?? []}
+            accounts={accounts ?? []}
+            categories={categories ?? []}
+          />
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ import {
   ChevronRight,
   MessageSquare,
   BarChart2,
+  Repeat,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logout } from '@/actions/auth'
@@ -21,8 +22,9 @@ import { useState, useTransition } from 'react'
 const NAV_ITEMS = [
   { href: '/dashboard',    label: 'Dashboard',     icon: LayoutDashboard },
   { href: '/accounts',     label: 'Cuentas',       icon: Wallet },
-  { href: '/categories',   label: 'Categorías',    icon: Tag },
   { href: '/transactions', label: 'Transacciones', icon: ArrowLeftRight },
+  { href: '/recurring',    label: 'Gastos Fijos',  icon: Repeat },
+  { href: '/categories',   label: 'Categorías',    icon: Tag },
   { href: '/metrics',      label: 'Métricas',      icon: BarChart2 },
   { href: '/chat',         label: 'Asistente',     icon: MessageSquare },
 ]

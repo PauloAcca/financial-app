@@ -121,25 +121,7 @@ export async function importCsvTransactions(rows: ImportRow[], accountId: string
     return { error: 'Ocurrió un error al guardar las transacciones.' }
   }
 
-  // 5. Actualizar el balance de la cuenta
-  // Calcular el total de los gastos importados
-  const totalExpense = transactionsToInsert.reduce((acc, curr) => acc + curr.amount, 0)
-  
-  // (Llamamos a una función RPC de Supabase si existe, o actualizamos manualmente)
-  // Aquí usamos el método simple de leer y actualizar, aunque en prod un trigger o RPC es mejor.
-  const { data: currentAcc } = await supabase
-    .from('accounts')
-    .select('current_balance')
-    .eq('id', accountId)
-    .single()
-
-  if (currentAcc) {
-    await supabase
-      .from('accounts')
-      .update({ current_balance: currentAcc.current_balance - totalExpense })
-      .eq('id', accountId)
-  }
-
+  // El trigger de base de datos trg_balance_insert actualiza automáticamente current_balance de la cuenta con cada transacción insertada.
   revalidatePath('/transactions')
   revalidatePath('/dashboard')
   revalidatePath('/accounts')

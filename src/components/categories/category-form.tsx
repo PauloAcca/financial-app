@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,9 +22,10 @@ interface CategoryFormProps {
   editingCategory?: Category | null
   defaultKind?: CategoryKind
   categories?: Category[]
+  onCreated?: (category: Category) => void
 }
 
-export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'expense', categories = [] }: CategoryFormProps) {
+export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'expense', categories = [], onCreated }: CategoryFormProps) {
   const isEditing = !!editingCategory
   const [isPending, startTransition] = useTransition()
 
@@ -33,6 +34,16 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
   const [parentId, setParentId] = useState<string>(editingCategory?.parent_id ?? '')
   const [color, setColor] = useState(editingCategory?.color ?? ACCOUNT_COLORS[0])
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (open) {
+      setName(editingCategory?.name ?? '')
+      setKind(editingCategory?.kind ?? defaultKind)
+      setParentId(editingCategory?.parent_id ?? '')
+      setColor(editingCategory?.color ?? ACCOUNT_COLORS[0])
+      setError(null)
+    }
+  }, [open, editingCategory, defaultKind])
 
   function resetForm() {
     setName(editingCategory?.name ?? '')
@@ -53,13 +64,16 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
     if (!name.trim()) { setError('El nombre es obligatorio.'); return }
 
     startTransition(async () => {
-      const parent_id = parentId ? parentId : null
+      const parent_id = parentId || undefined
       const result = isEditing
         ? await updateCategory({ id: editingCategory!.id, name, color, parent_id })
         : await createCategory({ name, kind, color, parent_id })
 
       if (result.success) {
         toast.success(isEditing ? 'Categoría actualizada.' : 'Categoría creada.')
+        if (!isEditing && result.data && onCreated) {
+          onCreated(result.data)
+        }
         handleClose()
       } else {
         setError(result.error)
@@ -106,10 +120,12 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
           label="Agrupar bajo (opcional)"
           value={parentId}
           onChange={(e) => setParentId(e.target.value)}
-          options={categories
-            .filter(c => c.kind === kind && c.parent_id === null && c.id !== editingCategory?.id)
-            .map(c => ({ value: c.id, label: c.name }))}
-          placeholder="Ninguna (Categoría principal)"
+          options={[
+            { value: '', label: 'Ninguna (Categoría principal)' },
+            ...categories
+              .filter(c => c.kind === kind && c.parent_id === null && c.id !== editingCategory?.id)
+              .map(c => ({ value: c.id, label: c.name }))
+          ]}
         />
 
         {/* Color picker */}

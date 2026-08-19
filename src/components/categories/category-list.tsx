@@ -72,16 +72,16 @@ function CategoryRow({ category, onEdit }: CategoryRowProps) {
 }
 
 function renderCategoryTree(categories: Category[], isSystem: boolean, onEdit: (cat: Category) => void) {
-  const filtered = categories.filter(c => c.is_system === isSystem)
-  if (filtered.length === 0) return null
-
-  const parents = filtered.filter(c => !c.parent_id)
-  const children = filtered.filter(c => c.parent_id)
+  // Obtenemos solo los padres que correspondan a esta sección (Sistema o Personalizadas)
+  const parents = categories.filter(c => !c.parent_id && c.is_system === isSystem)
+  
+  if (parents.length === 0) return null
 
   return (
     <>
       {parents.map(parent => {
-        const subcategories = children.filter(c => c.parent_id === parent.id)
+        // Buscamos los hijos en TODA la lista de esta categoría (sin importar si el hijo es de sistema o no)
+        const subcategories = categories.filter(c => c.parent_id === parent.id)
         return (
           <div key={parent.id} className="flex flex-col">
             <CategoryRow category={parent} onEdit={onEdit} />
@@ -108,6 +108,7 @@ interface SectionProps {
 function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProps) {
   const system = categories.filter((c) => c.is_system)
   const custom = categories.filter((c) => !c.is_system)
+  const customParents = custom.filter(c => !c.parent_id)
 
   return (
     <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-lg)] overflow-hidden">
@@ -144,7 +145,7 @@ function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProp
             )}
 
             {/* Categorías del usuario */}
-            {custom.length > 0 && (
+            {customParents.length > 0 && (
               <div className={cn('px-1 py-1', system.length > 0 && 'border-t border-[var(--color-border-subtle)]')}>
                 {system.length > 0 && (
                   <p className="px-4 py-1.5 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider">

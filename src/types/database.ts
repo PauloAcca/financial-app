@@ -81,6 +81,19 @@ export interface RecurringTransaction {
   active: boolean
   is_subscription: boolean
   created_at: string
+  // joined
+  account?: Pick<Account, 'id' | 'name' | 'color' | 'icon'>
+  category?: Pick<Category, 'id' | 'name' | 'color' | 'icon'>
+}
+
+export interface RecurringTransactionPayment {
+  id: string
+  recurring_transaction_id: string
+  period: string          // 'YYYY-MM'
+  paid: boolean
+  paid_at: string | null
+  transaction_id: string | null
+  created_at: string
 }
 
 export interface Budget {

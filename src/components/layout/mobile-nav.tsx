@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Wallet, Tag, ArrowLeftRight, MessageSquare, BarChart2 } from 'lucide-react'
+import { LayoutDashboard, Wallet, Tag, ArrowLeftRight, MessageSquare, BarChart2, Repeat } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { href: '/dashboard',    label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/accounts',     label: 'Cuentas',    icon: Wallet },
-  { href: '/transactions', label: 'Movimientos',icon: ArrowLeftRight },
-  { href: '/metrics',      label: 'Métricas',   icon: BarChart2 },
-  { href: '/chat',         label: 'Asistente',  icon: MessageSquare },
+  { href: '/dashboard',    label: 'Inicio',      icon: LayoutDashboard },
+  { href: '/transactions', label: 'Movimientos', icon: ArrowLeftRight },
+  { href: '/recurring',    label: 'Fijos',        icon: Repeat },
+  { href: '/categories',   label: 'Categorías',  icon: Tag },
+  { href: '/metrics',      label: 'Métricas',    icon: BarChart2 },
 ]
 
 export function MobileNav() {

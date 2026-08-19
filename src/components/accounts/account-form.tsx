@@ -24,7 +24,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
   const [name, setName]         = useState(editingAccount?.name ?? '')
   const [type, setType]         = useState<AccountType>(editingAccount?.type ?? 'bank')
   const [currency, setCurrency] = useState(editingAccount?.currency ?? 'ARS')
-  const [balance, setBalance]   = useState(editingAccount?.initial_balance?.toString() ?? '0')
+  const [balance, setBalance]   = useState(editingAccount ? editingAccount.current_balance.toString() : '0')
   const [color, setColor]       = useState(editingAccount?.color ?? ACCOUNT_COLORS[0])
   const [error, setError]       = useState<string | null>(null)
 
@@ -33,7 +33,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
     setName(editingAccount?.name ?? '')
     setType(editingAccount?.type ?? 'bank')
     setCurrency(editingAccount?.currency ?? 'ARS')
-    setBalance(editingAccount?.initial_balance?.toString() ?? '0')
+    setBalance(editingAccount ? editingAccount.current_balance.toString() : '0')
     setColor(editingAccount?.color ?? ACCOUNT_COLORS[0])
     setError(null)
   }
@@ -53,7 +53,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
 
     startTransition(async () => {
       const result = isEditing
-        ? await updateAccount({ id: editingAccount!.id, name, type, currency, color })
+        ? await updateAccount({ id: editingAccount!.id, name, type, currency, color, current_balance: numBalance })
         : await createAccount({ name, type, currency, initial_balance: numBalance, color })
 
       if (result.success) {
@@ -104,19 +104,16 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
           options={CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} — ${c.label}` }))}
         />
 
-        {!isEditing && (
-          <Input
-            id="account-form-balance"
-            label="Saldo inicial"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="0"
-            value={balance}
-            onChange={(e) => setBalance(e.target.value)}
-            helper="Podés ajustarlo después si cargás transacciones históricas."
-          />
-        )}
+        <Input
+          id="account-form-balance"
+          label={isEditing ? "Saldo actual" : "Saldo inicial"}
+          type="number"
+          step="0.01"
+          placeholder="0"
+          value={balance}
+          onChange={(e) => setBalance(e.target.value)}
+          helper={isEditing ? "Podés ajustar manualmente el saldo si es necesario." : "Podés ajustarlo después si cargás transacciones históricas."}
+        />
 
         {/* Selector de color */}
         <div className="flex flex-col gap-1.5">
