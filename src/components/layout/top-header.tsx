@@ -32,7 +32,7 @@ export function TopHeader() {
       <div className="max-w-lg mx-auto flex items-center justify-between">
         {/* Logo & Título */}
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="flex items-center gap-2 group">
+          <Link href="/dashboard" prefetch={true} className="flex items-center gap-2 group">
             <div className="relative w-8 h-8 rounded-[4px] border border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shadow-[0_0_8px_rgba(0,255,102,0.3)]">
               <Image
                 src="/pixel-coin.jpg"
@@ -54,7 +54,7 @@ export function TopHeader() {
           {/* Botón Campana */}
           <button
             aria-label="Notificaciones"
-            className="w-9 h-9 rounded-[4px] bg-[#1c213a] border border-[#293056] flex items-center justify-center text-[#00FF66] hover:border-[#00FF66] hover:bg-[#232845] transition-all cursor-pointer shadow-sm"
+            className="w-9 h-9 rounded-[4px] bg-[#1c213a] border border-[#293056] flex items-center justify-center text-[#00FF66] hover:border-[#00FF66] hover:bg-[#232845] transition-all cursor-pointer shadow-sm active:scale-95"
           >
             <Bell size={18} className="fill-[#00FF66]/20 text-[#00FF66]" />
           </button>
@@ -62,8 +62,9 @@ export function TopHeader() {
           {/* Botón Avatar */}
           <Link
             href="/profile"
+            prefetch={true}
             aria-label="Perfil de usuario"
-            className="relative w-9 h-9 rounded-[4px] border-2 border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shadow-[0_0_10px_rgba(0,255,102,0.35)] hover:scale-105 transition-transform"
+            className="relative w-9 h-9 rounded-[4px] border-2 border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shadow-[0_0_10px_rgba(0,255,102,0.35)] hover:scale-105 active:scale-95 transition-transform"
           >
             <Image
               src="/pixel-avatar.jpg"

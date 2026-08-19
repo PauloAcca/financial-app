@@ -101,12 +101,13 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
         </div>
       )}
 
-      {/* Botón Inferior: VER TODA LA HISTORIA >> */}
+      {/* Botón Inferior: VER TODA LA HISTORIA >> con prefetch */}
       {hasTransactions && (
         <div className="p-3 border-t border-[#293056] bg-[#14182b]">
           <Link
             href="/transactions"
-            className="flex items-center justify-center w-full py-2.5 px-4 rounded-[4px] bg-[#181c31] border border-[#293056] text-white text-xs font-bold tracking-widest uppercase hover:border-[#00FF66] hover:text-[#00FF66] transition-all"
+            prefetch={true}
+            className="flex items-center justify-center w-full py-2.5 px-4 rounded-[4px] bg-[#181c31] border border-[#293056] text-white text-xs font-bold tracking-widest uppercase hover:border-[#00FF66] hover:text-[#00FF66] transition-all active:scale-[0.99]"
           >
             VER TODA LA HISTORIA &gt;&gt;
           </Link>

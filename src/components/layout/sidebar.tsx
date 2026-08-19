@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logout } from '@/actions/auth'
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 
 const NAV_ITEMS = [
   { href: '/dashboard',    label: 'INICIO',        icon: Home },
@@ -39,8 +39,15 @@ interface SidebarProps {
 
 export function Sidebar({ displayName }: SidebarProps) {
   const pathname = usePathname()
+  const [optimisticPath, setOptimisticPath] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState(false)
   const [isPending, startTransition] = useTransition()
+
+  useEffect(() => {
+    setOptimisticPath(null)
+  }, [pathname])
+
+  const currentPath = optimisticPath ?? pathname
 
   function handleLogout() {
     startTransition(() => logout())
@@ -76,14 +83,16 @@ export function Sidebar({ displayName }: SidebarProps) {
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 flex flex-col gap-1 overflow-y-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+          const active = currentPath === href || (href !== '/dashboard' && currentPath.startsWith(href))
           return (
             <Link
               key={href}
               href={href}
+              prefetch={true}
+              onClick={() => setOptimisticPath(href)}
               className={cn(
                 'flex items-center gap-3 px-3 h-10 rounded-[4px]',
-                'text-xs font-bold tracking-wider transition-all duration-150',
+                'text-xs font-bold tracking-wider transition-all duration-75 select-none',
                 collapsed ? 'justify-center px-0' : '',
                 active
                   ? 'bg-[#00FF66] text-[#000000] shadow-[0_0_10px_rgba(0,255,102,0.3)]'

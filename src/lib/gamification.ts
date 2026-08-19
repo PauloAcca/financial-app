@@ -10,8 +10,7 @@ export interface UserGameStats {
   totalIncome: number
   totalExpense: number
   todayExpense: number
-  dailyGoal: number
-  todayProgressPercent: number
+  todayTxCount: number
   unlockedAchievementsCount: number
   totalAchievementsCount: number
   achievements: Achievement[]
@@ -29,8 +28,7 @@ export interface Achievement {
 
 export function calculateUserGameStats(
   accounts: Account[] = [],
-  transactions: Transaction[] = [],
-  dailyGoal: number = 100
+  transactions: Transaction[] = []
 ): UserGameStats {
   // 1. Saldo total REAL (suma de current_balance de todas las cuentas activas)
   const activeAccounts = accounts.filter(a => !a.archived)
@@ -45,21 +43,22 @@ export function calculateUserGameStats(
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0)
 
-  // 3. Gastos de HOY (en base a fecha local)
+  // 3. Gastos y movimientos de HOY (en base a fecha local)
   const todayStr = new Date().toISOString().split('T')[0]
-  const todayExpense = transactions
-    .filter(t => t.type === 'expense' && t.occurred_at.startsWith(todayStr))
+  const todayTransactions = transactions.filter(t => t.occurred_at.startsWith(todayStr))
+  const todayExpense = todayTransactions
+    .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0)
+  const todayTxCount = todayTransactions.length
 
-  const todayProgressPercent = Math.min(100, Math.round((todayExpense / dailyGoal) * 100))
-
-  // 4. Cálculo de XP y Nivel REAL (Comienza en Nivel 1)
-  // Cada transacción = 100 XP
-  // Cada cuenta creada = 200 XP
-  // Cada $100 de balance ahorrado positivo = 10 XP
-  const txXP = transactions.length * 100
-  const accXP = activeAccounts.length * 200
-  const balanceXP = totalBalance > 0 ? Math.floor(totalBalance / 100) * 10 : 0
+  // 4. Cálculo de XP y Nivel REAL adaptado a escala ARS (Pesos Argentinos)
+  // Cada transacción registrada = 50 XP
+  // Cada cuenta/bóveda creada = 150 XP
+  // Patrimonio: 1 XP por cada $10.000 ARS de saldo neto positivo
+  // (Ej: 3.000.000 ARS = 300 XP; 10.000.000 ARS = 1.000 XP)
+  const txXP = transactions.length * 50
+  const accXP = activeAccounts.length * 150
+  const balanceXP = totalBalance > 0 ? Math.floor(totalBalance / 10000) : 0
   const totalXP = txXP + accXP + balanceXP
 
   const xpPerLevel = 1000
@@ -74,10 +73,10 @@ export function calculateUserGameStats(
   else if (level >= 5) rank = 'GUERRERO'
   else if (level >= 2) rank = 'AVENTURERO'
 
-  // 6. Logros REALES (Se desbloquean ÚNICAMENTE si se cumple la condición en la BD)
+  // 6. Logros REALES adaptados a magnitudes de Argentina (ARS)
   const hasFirstTx = transactions.length >= 1
   const hasFirstAccount = activeAccounts.length >= 1
-  const hasSaved10k = totalBalance >= 10000
+  const hasSaved500k = totalBalance >= 500000
   const hasTravelTx = transactions.some(t => {
     const desc = (t.description || '').toLowerCase()
     const cat = (t.category?.name || '').toLowerCase()
@@ -88,7 +87,7 @@ export function calculateUserGameStats(
     const cat = (t.category?.name || '').toLowerCase()
     return t.type === 'income' && (desc.includes('sueldo') || desc.includes('salario') || cat.includes('sueldo') || cat.includes('salario'))
   })
-  const hasSaved5M = totalBalance >= 5000000
+  const hasSaved10M = totalBalance >= 10000000
 
   const achievements: Achievement[] = [
     {
@@ -121,11 +120,11 @@ export function calculateUserGameStats(
     {
       id: 'expert_saver',
       title: 'Ahorrador Experto',
-      description: 'Acumulaste $10,000 en balance total',
+      description: 'Acumulaste $500.000 en balance total',
       iconType: 'piggy',
       color: '#00FF66',
-      unlocked: hasSaved10k,
-      progressText: `${totalBalance.toLocaleString('es-AR')} / 10,000`,
+      unlocked: hasSaved500k,
+      progressText: `${totalBalance.toLocaleString('es-AR')} / 500.000`,
     },
     {
       id: 'trotamundos',
@@ -139,11 +138,11 @@ export function calculateUserGameStats(
     {
       id: 'whale_watcher',
       title: 'Observador de Ballenas',
-      description: 'Llegá a 5M de balance total',
+      description: 'Llegá a $10.000.000 de balance total',
       iconType: 'trophy',
       color: '#a855f7',
-      unlocked: hasSaved5M,
-      progressText: `${totalBalance.toLocaleString('es-AR')} / 5,000,000`,
+      unlocked: hasSaved10M,
+      progressText: `${totalBalance.toLocaleString('es-AR')} / 10.000.000`,
     },
   ]
 
@@ -159,8 +158,7 @@ export function calculateUserGameStats(
     totalIncome,
     totalExpense,
     todayExpense,
-    dailyGoal,
-    todayProgressPercent,
+    todayTxCount,
     unlockedAchievementsCount,
     totalAchievementsCount: achievements.length,
     achievements,

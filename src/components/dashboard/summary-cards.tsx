@@ -1,39 +1,78 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { UserGameStats } from '@/lib/gamification'
+import { DEFAULT_CURRENCY } from '@/lib/constants'
 
 interface SummaryCardsProps {
   stats: UserGameStats
   currency?: string
 }
 
-export function SummaryCards({ stats, currency = 'USD' }: SummaryCardsProps) {
+export function SummaryCards({ stats, currency = DEFAULT_CURRENCY }: SummaryCardsProps) {
+  const [isHidden, setIsHidden] = useState(false)
+
+  // Cargar preferencia de ocultar saldo
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hide_balance')
+      if (saved !== null) {
+        setIsHidden(saved === 'true')
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
+  function toggleHide() {
+    const next = !isHidden
+    setIsHidden(next)
+    try {
+      localStorage.setItem('hide_balance', String(next))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   // Saldo total real
   const balance = stats.totalBalance
   
-  // Barra de salud / balance de 10 bloques (100% real)
-  // Si el balance es 0 o negativo, 0 bloques. Si tiene saldo, se calcula en base a meta de $1000 (o escala)
+  // Barra de salud / balance de 10 bloques (adaptada a escala de ARS)
+  // Llena bloques conforme se acumula saldo positivo
   const healthTotalBlocks = 10
   const healthFilledBlocks = balance > 0 
-    ? Math.min(10, Math.max(1, Math.round((balance / 1000) * 10))) 
+    ? Math.min(10, Math.max(1, Math.ceil(balance / 500000))) 
     : 0
 
-  // Barra de XP Diario (100% real en base a los gastos de hoy)
+  // Barra de actividad del día (10 bloques)
   const xpTotalBlocks = 10
   const xpFilledBlocks = stats.todayExpense > 0 
-    ? Math.min(10, Math.max(1, Math.round((stats.todayExpense / stats.dailyGoal) * 10))) 
+    ? Math.min(10, Math.max(1, Math.ceil(stats.todayExpense / 25000))) 
     : 0
 
   return (
     <div className="flex flex-col gap-4 font-mono">
       {/* 1. TARJETA SALDO TOTAL (HUD GAMER CON SCANLINES CRT) */}
       <div className="crt-scanlines pixel-border-green rounded-[4px] p-5 shadow-[0_0_15px_rgba(0,255,102,0.2)]">
-        {/* Encabezado: Saldo total + Nivel REAL */}
+        {/* Encabezado: Saldo total + Botón Ojo + Nivel REAL */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5 text-[#00FF66] text-xs sm:text-sm font-bold tracking-wider uppercase glow-text-green">
-            <span className="text-base">♡</span>
-            <span>SALDO TOTAL</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 text-[#00FF66] text-xs sm:text-sm font-bold tracking-wider uppercase glow-text-green">
+              <span className="text-base">♡</span>
+              <span>SALDO TOTAL</span>
+            </div>
+
+            {/* Botón Ojo para Ocultar / Mostrar Saldo */}
+            <button
+              onClick={toggleHide}
+              aria-label={isHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
+              className="text-[#00FF66]/70 hover:text-[#00FF66] p-1 rounded hover:bg-[#00FF66]/10 transition-colors cursor-pointer"
+              title={isHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
+            >
+              {isHidden ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
           </div>
 
           <div className="border border-[#00FF66] px-2.5 py-0.5 bg-[#0f111e] text-[#00FF66] text-xs font-bold tracking-widest rounded-[2px] shadow-[0_0_6px_rgba(0,255,102,0.3)]">
@@ -41,9 +80,9 @@ export function SummaryCards({ stats, currency = 'USD' }: SummaryCardsProps) {
           </div>
         </div>
 
-        {/* Monto Principal REAL */}
-        <div className="text-2xl sm:text-3xl font-bold text-[#00FF66] tracking-tight glow-text-green mb-4 tabular-nums">
-          {formatCurrency(balance, currency)}
+        {/* Monto Principal REAL o *** */}
+        <div className="text-2xl sm:text-3xl font-bold text-[#00FF66] tracking-tight glow-text-green mb-4 tabular-nums select-none">
+          {isHidden ? '••••••••' : formatCurrency(balance, currency)}
         </div>
 
         {/* Barra de Salud / Saldo Segmentada REAL (10 bloques) */}
@@ -64,20 +103,20 @@ export function SummaryCards({ stats, currency = 'USD' }: SummaryCardsProps) {
         </div>
       </div>
 
-      {/* 2. TARJETA XP DIARIO REAL */}
+      {/* 2. TARJETA XP DIARIO / GASTADO HOY */}
       <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-4 shadow-sm">
         <div className="flex items-center justify-between mb-2 text-xs font-bold tracking-wider">
           <div className="flex items-center gap-1.5 text-[#38d9f5] glow-text-cyan uppercase">
             <span className="text-sm">☆</span>
-            <span>XP DIARIO</span>
+            <span>GASTADO HOY</span>
           </div>
 
-          <div className="text-white tabular-nums">
-            ${stats.todayExpense.toLocaleString('es-AR')} <span className="text-[#8B92A9]">/</span> ${stats.dailyGoal.toLocaleString('es-AR')}
+          <div className="text-white tabular-nums font-bold">
+            {formatCurrency(stats.todayExpense, currency)}
           </div>
         </div>
 
-        {/* Barra de XP Segmentada Cian REAL (10 bloques) */}
+        {/* Barra de XP Segmentada Cian (10 bloques) */}
         <div className="grid grid-cols-10 gap-1.5 h-2.5 w-full">
           {Array.from({ length: xpTotalBlocks }).map((_, index) => {
             const isFilled = index < xpFilledBlocks

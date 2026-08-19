@@ -8,7 +8,7 @@ import { Select } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
 import { createTransaction } from '@/actions/transactions'
 import { CategoryForm } from '@/components/categories/category-form'
-import { CURRENCIES, PAYMENT_METHODS } from '@/lib/constants'
+import { CURRENCIES, PAYMENT_METHODS, DEFAULT_CURRENCY } from '@/lib/constants'
 import type { Account, Category, TransactionType } from '@/types/database'
 import { ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, Plus, TrendingUp, PiggyBank, Swords } from 'lucide-react'
 
@@ -27,7 +27,7 @@ const MODE_OPTIONS: { value: TransactionType | 'investment'; label: string; icon
   { value: 'investment', label: 'INVERSIÓN',     icon: <TrendingUp size={18} />, color: '#a855f7' },
 ]
 
-export function TransactionForm({ accounts, categories, defaultCurrency = 'USD', initialType = 'expense', onSuccess }: TransactionFormProps) {
+export function TransactionForm({ accounts, categories, defaultCurrency = DEFAULT_CURRENCY, initialType = 'expense', onSuccess }: TransactionFormProps) {
   const [isPending, startTransition] = useTransition()
   const [mode, setMode] = useState<TransactionType | 'investment'>(initialType)
   const [categoriesList, setCategoriesList] = useState<Category[]>(categories)

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { ProfileClient } from '@/components/profile/profile-client'
 import { calculateUserGameStats } from '@/lib/gamification'
+import { DEFAULT_CURRENCY } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Perfil · Pixel Realm' }
 
@@ -26,11 +27,11 @@ export default async function ProfilePage() {
 
   const realAccounts = accounts ?? []
   const realTransactions = transactions ?? []
-  const currency = profile?.default_currency ?? 'USD'
+  const currency = profile?.default_currency ?? DEFAULT_CURRENCY
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'JUGADOR'
 
   // Calcular estadísticas, nivel (comienza en Nivel 1) y logros 100% REALES
-  const stats = calculateUserGameStats(realAccounts, realTransactions, 100)
+  const stats = calculateUserGameStats(realAccounts, realTransactions)
 
   return (
     <ProfileClient

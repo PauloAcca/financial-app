@@ -4,6 +4,7 @@ import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { ActionButtons } from '@/components/dashboard/action-buttons'
 import { RecentTransactions } from '@/components/dashboard/recent-transactions'
 import { calculateUserGameStats } from '@/lib/gamification'
+import { DEFAULT_CURRENCY } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Inicio · Pixel Realm' }
 
@@ -30,12 +31,12 @@ export default async function DashboardPage() {
       .limit(10),
   ])
 
-  const currency = profile?.default_currency ?? 'USD'
+  const currency = profile?.default_currency ?? DEFAULT_CURRENCY
   const realAccounts = accounts ?? []
   const realTransactions = transactions ?? []
 
   // Calcular estadísticas, nivel y saldo 100% REALES
-  const stats = calculateUserGameStats(realAccounts, realTransactions, 100)
+  const stats = calculateUserGameStats(realAccounts, realTransactions)
 
   return (
     <div className="flex flex-col gap-4 max-w-md mx-auto w-full font-mono">

@@ -27,7 +27,6 @@ export const CURRENCIES = [
   { code: 'ARS', label: 'Peso argentino', symbol: '$' },
   { code: 'USD', label: 'Dólar estadounidense', symbol: 'US$' },
   { code: 'EUR', label: 'Euro', symbol: '€' },
-  { code: 'BRL', label: 'Real brasileño', symbol: 'R$' },
 ]
 
 export const DEFAULT_CURRENCY = 'ARS'

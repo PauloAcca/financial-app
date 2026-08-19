@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -22,13 +22,25 @@ import {
   Shield,
   Coins,
   Swords,
-  CheckCircle2
+  History,
+  Bot,
+  Eye,
+  EyeOff
 } from 'lucide-react'
 import { logout } from '@/actions/auth'
 import { cn, formatCurrency } from '@/lib/utils'
 import type { UserGameStats, Achievement } from '@/lib/gamification'
 
 const SYSTEM_MODULES = [
+  {
+    href: '/transactions',
+    title: 'Historial de Movimientos',
+    description: 'Registro completo de transacciones y filtros',
+    icon: History,
+    color: '#00FF66',
+    borderColor: 'border-[#00FF66]/50',
+    bgColor: 'bg-[#00FF66]/15',
+  },
   {
     href: '/accounts',
     title: 'Cuentas y Bóvedas',
@@ -61,15 +73,15 @@ const SYSTEM_MODULES = [
     title: 'Métricas y Estadísticas',
     description: 'Gráficos de rendimiento financiero',
     icon: BarChart2,
-    color: '#00FF66',
-    borderColor: 'border-[#00FF66]/50',
-    bgColor: 'bg-[#00FF66]/15',
+    color: '#38d9f5',
+    borderColor: 'border-[#38d9f5]/50',
+    bgColor: 'bg-[#38d9f5]/15',
   },
   {
     href: '/chat',
     title: 'Asistente IA (Oráculo)',
     description: 'Carga por voz e inteligencia artificial',
-    icon: MessageSquare,
+    icon: Bot,
     color: '#ff4d6d',
     borderColor: 'border-[#ff4d6d]/50',
     bgColor: 'bg-[#ff4d6d]/15',
@@ -104,6 +116,26 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
   const [isPending, startTransition] = useTransition()
   const [alertsEnabled, setAlertsEnabled] = useState(true)
   const [effectsEnabled, setEffectsEnabled] = useState(false)
+  const [isHidden, setIsHidden] = useState(false)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('hide_balance')
+      if (saved !== null) setIsHidden(saved === 'true')
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
+  function toggleHide() {
+    const next = !isHidden
+    setIsHidden(next)
+    try {
+      localStorage.setItem('hide_balance', String(next))
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   function handleLogout() {
     startTransition(async () => {
@@ -149,14 +181,23 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
 
       {/* 2. FILA DE ESTADÍSTICAS REALES (2 CARDS) */}
       <div className="grid grid-cols-2 gap-3.5">
-        {/* Card ORO TOTAL REAL */}
+        {/* Card ORO TOTAL REAL con toggle de ojo */}
         <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-4 shadow-sm">
-          <div className="flex items-center gap-1.5 text-[#38d9f5] text-xs font-bold tracking-wider uppercase mb-2">
-            <DollarSign size={15} className="stroke-[2.5]" />
-            <span>ORO TOTAL</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 text-[#38d9f5] text-xs font-bold tracking-wider uppercase">
+              <DollarSign size={15} className="stroke-[2.5]" />
+              <span>ORO TOTAL</span>
+            </div>
+            <button
+              onClick={toggleHide}
+              aria-label={isHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
+              className="text-[#38d9f5]/70 hover:text-[#38d9f5] p-0.5 rounded cursor-pointer transition-colors"
+            >
+              {isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-white tracking-tight tabular-nums truncate">
-            {formatCurrency(stats.totalBalance, currency)}
+          <div className="text-lg sm:text-xl font-bold text-white tracking-tight tabular-nums truncate select-none">
+            {isHidden ? '••••••••' : formatCurrency(stats.totalBalance, currency)}
           </div>
         </div>
 
@@ -166,7 +207,7 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
             <Trophy size={15} className="stroke-[2.5]" />
             <span>DESBLOQUEADO</span>
           </div>
-          <div className="text-xl sm:text-2xl font-bold text-white tracking-tight tabular-nums">
+          <div className="text-lg sm:text-xl font-bold text-white tracking-tight tabular-nums">
             {stats.unlockedAchievementsCount}/{stats.totalAchievementsCount}
           </div>
         </div>
@@ -187,7 +228,8 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
               <Link
                 key={module.href}
                 href={module.href}
-                className="bg-[#181c31] border border-[#293056] rounded-[4px] p-3.5 flex items-center justify-between gap-3 hover:border-[#00FF66] hover:bg-[#1e233d] transition-all cursor-pointer group"
+                prefetch={true}
+                className="bg-[#181c31] border border-[#293056] rounded-[4px] p-3.5 flex items-center justify-between gap-3 hover:border-[#00FF66] hover:bg-[#1e233d] transition-all cursor-pointer group active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div
