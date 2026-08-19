@@ -10,30 +10,36 @@ import { createTransaction } from '@/actions/transactions'
 import { CategoryForm } from '@/components/categories/category-form'
 import { CURRENCIES, PAYMENT_METHODS } from '@/lib/constants'
 import type { Account, Category, TransactionType } from '@/types/database'
-import { ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, Plus, TrendingUp } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, Plus, TrendingUp, PiggyBank, Swords } from 'lucide-react'
 
 interface TransactionFormProps {
   accounts: Account[]
   categories: Category[]
   defaultCurrency?: string
+  initialType?: TransactionType | 'investment'
+  onSuccess?: () => void
 }
 
 const MODE_OPTIONS: { value: TransactionType | 'investment'; label: string; icon: React.ReactNode; color: string }[] = [
-  { value: 'expense',    label: 'Gasto',         icon: <ArrowDownCircle size={18} />, color: 'var(--color-expense)' },
-  { value: 'income',     label: 'Ingreso',        icon: <ArrowUpCircle size={18} />,  color: 'var(--color-income)' },
-  { value: 'transfer',   label: 'Transferencia',  icon: <ArrowLeftRight size={18} />, color: 'var(--color-transfer)' },
-  { value: 'investment', label: 'A inversión',    icon: <TrendingUp size={18} />,     color: '#8b5cf6' },
+  { value: 'expense',    label: 'GASTO',         icon: <Swords size={18} />,     color: 'var(--color-neon-pink)' },
+  { value: 'income',     label: 'BOTÍN',         icon: <PiggyBank size={18} />,  color: 'var(--color-neon-green)' },
+  { value: 'transfer',   label: 'TRANSFERENCIA', icon: <ArrowLeftRight size={18} />, color: 'var(--color-neon-cyan)' },
+  { value: 'investment', label: 'INVERSIÓN',     icon: <TrendingUp size={18} />, color: '#a855f7' },
 ]
 
-export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' }: TransactionFormProps) {
+export function TransactionForm({ accounts, categories, defaultCurrency = 'USD', initialType = 'expense', onSuccess }: TransactionFormProps) {
   const [isPending, startTransition] = useTransition()
-  const [mode, setMode] = useState<TransactionType | 'investment'>('expense')
+  const [mode, setMode] = useState<TransactionType | 'investment'>(initialType)
   const [categoriesList, setCategoriesList] = useState<Category[]>(categories)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
 
   useEffect(() => {
     setCategoriesList(categories)
   }, [categories])
+
+  useEffect(() => {
+    if (initialType) setMode(initialType)
+  }, [initialType])
 
   const [amount,           setAmount]           = useState('')
   const [currency,         setCurrency]         = useState(defaultCurrency)
@@ -120,13 +126,14 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
 
       if (result.success) {
         const labels: Record<TransactionType | 'investment', string> = {
-          income: 'Ingreso registrado ✓',
-          expense: 'Gasto registrado ✓',
+          income: '¡Botín añadido con éxito! 💰',
+          expense: '¡Jefe pagado / Gasto registrado! ⚔️',
           transfer: 'Transferencia registrada ✓',
           investment: 'Inversión registrada ✓',
         }
         toast.success(labels[mode])
         resetForm()
+        if (onSuccess) onSuccess()
       } else {
         setError(result.error)
       }
@@ -134,13 +141,8 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
   }
 
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-sm)]">
-      <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-5 flex items-center gap-2">
-        <Plus size={18} className="text-[var(--color-accent)]" />
-        Nueva transacción
-      </h2>
-
-      {/* Selector de tipo */}
+    <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-5 shadow-sm font-mono">
+      {/* Selector de tipo de transacción */}
       <div className="grid grid-cols-4 gap-2 mb-5">
         {MODE_OPTIONS.map(({ value, label, icon, color }) => (
           <button
@@ -148,25 +150,24 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
             type="button"
             onClick={() => { setMode(value); setCategoryId(''); setTransferAccountId('') }}
             className={cn(
-              'flex flex-col items-center gap-1.5 py-3 px-2 rounded-[var(--radius-md)]',
-              'border transition-all duration-150 cursor-pointer text-sm font-medium',
+              'flex flex-col items-center gap-1.5 py-2.5 px-1.5 rounded-[4px]',
+              'border transition-all duration-150 cursor-pointer text-xs font-bold tracking-wider',
               mode === value
-                ? 'border-current bg-current/10'
-                : 'border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-border)] hover:text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-2)]'
+                ? 'border-[#00FF66] bg-[#00FF66]/15 text-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.3)]'
+                : 'border-[#293056] text-[#8B92A9] hover:border-[#384277] hover:text-white hover:bg-[#20253f]'
             )}
-            style={mode === value ? { color } : undefined}
             aria-pressed={mode === value}
           >
             {icon}
-            <span className="text-[10px] leading-tight">{label}</span>
+            <span className="text-[9px] leading-tight uppercase">{label}</span>
           </button>
         ))}
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
-          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[var(--color-danger)]/30">
-            <p className="text-sm text-[var(--color-danger)]">{error}</p>
+          <div className="px-4 py-3 rounded-[4px] bg-[rgba(255,77,109,0.15)] border border-[#ff4d6d]/40">
+            <p className="text-xs text-[#ff4d6d] font-bold">{error}</p>
           </div>
         )}
 
@@ -175,7 +176,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
           <div className="flex-1">
             <Input
               id="tx-amount"
-              label="Monto"
+              label="MONTO ($)"
               type="number"
               step="0.01"
               min="0.01"
@@ -188,7 +189,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
           <div className="w-28">
             <Select
               id="tx-currency"
-              label="Moneda"
+              label="MONEDA"
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
               options={CURRENCIES.map((c) => ({ value: c.code, label: c.code }))}
@@ -199,7 +200,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
         {/* Cuenta origen */}
         <Select
           id="tx-account"
-          label={(mode === 'transfer' || mode === 'investment') ? 'Cuenta origen' : 'Cuenta'}
+          label={(mode === 'transfer' || mode === 'investment') ? 'CUENTA ORIGEN' : 'CUENTA'}
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
           options={accounts.filter((a) => !a.archived).map((a) => ({ value: a.id, label: a.name }))}
@@ -210,7 +211,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
         {(mode === 'transfer' || mode === 'investment') && (
           <Select
             id="tx-form-transfer-dest"
-            label={mode === 'investment' ? 'Cuenta destino (Broker/Inversión)' : 'Cuenta destino'}
+            label={mode === 'investment' ? 'CUENTA DESTINO (BROKER)' : 'CUENTA DESTINO'}
             value={transferAccountId}
             onChange={(e) => setTransferAccountId(e.target.value)}
             options={[
@@ -224,15 +225,15 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
         {(mode === 'expense' || mode === 'income') && (
           <div className="flex flex-col gap-1.5 w-full">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-[var(--color-text-secondary)]">
-                Categoría
+              <span className="text-xs font-bold text-[#8B92A9] uppercase tracking-wider">
+                CATEGORÍA
               </span>
               <button
                 type="button"
                 onClick={() => setCategoryModalOpen(true)}
-                className="text-xs text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-[11px] text-[#00FF66] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Plus size={13} /> Nueva categoría
+                <Plus size={12} /> NUEVA
               </button>
             </div>
             <Select
@@ -257,12 +258,12 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
         {/* Descripción */}
         <Input
           id="tx-desc"
-          label="Descripción (opcional)"
+          label="DESCRIPCIÓN DE LA MISIÓN"
           placeholder={
-            mode === 'income' ? 'Ej: Sueldo de agosto' :
-            mode === 'expense' ? 'Ej: Supermercado Coto' :
-            mode === 'investment' ? 'Ej: Compra de CEDEARs' :
-            'Ej: Ahorro a MP'
+            mode === 'income' ? 'Ej: Recompensa de Caza / Salario' :
+            mode === 'expense' ? 'Ej: Mana Potion / Café' :
+            mode === 'investment' ? 'Ej: Mejora de Bóveda' :
+            'Ej: Transferencia a Bóveda'
           }
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -272,7 +273,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
         <div className="grid grid-cols-2 gap-3">
           <Input
             id="tx-date"
-            label="Fecha"
+            label="FECHA"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -280,7 +281,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
           />
           <Select
             id="tx-payment-method"
-            label="Medio de pago"
+            label="MÉTODO"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
             options={PAYMENT_METHODS.map((m) => ({ value: m, label: m }))}
@@ -288,15 +289,17 @@ export function TransactionForm({ accounts, categories, defaultCurrency = 'ARS' 
           />
         </div>
 
-        <Button
+        <button
           id="btn-submit-transaction"
           type="submit"
-          size="lg"
-          className="w-full mt-1"
-          loading={isPending}
+          disabled={isPending}
+          className={cn(
+            'py-3.5 px-4 rounded-[4px] text-xs font-bold font-mono tracking-widest uppercase mt-2 cursor-pointer w-full transition-all',
+            mode === 'expense' ? 'btn-arcade-pink' : 'btn-arcade-green'
+          )}
         >
-          {isPending ? 'Guardando...' : `Registrar ${mode === 'expense' ? 'gasto' : mode === 'income' ? 'ingreso' : mode === 'investment' ? 'inversión' : 'transferencia'}`}
-        </Button>
+          {isPending ? 'REGISTRANDO...' : `CONFIRMAR ${mode === 'expense' ? 'GASTO' : mode === 'income' ? 'BOTÍN' : mode === 'investment' ? 'INVERSIÓN' : 'TRANSFERENCIA'}`}
+        </button>
       </form>
 
       <CategoryForm

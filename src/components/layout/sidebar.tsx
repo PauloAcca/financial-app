@@ -1,32 +1,36 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard,
+  Home,
+  History,
+  Trophy,
+  User,
   Wallet,
   Tag,
-  ArrowLeftRight,
-  TrendingUp,
+  BarChart2,
+  MessageSquare,
+  Repeat,
   LogOut,
   ChevronLeft,
   ChevronRight,
-  MessageSquare,
-  BarChart2,
-  Repeat,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logout } from '@/actions/auth'
 import { useState, useTransition } from 'react'
 
 const NAV_ITEMS = [
-  { href: '/dashboard',    label: 'Dashboard',     icon: LayoutDashboard },
-  { href: '/accounts',     label: 'Cuentas',       icon: Wallet },
-  { href: '/transactions', label: 'Transacciones', icon: ArrowLeftRight },
-  { href: '/recurring',    label: 'Gastos Fijos',  icon: Repeat },
-  { href: '/categories',   label: 'Categorías',    icon: Tag },
-  { href: '/metrics',      label: 'Métricas',      icon: BarChart2 },
-  { href: '/chat',         label: 'Asistente',     icon: MessageSquare },
+  { href: '/dashboard',    label: 'INICIO',        icon: Home },
+  { href: '/transactions', label: 'HISTORIAL',     icon: History },
+  { href: '/metas',        label: 'METAS',         icon: Trophy },
+  { href: '/profile',      label: 'PERFIL',        icon: User },
+  { href: '/accounts',     label: 'CUENTAS',       icon: Wallet },
+  { href: '/recurring',    label: 'GASTOS FIJOS',  icon: Repeat },
+  { href: '/categories',   label: 'CATEGORÍAS',    icon: Tag },
+  { href: '/metrics',      label: 'MÉTRICAS',      icon: BarChart2 },
+  { href: '/chat',         label: 'ASISTENTE IA',  icon: MessageSquare },
 ]
 
 interface SidebarProps {
@@ -46,43 +50,48 @@ export function Sidebar({ displayName }: SidebarProps) {
     <aside
       className={cn(
         'hidden lg:flex flex-col',
-        'bg-[var(--color-surface)] border-r border-[var(--color-border)]',
-        'transition-all duration-300',
-        collapsed ? 'w-[68px]' : 'w-[220px]'
+        'bg-[#111424] border-r border-[#1e233f]',
+        'transition-all duration-300 font-mono',
+        collapsed ? 'w-[72px]' : 'w-[230px]'
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-[var(--color-border)]', collapsed && 'justify-center px-0')}>
-        <div
-          className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center shrink-0"
-          style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}
-        >
-          <TrendingUp size={16} className="text-white" />
+      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-[#1e233f]', collapsed && 'justify-center px-0')}>
+        <div className="relative w-8 h-8 rounded-[4px] border border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,255,102,0.3)]">
+          <Image
+            src="/pixel-coin.jpg"
+            alt="Pixel Realm"
+            width={32}
+            height={32}
+            className="w-full h-full object-cover"
+          />
         </div>
         {!collapsed && (
-          <span className="font-bold text-[var(--color-text-primary)] truncate">Finanzas</span>
+          <span className="font-bold text-[#00FF66] tracking-wider text-base glow-text-green truncate">
+            PIXEL REALM
+          </span>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 flex flex-col gap-1">
+      <nav className="flex-1 px-2 py-4 flex flex-col gap-1 overflow-y-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = pathname.startsWith(href)
+          const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-3 px-3 h-10 rounded-[var(--radius-md)]',
-                'text-sm font-medium transition-all duration-150',
+                'flex items-center gap-3 px-3 h-10 rounded-[4px]',
+                'text-xs font-bold tracking-wider transition-all duration-150',
                 collapsed ? 'justify-center px-0' : '',
                 active
-                  ? 'bg-[var(--color-accent-subtle)] text-[var(--color-accent)]'
-                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text-primary)]'
+                  ? 'bg-[#00FF66] text-[#000000] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
+                  : 'text-[#8B92A9] hover:bg-[#181c31] hover:text-[#00FF66]'
               )}
               title={collapsed ? label : undefined}
             >
-              <Icon size={18} className="shrink-0" />
+              <Icon size={18} className={cn('shrink-0', active ? 'text-black stroke-[2.5]' : '')} />
               {!collapsed && <span>{label}</span>}
             </Link>
           )
@@ -90,12 +99,12 @@ export function Sidebar({ displayName }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className={cn('px-2 py-3 border-t border-[var(--color-border)] flex flex-col gap-1', collapsed && 'items-center')}>
+      <div className={cn('px-2 py-3 border-t border-[#1e233f] flex flex-col gap-1', collapsed && 'items-center')}>
         {/* Usuario */}
         {!collapsed && displayName && (
-          <div className="px-3 py-2 mb-1">
-            <p className="text-xs text-[var(--color-text-muted)]">Conectado como</p>
-            <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{displayName}</p>
+          <div className="px-3 py-2 mb-1 bg-[#181c31] rounded-[4px] border border-[#293056]">
+            <p className="text-[10px] text-[#8B92A9] uppercase">JUGADOR</p>
+            <p className="text-xs font-bold text-[#00FF66] truncate">{displayName}</p>
           </div>
         )}
 
@@ -104,31 +113,31 @@ export function Sidebar({ displayName }: SidebarProps) {
           onClick={handleLogout}
           disabled={isPending}
           className={cn(
-            'flex items-center gap-3 px-3 h-10 rounded-[var(--radius-md)] w-full',
-            'text-sm font-medium text-[var(--color-text-muted)]',
-            'hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)]',
+            'flex items-center gap-3 px-3 h-10 rounded-[4px] w-full',
+            'text-xs font-bold tracking-wider text-[#ff4d6d]',
+            'hover:bg-[rgba(255,77,109,0.15)] hover:border hover:border-[#ff4d6d]/40',
             'transition-all duration-150 cursor-pointer',
             collapsed && 'justify-center px-0'
           )}
           title="Cerrar sesión"
         >
           <LogOut size={18} className="shrink-0" />
-          {!collapsed && <span>Cerrar sesión</span>}
+          {!collapsed && <span>CERRAR SESIÓN</span>}
         </button>
 
         {/* Colapsar */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
-            'flex items-center gap-3 px-3 h-9 rounded-[var(--radius-md)] w-full',
-            'text-xs text-[var(--color-text-muted)]',
-            'hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text-primary)]',
+            'flex items-center gap-3 px-3 h-8 rounded-[4px] w-full',
+            'text-[10px] text-[#5d6786]',
+            'hover:bg-[#181c31] hover:text-white',
             'transition-all duration-150 cursor-pointer',
             collapsed && 'justify-center px-0'
           )}
           aria-label={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
         >
-          {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>Colapsar</span></>}
+          {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>COLAPSAR</span></>}
         </button>
       </div>
     </aside>

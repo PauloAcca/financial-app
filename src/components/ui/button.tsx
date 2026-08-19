@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { type ButtonHTMLAttributes, forwardRef } from 'react'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success' | 'arcade-green' | 'arcade-pink'
 type Size = 'sm' | 'md' | 'lg' | 'icon'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,36 +14,40 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary: [
-    'bg-[var(--color-accent)] text-white',
-    'hover:bg-[var(--color-accent-hover)]',
-    'shadow-[0_0_16px_rgba(99,102,241,0.3)]',
-    'hover:shadow-[0_0_24px_rgba(99,102,241,0.45)]',
+    'bg-[#00FF66] text-black font-bold',
+    'hover:bg-[#00e65c]',
+    'border-b-2 border-[#00b347]',
+    'shadow-[0_0_12px_rgba(0,255,102,0.3)]',
+    'hover:shadow-[0_0_18px_rgba(0,255,102,0.5)]',
   ].join(' '),
+  'arcade-green': 'btn-arcade-green',
+  'arcade-pink': 'btn-arcade-pink',
   secondary: [
-    'bg-[var(--color-surface-2)] text-[var(--color-text-primary)]',
-    'border border-[var(--color-border)]',
-    'hover:bg-[var(--color-surface-3)] hover:border-[var(--color-accent)]',
+    'bg-[#20253f] text-white font-medium',
+    'border border-[#293056]',
+    'hover:bg-[#252b49] hover:border-[#00FF66]',
   ].join(' '),
   ghost: [
-    'bg-transparent text-[var(--color-text-secondary)]',
-    'hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text-primary)]',
+    'bg-transparent text-[#8B92A9]',
+    'hover:bg-[#20253f] hover:text-white',
   ].join(' '),
   danger: [
-    'bg-[var(--color-danger-subtle)] text-[var(--color-danger)]',
-    'border border-[var(--color-danger)]/30',
-    'hover:bg-[var(--color-danger)] hover:text-white',
+    'bg-[#ff4d6d] text-black font-bold',
+    'border-b-2 border-[#cc143d]',
+    'shadow-[0_0_12px_rgba(255,77,109,0.3)]',
+    'hover:bg-[#ff335c]',
   ].join(' '),
   success: [
-    'bg-[var(--color-success-subtle)] text-[var(--color-success)]',
-    'border border-[var(--color-success)]/30',
-    'hover:bg-[var(--color-success)] hover:text-white',
+    'bg-[#00FF66] text-black font-bold',
+    'border-b-2 border-[#00b347]',
+    'hover:bg-[#00e65c]',
   ].join(' '),
 }
 
 const sizeStyles: Record<Size, string> = {
-  sm:   'h-8 px-3 text-sm gap-1.5',
-  md:   'h-10 px-4 text-sm gap-2',
-  lg:   'h-11 px-6 text-base gap-2',
+  sm:   'h-8 px-3 text-xs gap-1.5',
+  md:   'h-10 px-4 text-xs gap-2',
+  lg:   'h-11 px-6 text-sm gap-2',
   icon: 'h-9 w-9 p-0',
 }
 
@@ -55,7 +59,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         className={cn(
           // Base
-          'inline-flex items-center justify-center font-medium rounded-[var(--radius-md)]',
+          'inline-flex items-center justify-center font-mono uppercase tracking-wider rounded-[4px]',
           'transition-all duration-150 cursor-pointer',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
           'select-none whitespace-nowrap',
@@ -76,7 +80,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            <span>Cargando...</span>
+            <span>CARGANDO...</span>
           </>
         ) : children}
       </button>

@@ -16,8 +16,8 @@ interface ModalProps {
 
 const sizeMap = {
   sm: 'max-w-sm',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
+  md: 'max-w-md',
+  lg: 'max-w-xl',
 }
 
 export function Modal({
@@ -51,14 +51,14 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       aria-modal="true"
       role="dialog"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -66,35 +66,33 @@ export function Modal({
       {/* Panel */}
       <div
         className={cn(
-          'relative z-10 w-full glass rounded-[var(--radius-xl)]',
-          'animate-scale-in shadow-[var(--shadow-lg)]',
+          'relative z-10 w-full bg-[#181c31] border-2 border-[#00FF66] rounded-[4px]',
+          'animate-scale-in shadow-[0_0_20px_rgba(0,255,102,0.25)] font-mono',
           sizeMap[size],
           className
         )}
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-start justify-between p-6 pb-0">
+          <div className="flex items-center justify-between p-4 pb-2 border-b border-[#293056]">
             <div>
               {title && (
                 <h2
                   id="modal-title"
-                  className="text-lg font-semibold text-[var(--color-text-primary)]"
+                  className="text-sm font-bold text-[#00FF66] tracking-wider uppercase glow-text-green"
                 >
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+                <p className="mt-0.5 text-xs text-[#8B92A9]">
                   {description}
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="ml-4 p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
-                         hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)]
-                         transition-colors cursor-pointer shrink-0"
+              className="p-1 rounded-[2px] text-[#8B92A9] hover:bg-[#20253f] hover:text-[#ff4d6d] transition-colors cursor-pointer shrink-0"
               aria-label="Cerrar modal"
             >
               <X size={18} />
@@ -103,7 +101,7 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className="p-6">{children}</div>
+        <div className="p-4">{children}</div>
       </div>
     </div>
   )

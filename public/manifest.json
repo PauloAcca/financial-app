@@ -1,0 +1,22 @@
+{
+  "name": "Pixel Realm Finanzas",
+  "short_name": "Pixel Realm",
+  "description": "Tu asistente personal y control financiero RPG",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f111e",
+  "theme_color": "#00FF66",
+  "icons": [
+    {
+      "src": "/pixel-coin.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

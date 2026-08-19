@@ -1,63 +1,73 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Press+Start+2P&family=Share+Tech+Mono&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap');
 @import "tailwindcss";
 
-
 /* =========================================================
-   TAILWIND v4 — @theme tokens
+   TAILWIND v4 — @theme tokens (Pixel RPG / Cyber Gamer HUD)
    ========================================================= */
 @theme {
   /* Tipografía */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Space Mono', 'Share Tech Mono', monospace, -apple-system, sans-serif;
+  --font-mono: 'Share Tech Mono', 'Space Mono', monospace;
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-display: 'Chakra Petch', 'Share Tech Mono', monospace;
 
-  /* Colores base — paleta oscura principal */
-  --color-background: #0A0B0D;
-  --color-surface: #111318;
-  --color-surface-2: #1A1D25;
-  --color-surface-3: #22263A;
-  --color-border: #2A2F42;
-  --color-border-subtle: #1E2233;
+  /* Colores base — paleta profunda Cyber Arcade */
+  --color-background: #0f111e;
+  --color-surface: #181c31;
+  --color-surface-2: #20253f;
+  --color-surface-3: #2a3154;
+  --color-border: #293056;
+  --color-border-subtle: #1e233f;
 
   /* Textos */
-  --color-text-primary: #F0F2F8;
+  --color-text-primary: #ffffff;
   --color-text-secondary: #8B92A9;
-  --color-text-muted: #505878;
+  --color-text-muted: #5d6786;
 
-  /* Acento principal — violeta/índigo vibrante */
-  --color-accent: #6366F1;
-  --color-accent-hover: #4F46E5;
-  --color-accent-subtle: #1E2057;
-  --color-accent-foreground: #FFFFFF;
+  /* Acento principal — Verde Neón Terminal */
+  --color-accent: #00FF66;
+  --color-accent-hover: #00cc52;
+  --color-accent-subtle: rgba(0, 255, 102, 0.12);
+  --color-accent-foreground: #000000;
+
+  /* Acentos complementarios de juego */
+  --color-neon-green: #00FF66;
+  --color-neon-pink: #ff4d6d;
+  --color-neon-cyan: #38d9f5;
+  --color-neon-gold: #fbc02d;
 
   /* Semánticos */
-  --color-success: #10B981;
-  --color-success-subtle: #0C2E22;
-  --color-danger: #EF4444;
-  --color-danger-subtle: #2D1010;
-  --color-warning: #F59E0B;
-  --color-warning-subtle: #2B1F06;
-  --color-info: #3B82F6;
-  --color-info-subtle: #0E1E3A;
+  --color-success: #00FF66;
+  --color-success-subtle: rgba(0, 255, 102, 0.15);
+  --color-danger: #ff4d6d;
+  --color-danger-subtle: rgba(255, 77, 109, 0.15);
+  --color-warning: #fbbf24;
+  --color-warning-subtle: rgba(251, 191, 36, 0.15);
+  --color-info: #38d9f5;
+  --color-info-subtle: rgba(56, 217, 245, 0.15);
 
-  /* Income / Expense colors */
-  --color-income: #10B981;
-  --color-income-subtle: #0C2E22;
-  --color-expense: #EF4444;
-  --color-expense-subtle: #2D1010;
-  --color-transfer: #6366F1;
-  --color-transfer-subtle: #1E2057;
+  /* Finanzas / Loot */
+  --color-income: #00FF66;
+  --color-income-subtle: rgba(0, 255, 102, 0.15);
+  --color-expense: #ff4d6d;
+  --color-expense-subtle: rgba(255, 77, 109, 0.15);
+  --color-transfer: #38d9f5;
+  --color-transfer-subtle: rgba(56, 217, 245, 0.15);
 
-  /* Border radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* Border radius — estilo arcade nítido */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
-  /* Sombras */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.3);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
-  --shadow-glow: 0 0 20px rgba(99,102,241,0.2);
+  /* Sombras y resplandor neón */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.6);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.7);
+  --shadow-neon-green: 0 0 15px rgba(0, 255, 102, 0.35);
+  --shadow-neon-pink: 0 0 15px rgba(255, 77, 109, 0.35);
+  --shadow-neon-cyan: 0 0 15px rgba(56, 217, 245, 0.35);
 }
 
 /* =========================================================
@@ -79,21 +89,24 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  letter-spacing: 0.02em;
 }
 
 /* =========================================================
-   SCROLLBAR — minimalista
+   SCROLLBAR — Estilo terminal retro
    ========================================================= */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track { background: #0f111e; }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
 }
-::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
 
 /* =========================================================
-   FOCUS VISIBLE — accesible y prolijo
+   FOCUS VISIBLE
    ========================================================= */
 :focus-visible {
   outline: 2px solid var(--color-accent);
@@ -102,89 +115,157 @@ body {
 }
 
 /* =========================================================
-   UTILIDADES CUSTOMIZADAS
+   UTILIDADES GAMER HUD & SCANLINES
    ========================================================= */
 
-/* Glassmorphism — para cards y paneles */
+/* Fondo Scanlines CRT */
+.crt-scanlines {
+  background-color: #111528;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 102, 0.035) 0px,
+    rgba(0, 255, 102, 0.035) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+/* Bordes Pixelados Neón */
+.pixel-border-green {
+  border: 2px solid #00FF66;
+  box-shadow: 0 0 12px rgba(0, 255, 102, 0.25);
+}
+
+.pixel-border-pink {
+  border: 2px solid #ff4d6d;
+  box-shadow: 0 0 12px rgba(255, 77, 109, 0.25);
+}
+
+.pixel-border-cyan {
+  border: 2px solid #38d9f5;
+  box-shadow: 0 0 12px rgba(56, 217, 245, 0.25);
+}
+
+/* Botones Acción Arcade 3D */
+.btn-arcade-green {
+  background-color: #00FF66;
+  color: #000000;
+  font-family: 'Share Tech Mono', 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 4px solid #00b347;
+  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
+}
+.btn-arcade-green:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.btn-arcade-pink {
+  background-color: #ff4d6d;
+  color: #000000;
+  font-family: 'Share Tech Mono', 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 4px solid #cc143d;
+  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
+}
+.btn-arcade-pink:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+/* Glassmorphism Cyber */
 .glass {
-  background: rgba(17, 19, 24, 0.7);
+  background: rgba(24, 28, 49, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
 }
 
-/* Gradient de fondo sutil */
+/* Fondo con viñeta retro */
 .bg-gradient-app {
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(99,102,241,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(16,185,129,0.05) 0%, transparent 50%),
-    var(--color-background);
+  background-color: #0f111e;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(0, 255, 102, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(56, 217, 245, 0.04) 0%, transparent 50%);
 }
 
-/* Texto gradient */
-.text-gradient {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Texto Glow Neón */
+.glow-text-green {
+  color: #00FF66;
+  text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
 }
 
-/* Dot indicator (para badges de estado) */
-.dot-online {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--color-success);
-  box-shadow: 0 0 6px var(--color-success);
+.glow-text-pink {
+  color: #ff4d6d;
+  text-shadow: 0 0 8px rgba(255, 77, 109, 0.5);
 }
 
-/* Animaciones */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+.glow-text-cyan {
+  color: #38d9f5;
+  text-shadow: 0 0 8px rgba(56, 217, 245, 0.5);
 }
 
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-8px); }
-  to   { opacity: 1; transform: translateX(0); }
+/* Switch estilo retro gamer */
+.retro-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
 }
 
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+.retro-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
-@keyframes shimmer {
-  from { background-position: -200% 0; }
-  to   { background-position:  200% 0; }
+.retro-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #20253f;
+  border: 1px solid #293056;
+  border-radius: 4px;
+  transition: 0.2s;
 }
 
-.animate-fade-in   { animation: fadeIn 0.2s ease-out forwards; }
-.animate-slide-in  { animation: slideIn 0.2s ease-out forwards; }
-.animate-scale-in  { animation: scaleIn 0.15s ease-out forwards; }
-
-/* Skeleton loader */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface-2) 0%,
-    var(--color-surface-3) 50%,
-    var(--color-surface-2) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: var(--radius-md);
+.retro-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #5d6786;
+  border-radius: 2px;
+  transition: 0.2s;
 }
 
-/* Input / Select base */
+input:checked + .retro-slider {
+  background-color: rgba(0, 255, 102, 0.2);
+  border-color: #00FF66;
+}
+
+input:checked + .retro-slider:before {
+  transform: translateX(24px);
+  background-color: #00FF66;
+  box-shadow: 0 0 8px #00FF66;
+}
+
+/* Input / Select base arcade */
 .input-base {
   width: 100%;
-  background: var(--color-surface-2);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text-primary);
   padding: 0.625rem 0.875rem;
   font-size: 0.9375rem;
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
 }
@@ -193,10 +274,20 @@ body {
 
 .input-base:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.25);
 }
 
 .input-base:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Animaciones */
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-green {
+  animation: pulseGreen 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

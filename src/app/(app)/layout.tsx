@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/sidebar'
 import { MobileNav } from '@/components/layout/mobile-nav'
+import { TopHeader } from '@/components/layout/top-header'
 import { ToastContainer } from '@/components/ui/toast'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -20,12 +21,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const displayName = profile?.display_name || user.email
 
   return (
-    <div className="flex h-dvh overflow-hidden">
+    <div className="flex h-dvh overflow-hidden bg-[#0f111e]">
       <Sidebar displayName={displayName} />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <main className="flex-1 flex flex-col overflow-y-auto pb-20 lg:pb-0">
-          <div className="flex-1 flex flex-col max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 lg:py-8">
+        {/* Top Header visible en todas las resoluciones */}
+        <TopHeader />
+
+        <main className="flex-1 flex flex-col overflow-y-auto pb-24">
+          <div className="flex-1 flex flex-col max-w-lg w-full mx-auto px-4 py-5">
             {children}
           </div>
         </main>
