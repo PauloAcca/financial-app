@@ -3,8 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { SummaryCards } from '@/components/dashboard/summary-cards'
 import { ActionButtons } from '@/components/dashboard/action-buttons'
 import { RecentTransactions } from '@/components/dashboard/recent-transactions'
-import { getCurrentMonth, getMonthRange } from '@/lib/utils'
-import type { MonthSummary } from '@/types'
+import { calculateUserGameStats } from '@/lib/gamification'
 
 export const metadata: Metadata = { title: 'Inicio · Pixel Realm' }
 
@@ -12,9 +11,6 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const uid = user!.id
-
-  const { year, month } = getCurrentMonth()
-  const { start, end } = getMonthRange(year, month)
 
   const [{ data: profile }, { data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
     supabase.from('profiles').select('display_name, default_currency').eq('id', uid).single(),
@@ -29,44 +25,31 @@ export default async function DashboardPage() {
         transfer_account:accounts!transfer_account_id(id, name)
       `)
       .eq('user_id', uid)
-      .gte('occurred_at', start)
-      .lte('occurred_at', end)
       .order('occurred_at', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(10),
   ])
 
   const currency = profile?.default_currency ?? 'USD'
+  const realAccounts = accounts ?? []
+  const realTransactions = transactions ?? []
 
-  // Calcular totales del mes
-  const allTx = transactions ?? []
-  const totalIncome  = allTx.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
-  const totalExpense = allTx.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
-  
-  // Si no tiene movimientos aún, proveer balance gamer visual por defecto ($12,450.00 como en la foto)
-  const hasTransactions = allTx.length > 0
-  const balance = hasTransactions ? (totalIncome - totalExpense) : 12450.00
-  
-  const summary: MonthSummary = {
-    totalIncome: hasTransactions ? totalIncome : 5000,
-    totalExpense: hasTransactions ? totalExpense : 45,
-    balance,
-    currency,
-  }
+  // Calcular estadísticas, nivel y saldo 100% REALES
+  const stats = calculateUserGameStats(realAccounts, realTransactions, 100)
 
   return (
     <div className="flex flex-col gap-4 max-w-md mx-auto w-full font-mono">
-      {/* 1. HUD Resumen de Saldo y XP */}
-      <SummaryCards summary={summary} />
+      {/* 1. HUD Resumen de Saldo y XP Real */}
+      <SummaryCards stats={stats} currency={currency} />
 
       {/* 2. Botones de Acción: AÑADIR BOTÍN y PAGAR JEFE */}
       <ActionButtons
-        accounts={accounts ?? []}
+        accounts={realAccounts}
         categories={categories ?? []}
       />
 
-      {/* 3. Misiones Recientes */}
-      <RecentTransactions transactions={allTx} />
+      {/* 3. Misiones Recientes Reales */}
+      <RecentTransactions transactions={realTransactions} />
     </div>
   )
 }

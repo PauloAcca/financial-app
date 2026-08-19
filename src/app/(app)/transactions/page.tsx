@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { TransactionList } from '@/components/transactions/transaction-list'
-import { getCurrentMonth, getMonthRange } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Historial · Pixel Realm' }
 
@@ -10,10 +9,7 @@ export default async function TransactionsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const uid = user!.id
 
-  const { year, month } = getCurrentMonth()
-  const { start, end } = getMonthRange(year, month)
-
-  // Cargar cuentas, categorías y transacciones
+  // Cargar cuentas, categorías y transacciones reales del usuario
   const [{ data: accounts }, { data: categories }, { data: transactions }] = await Promise.all([
     supabase
       .from('accounts')
@@ -37,10 +33,9 @@ export default async function TransactionsPage() {
         transfer_account:accounts!transfer_account_id(id, name)
       `)
       .eq('user_id', uid)
-      .gte('occurred_at', start)
-      .lte('occurred_at', end)
       .order('occurred_at', { ascending: false })
-      .order('created_at', { ascending: false }),
+      .order('created_at', { ascending: false })
+      .limit(100),
   ])
 
   return (
