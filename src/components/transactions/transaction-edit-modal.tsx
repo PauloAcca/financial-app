@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
 import { updateTransaction } from '@/actions/transactions'
-import { CURRENCIES, PAYMENT_METHODS } from '@/lib/constants'
+import { CURRENCIES, PAYMENT_METHODS, DEFAULT_CURRENCY } from '@/lib/constants'
 import type { Account, Category, Transaction, TransactionType } from '@/types/database'
+import { cn } from '@/lib/utils'
 
 interface TransactionEditModalProps {
   open: boolean
@@ -19,9 +19,9 @@ interface TransactionEditModalProps {
 }
 
 const TYPE_OPTIONS = [
-  { value: 'expense', label: 'Gasto' },
-  { value: 'income', label: 'Ingreso' },
-  { value: 'transfer', label: 'Transferencia' },
+  { value: 'expense', label: '⚔️ GASTO' },
+  { value: 'income', label: '💰 BOTÍN / INGRESO' },
+  { value: 'transfer', label: '🔄 TRANSFERENCIA' },
 ]
 
 export function TransactionEditModal({
@@ -34,7 +34,7 @@ export function TransactionEditModal({
   const [isPending, startTransition] = useTransition()
 
   const [amount, setAmount] = useState('')
-  const [currency, setCurrency] = useState('ARS')
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY)
   const [type, setType] = useState<TransactionType>('expense')
   const [accountId, setAccountId] = useState('')
   const [transferAccountId, setTransferAccountId] = useState('')
@@ -47,7 +47,7 @@ export function TransactionEditModal({
   useEffect(() => {
     if (transaction && open) {
       setAmount(transaction.amount.toString())
-      setCurrency(transaction.currency)
+      setCurrency(transaction.currency || DEFAULT_CURRENCY)
       setType(transaction.type)
       setAccountId(transaction.account_id)
       setTransferAccountId(transaction.transfer_account_id ?? '')
@@ -115,7 +115,7 @@ export function TransactionEditModal({
       })
 
       if (result.success) {
-        toast.success('Transacción actualizada.')
+        toast.success('Transacción actualizada con éxito.')
         onClose()
       } else {
         setError(result.error)
@@ -127,21 +127,21 @@ export function TransactionEditModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Editar transacción"
-      description="Modificá los detalles del movimiento."
-      size="sm"
+      title="EDITAR TRANSACCIÓN"
+      description="Modificá los detalles de la misión o movimiento."
+      size="md"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 font-mono pt-2">
         {error && (
-          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[var(--color-danger)]/30">
-            <p className="text-sm text-[var(--color-danger)]">{error}</p>
+          <div className="px-4 py-3 rounded-[4px] bg-[rgba(255,77,109,0.15)] border border-[#ff4d6d]/40">
+            <p className="text-xs text-[#ff4d6d] font-bold">{error}</p>
           </div>
         )}
 
         {/* Tipo */}
         <Select
           id="edit-tx-type"
-          label="Tipo"
+          label="TIPO DE MOVIMIENTO"
           value={type}
           onChange={(e) => {
             setType(e.target.value as TransactionType)
@@ -155,7 +155,7 @@ export function TransactionEditModal({
           <div className="flex-1">
             <Input
               id="edit-tx-amount"
-              label="Monto"
+              label="MONTO ($)"
               type="number"
               step="0.01"
               min="0.01"
@@ -168,7 +168,7 @@ export function TransactionEditModal({
           <div className="w-28">
             <Select
               id="edit-tx-currency"
-              label="Moneda"
+              label="MONEDA"
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
               options={CURRENCIES.map((c) => ({ value: c.code, label: c.code }))}
@@ -179,7 +179,7 @@ export function TransactionEditModal({
         {/* Cuenta */}
         <Select
           id="edit-tx-account"
-          label={type === 'transfer' ? 'Cuenta origen' : 'Cuenta'}
+          label={type === 'transfer' ? 'CUENTA ORIGEN' : 'CUENTA'}
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
           options={accounts.filter((a) => !a.archived).map((a) => ({ value: a.id, label: a.name }))}
@@ -189,7 +189,7 @@ export function TransactionEditModal({
         {type === 'transfer' && (
           <Select
             id="edit-tx-transfer-dest"
-            label="Cuenta destino"
+            label="CUENTA DESTINO"
             value={transferAccountId}
             onChange={(e) => setTransferAccountId(e.target.value)}
             options={[
@@ -203,7 +203,7 @@ export function TransactionEditModal({
         {type !== 'transfer' && (
           <Select
             id="edit-tx-category"
-            label="Categoría"
+            label="CATEGORÍA"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             options={sortedCategories}
@@ -215,7 +215,7 @@ export function TransactionEditModal({
         {/* Descripción */}
         <Input
           id="edit-tx-desc"
-          label="Descripción (opcional)"
+          label="DESCRIPCIÓN"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -224,7 +224,7 @@ export function TransactionEditModal({
         <div className="grid grid-cols-2 gap-3">
           <Input
             id="edit-tx-date"
-            label="Fecha"
+            label="FECHA"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -232,7 +232,7 @@ export function TransactionEditModal({
           />
           <Select
             id="edit-tx-payment-method"
-            label="Medio de pago"
+            label="MEDIO DE PAGO"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
             options={PAYMENT_METHODS.map((m) => ({ value: m, label: m }))}
@@ -241,12 +241,20 @@ export function TransactionEditModal({
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" type="button" onClick={onClose}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-[4px] border border-[#293056] text-[#8B92A9] hover:text-white hover:bg-[#20253f] text-xs font-bold uppercase transition-colors cursor-pointer"
+          >
             Cancelar
-          </Button>
-          <Button type="submit" loading={isPending}>
-            Guardar cambios
-          </Button>
+          </button>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="btn-arcade-green px-5 py-2.5 rounded-[4px] text-xs font-bold text-black uppercase cursor-pointer"
+          >
+            {isPending ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+          </button>
         </div>
       </form>
     </Modal>

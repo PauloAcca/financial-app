@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, Plus } from 'lucide-react'
+import { Sparkles, Plus, Bot } from 'lucide-react'
 import { ChatMessage, type Message } from './chat-message'
 import { ChatInput } from './chat-input'
 
@@ -28,7 +28,6 @@ export function ChatInterface() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved) as Message[]
-        // Al cargar, nos aseguramos que ningún mensaje esté en estado de streaming
         setMessages(parsed.map(m => m.role === 'assistant' ? { ...m, isStreaming: false } : m))
       } catch (e) {
         console.error('Failed to parse chat history', e)
@@ -63,7 +62,6 @@ export function ChatInterface() {
       setMessages(updatedMessages)
 
       // Placeholder del asistente (streaming)
-      const assistantId = Date.now()
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: '', isStreaming: true, toolsUsed: [] },
@@ -171,7 +169,6 @@ export function ChatInterface() {
           return next
         })
 
-        // Si se creó una transacción, refrescar datos del server
         if (didCreateTransaction) {
           router.refresh()
         }
@@ -198,35 +195,38 @@ export function ChatInterface() {
     [messages, isLoading, router]
   )
 
-  // Evitar renderizado con estado vacío antes de inicializar localStorage
   if (!isInitialized) {
-    return <div className="flex flex-col h-full items-center justify-center"><div className="w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin"></div></div>
+    return (
+      <div className="flex flex-col h-full items-center justify-center font-mono">
+        <div className="w-6 h-6 border-2 border-[#00FF66] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
   }
 
   const isEmpty = messages.length === 0
 
   const handleNewChat = () => {
-    if (window.confirm('¿Seguro que querés iniciar un nuevo chat? Se borrará el historial actual.')) {
+    if (window.confirm('¿Seguro que querés reiniciar la conversación?')) {
       setMessages([])
       abortRef.current?.abort()
     }
   }
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full relative font-mono">
       {/* Messages area */}
-      <div className="flex flex-col flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex flex-col flex-1 overflow-y-auto px-4 py-4">
         {isEmpty ? (
           <EmptyState onQuickAction={sendMessage} />
         ) : (
-          <div className="flex flex-col gap-5 max-w-3xl w-full mx-auto relative pt-8 mt-auto">
+          <div className="flex flex-col gap-4 max-w-lg w-full mx-auto relative pt-7 mt-auto">
             <div className="absolute top-0 right-0 z-10">
               <button
                 onClick={handleNewChat}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)] transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-[11px] font-bold bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 transition-colors cursor-pointer"
               >
-                <Plus size={14} className="rotate-45" />
-                Nuevo chat
+                <Plus size={13} className="rotate-45" />
+                LIMPIAR
               </button>
             </div>
             {messages.map((msg, i) => (
@@ -237,18 +237,15 @@ export function ChatInterface() {
         )}
       </div>
 
-      {/* Input area */}
-      <div className="shrink-0 border-t border-[var(--color-border)] px-4 py-4 bg-[var(--color-surface)]">
-        <div className="max-w-3xl mx-auto">
+      {/* Input area pegado a la navegación */}
+      <div className="shrink-0 border-t border-[#1e233f] px-3 py-2.5 bg-[#111424]">
+        <div className="max-w-lg mx-auto">
           <ChatInput
             value={input}
             onChange={setInput}
             onSubmit={(audioData) => sendMessage(input, audioData)}
             isLoading={isLoading}
           />
-          <p className="text-center text-[10px] text-[var(--color-text-muted)] mt-2">
-            Enter para enviar · Shift+Enter para nueva línea
-          </p>
         </div>
       </div>
     </div>
@@ -257,21 +254,18 @@ export function ChatInterface() {
 
 function EmptyState({ onQuickAction }: { onQuickAction: (text: string) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-8 text-center px-4">
+    <div className="flex flex-col items-center justify-center h-full gap-6 text-center px-4">
       {/* Icon */}
-      <div
-        className="w-16 h-16 rounded-2xl flex items-center justify-center"
-        style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}
-      >
-        <Sparkles size={28} className="text-white" />
+      <div className="w-14 h-14 rounded-[4px] border border-[#00FF66] bg-[#181c31] flex items-center justify-center shadow-[0_0_12px_rgba(0,255,102,0.3)]">
+        <Bot size={28} className="text-[#00FF66]" />
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-          Asistente financiero
+        <h2 className="text-base font-bold text-[#00FF66] tracking-wider uppercase glow-text-green mb-1.5">
+          ORÁCULO INTELIGENTE IA
         </h2>
-        <p className="text-sm text-[var(--color-text-secondary)] max-w-sm">
-          Registrá gastos, consultá saldos y analizá tus finanzas en lenguaje natural.
+        <p className="text-xs text-[#8B92A9] max-w-xs leading-relaxed">
+          Registrá gastos por voz o texto, consultá saldos y analizá tu rendimiento financiero en lenguaje natural.
         </p>
       </div>
 
@@ -281,11 +275,10 @@ function EmptyState({ onQuickAction }: { onQuickAction: (text: string) => void }
           <button
             key={action.label}
             onClick={() => onQuickAction(action.prompt)}
-            className="px-4 py-2 rounded-full text-sm font-medium
-                       bg-[var(--color-surface-2)] border border-[var(--color-border)]
-                       text-[var(--color-text-secondary)]
-                       hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]
-                       hover:bg-[var(--color-accent-subtle)]
+            className="px-3 py-1.5 rounded-[4px] text-xs font-bold
+                       bg-[#181c31] border border-[#293056]
+                       text-white
+                       hover:border-[#00FF66] hover:text-[#00FF66] hover:bg-[#1e233d]
                        transition-all duration-150 cursor-pointer"
           >
             {action.label}

@@ -3,9 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { generateInsights } from '@/lib/ai/insights'
 import { ChatInterface } from '@/components/chat/chat-interface'
 
-export const metadata: Metadata = { title: 'Asistente IA' }
+export const metadata: Metadata = { title: 'Asistente IA · Pixel Realm' }
 
-// La interfaz de chat es full-height: necesitamos que el layout no agregue overflow
 export const dynamic = 'force-dynamic'
 
 export default async function ChatPage() {
@@ -13,14 +12,14 @@ export default async function ChatPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (user) {
-    // Generar insights proactivos on-demand (no bloquea el render si falla)
+    // Generar insights proactivos on-demand
     generateInsights(supabase, user.id).catch((err) =>
       console.error('[chat/page] generateInsights:', err)
     )
   }
 
   return (
-    <div className="flex-1 flex flex-col -mx-4 sm:-mx-6 -my-6 lg:-my-8">
+    <div className="flex-1 flex flex-col -mx-4 -mt-5 -mb-24 h-[calc(100dvh-64px-64px)] pb-16">
       <ChatInterface />
     </div>
   )

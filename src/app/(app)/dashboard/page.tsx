@@ -33,6 +33,7 @@ export default async function DashboardPage() {
 
   const currency = profile?.default_currency ?? DEFAULT_CURRENCY
   const realAccounts = accounts ?? []
+  const realCategories = categories ?? []
   const realTransactions = transactions ?? []
 
   // Calcular estadísticas, nivel y saldo 100% REALES
@@ -43,14 +44,18 @@ export default async function DashboardPage() {
       {/* 1. HUD Resumen de Saldo y XP Real */}
       <SummaryCards stats={stats} currency={currency} />
 
-      {/* 2. Botones de Acción: AÑADIR BOTÍN y PAGAR JEFE */}
+      {/* 2. Botones de Acción: AÑADIR BOTÍN, PAGAR JEFE y REGISTRO POR VOZ */}
       <ActionButtons
         accounts={realAccounts}
-        categories={categories ?? []}
+        categories={realCategories}
       />
 
-      {/* 3. Misiones Recientes Reales */}
-      <RecentTransactions transactions={realTransactions} />
+      {/* 3. Misiones Recientes Reales con Edición directa */}
+      <RecentTransactions
+        transactions={realTransactions}
+        accounts={realAccounts}
+        categories={realCategories}
+      />
     </div>
   )
 }

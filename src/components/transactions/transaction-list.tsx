@@ -8,8 +8,7 @@ import {
   Pizza,
   Train,
   ShoppingCart,
-  ReceiptText,
-  Plus
+  ReceiptText
 } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { deleteTransaction } from '@/actions/transactions'
@@ -79,8 +78,9 @@ export function TransactionList({ transactions = [], accounts = [], categories =
     return true
   })
 
-  function handleDelete(txId: string) {
-    if (!confirm('¿Eliminás este registro?')) return
+  function handleDelete(e: React.MouseEvent, txId: string) {
+    e.stopPropagation()
+    if (!confirm('¿Eliminás este registro de forma permanente?')) return
     startTransition(async () => {
       const res = await deleteTransaction(txId)
       if (res.success) toast.success('Registro eliminado')
@@ -95,9 +95,9 @@ export function TransactionList({ transactions = [], accounts = [], categories =
         <button
           onClick={() => setFilter('all')}
           className={cn(
-            'py-2.5 px-3 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center',
+            'py-2.5 px-3 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
             filter === 'all'
-              ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
+              ? 'bg-[#00FF66] text-[#000000] shadow-[0_0_10px_rgba(0,255,102,0.4)]'
               : 'bg-[#1e233d] text-[#8B92A9] border border-[#293056] hover:text-white hover:bg-[#252b49]'
           )}
         >
@@ -107,9 +107,9 @@ export function TransactionList({ transactions = [], accounts = [], categories =
         <button
           onClick={() => setFilter('income')}
           className={cn(
-            'py-2.5 px-3 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center',
+            'py-2.5 px-3 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
             filter === 'income'
-              ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
+              ? 'bg-[#00FF66] text-[#000000] shadow-[0_0_10px_rgba(0,255,102,0.4)]'
               : 'bg-[#1e233d] text-[#8B92A9] border border-[#293056] hover:text-white hover:bg-[#252b49]'
           )}
         >
@@ -119,9 +119,9 @@ export function TransactionList({ transactions = [], accounts = [], categories =
         <button
           onClick={() => setFilter('expense')}
           className={cn(
-            'py-2.5 px-3 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center',
+            'py-2.5 px-3 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
             filter === 'expense'
-              ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
+              ? 'bg-[#00FF66] text-[#000000] shadow-[0_0_10px_rgba(0,255,102,0.4)]'
               : 'bg-[#1e233d] text-[#8B92A9] border border-[#293056] hover:text-white hover:bg-[#252b49]'
           )}
         >
@@ -158,7 +158,8 @@ export function TransactionList({ transactions = [], accounts = [], categories =
             return (
               <div
                 key={tx.id}
-                className="group bg-[#181c31] border border-[#293056] rounded-[4px] p-4 flex items-center justify-between gap-3 hover:border-[#384277] transition-all relative"
+                onClick={() => setEditingTx(tx)}
+                className="group bg-[#181c31] border border-[#293056] rounded-[4px] p-4 flex items-center justify-between gap-3 hover:border-[#00FF66]/60 active:bg-[#1e233d] transition-all relative cursor-pointer"
               >
                 {/* Bloque Izquierdo: Icono + Detalles */}
                 <div className="flex items-center gap-3.5 min-w-0">
@@ -175,9 +176,12 @@ export function TransactionList({ transactions = [], accounts = [], categories =
 
                   {/* Textos */}
                   <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-white tracking-wide truncate">
-                      {title}
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-sm font-bold text-white tracking-wide truncate group-hover:text-[#00FF66] transition-colors">
+                        {title}
+                      </h3>
+                      <Pencil size={11} className="text-[#5d6786] group-hover:text-[#00FF66] shrink-0 opacity-60" />
+                    </div>
                     <p className="text-xs text-[#8B92A9] mt-0.5 truncate">
                       {categoryName} {tx.account?.name && `• ${tx.account.name}`}
                     </p>
@@ -187,7 +191,7 @@ export function TransactionList({ transactions = [], accounts = [], categories =
                   </div>
                 </div>
 
-                {/* Bloque Derecho: Monto + Tag INGRESO / GASTO */}
+                {/* Bloque Derecho: Monto + Tag INGRESO / GASTO + Acciones */}
                 <div className="flex flex-col items-end shrink-0 gap-1.5">
                   <span
                     className={cn(
@@ -196,37 +200,30 @@ export function TransactionList({ transactions = [], accounts = [], categories =
                     )}
                   >
                     {isIncome ? '+ ' : '- '}
-                    {formatCurrency(tx.amount, tx.currency || 'USD')}
+                    {formatCurrency(tx.amount, tx.currency || 'ARS')}
                   </span>
 
-                  {/* Badge INGRESO / GASTO */}
-                  <span
-                    className={cn(
-                      'text-[9px] font-bold px-2 py-0.5 rounded-[2px] tracking-widest uppercase border',
-                      isIncome
-                        ? 'border-[#00FF66]/40 text-[#00FF66] bg-[#00FF66]/10'
-                        : 'border-[#293056] text-[#8B92A9] bg-[#14182b]'
-                    )}
-                  >
-                    {isIncome ? 'INGRESO' : 'GASTO'}
-                  </span>
-
-                  {/* Acciones flotantes */}
-                  <div className="hidden group-hover:flex items-center gap-1.5 mt-1">
-                    <button
-                      onClick={() => setEditingTx(tx)}
-                      className="p-1 rounded bg-[#20253f] text-[#8B92A9] hover:text-white"
-                      title="Editar"
+                  <div className="flex items-center gap-1.5">
+                    {/* Badge INGRESO / GASTO */}
+                    <span
+                      className={cn(
+                        'text-[9px] font-bold px-2 py-0.5 rounded-[2px] tracking-widest uppercase border',
+                        isIncome
+                          ? 'border-[#00FF66]/40 text-[#00FF66] bg-[#00FF66]/10'
+                          : 'border-[#293056] text-[#8B92A9] bg-[#14182b]'
+                      )}
                     >
-                      <Pencil size={12} />
-                    </button>
+                      {isIncome ? 'INGRESO' : 'GASTO'}
+                    </span>
+
+                    {/* Botón Eliminar rápido */}
                     <button
-                      onClick={() => handleDelete(tx.id)}
+                      onClick={(e) => handleDelete(e, tx.id)}
                       disabled={isPending}
-                      className="p-1 rounded bg-[#20253f] text-[#ff4d6d] hover:bg-[#ff4d6d]/20"
-                      title="Eliminar"
+                      className="p-1 rounded bg-[#20253f] text-[#5d6786] hover:text-[#ff4d6d] hover:bg-[#ff4d6d]/20 transition-colors"
+                      title="Eliminar transacción"
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
