@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useTransition } from 'react'
 import { cn, toISODate } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
@@ -10,7 +9,7 @@ import { createTransaction } from '@/actions/transactions'
 import { CategoryForm } from '@/components/categories/category-form'
 import { CURRENCIES, PAYMENT_METHODS, DEFAULT_CURRENCY } from '@/lib/constants'
 import type { Account, Category, TransactionType } from '@/types/database'
-import { ArrowDownCircle, ArrowUpCircle, ArrowLeftRight, Plus, TrendingUp, PiggyBank, Swords } from 'lucide-react'
+import { ArrowLeftRight, Plus, TrendingUp, PiggyBank, Swords } from 'lucide-react'
 
 interface TransactionFormProps {
   accounts: Account[]
@@ -23,8 +22,8 @@ interface TransactionFormProps {
 const MODE_OPTIONS: { value: TransactionType | 'investment'; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'expense',    label: 'GASTO',         icon: <Swords size={18} />,     color: 'var(--color-neon-pink)' },
   { value: 'income',     label: 'BOTÍN',         icon: <PiggyBank size={18} />,  color: 'var(--color-neon-green)' },
-  { value: 'transfer',   label: 'TRANSFERENCIA', icon: <ArrowLeftRight size={18} />, color: 'var(--color-neon-cyan)' },
   { value: 'investment', label: 'INVERSIÓN',     icon: <TrendingUp size={18} />, color: '#a855f7' },
+  { value: 'transfer',   label: 'TRANSFERENCIA', icon: <ArrowLeftRight size={18} />, color: 'var(--color-neon-cyan)' },
 ]
 
 export function TransactionForm({ accounts, categories, defaultCurrency = DEFAULT_CURRENCY, initialType = 'expense', onSuccess }: TransactionFormProps) {
@@ -51,9 +50,9 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
   const [paymentMethod,    setPaymentMethod]    = useState('')
   const [error,            setError]            = useState<string | null>(null)
 
-  // Inversiones no tienen categoría de gasto/ingreso — categoría solo aplica a expense/income
+  // Categorías según modo (income/investment usa categorías de ingreso o inversión)
   const filteredCategories = categoriesList.filter(
-    (c) => c.kind === (mode === 'income' ? 'income' : 'expense')
+    (c) => c.kind === (mode === 'income' || mode === 'investment' ? 'income' : 'expense')
   )
 
   const sortedCategories: { value: string; label: string }[] = []
@@ -68,10 +67,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
     })
   })
 
-  // Para transfers normales: cualquier cuenta distinta. Para inversiones: solo cuentas tipo investment.
-  const transferDestAccounts = mode === 'investment'
-    ? accounts.filter((a) => a.id !== accountId && !a.archived && a.type === 'investment')
-    : accounts.filter((a) => a.id !== accountId && !a.archived)
+  const transferDestAccounts = accounts.filter((a) => a.id !== accountId && !a.archived)
 
   function resetForm() {
     setAmount('')
@@ -96,7 +92,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
       setError('Seleccioná una cuenta.')
       return
     }
-    if ((mode === 'expense' || mode === 'income') && !categoryId) {
+    if (mode === 'expense' && !categoryId) {
       setError('Seleccioná una categoría.')
       return
     }
@@ -104,12 +100,11 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
       setError('Seleccioná la cuenta de destino.')
       return
     }
-    if (mode === 'investment' && !transferAccountId) {
-      setError('Seleccioná la cuenta de destino (ej. Broker).')
-      return
-    }
 
-    const actualType = mode === 'investment' ? 'transfer' : mode;
+    // Si es inversión: si seleccionó cuenta destino es transfer; sino es income (+ suma dinero a la cuenta seleccionada)
+    const actualType: TransactionType = mode === 'investment'
+      ? (transferAccountId ? 'transfer' : 'income')
+      : mode
 
     startTransition(async () => {
       const result = await createTransaction({
@@ -117,9 +112,9 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         amount: numAmount,
         currency,
         account_id: accountId,
-        category_id: mode !== 'transfer' && categoryId ? categoryId : undefined,
+        category_id: actualType !== 'transfer' && categoryId ? categoryId : undefined,
         transfer_account_id: actualType === 'transfer' ? transferAccountId : undefined,
-        description: description || undefined,
+        description: description.trim() || (mode === 'investment' ? 'Inversión' : undefined),
         occurred_at: date,
         payment_method: paymentMethod || undefined,
       })
@@ -128,8 +123,8 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         const labels: Record<TransactionType | 'investment', string> = {
           income: '¡Botín añadido con éxito! 💰',
           expense: '¡Jefe pagado / Gasto registrado! ⚔️',
+          investment: '¡Inversión registrada / Saldo sumado! 📈',
           transfer: 'Transferencia registrada ✓',
-          investment: 'Inversión registrada ✓',
         }
         toast.success(labels[mode])
         resetForm()
@@ -144,7 +139,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
     <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-5 shadow-sm font-mono">
       {/* Selector de tipo de transacción */}
       <div className="grid grid-cols-4 gap-2 mb-5">
-        {MODE_OPTIONS.map(({ value, label, icon, color }) => (
+        {MODE_OPTIONS.map(({ value, label, icon }) => (
           <button
             key={value}
             type="button"
@@ -197,36 +192,40 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
           </div>
         </div>
 
-        {/* Cuenta origen */}
+        {/* Cuenta origen / destino */}
         <Select
           id="tx-account"
-          label={(mode === 'transfer' || mode === 'investment') ? 'CUENTA ORIGEN' : 'CUENTA'}
+          label={
+            mode === 'transfer' ? 'CUENTA ORIGEN' :
+            mode === 'investment' ? 'CUENTA O BÓVEDA' :
+            'CUENTA'
+          }
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
           options={accounts.filter((a) => !a.archived).map((a) => ({ value: a.id, label: a.name }))}
           placeholder="Seleccioná una cuenta"
         />
 
-        {/* Cuenta Destino (solo transferencias o inversiones) */}
+        {/* Cuenta Destino (transferencias o inversiones con broker) */}
         {(mode === 'transfer' || mode === 'investment') && (
           <Select
             id="tx-form-transfer-dest"
-            label={mode === 'investment' ? 'CUENTA DESTINO (BROKER)' : 'CUENTA DESTINO'}
+            label={mode === 'investment' ? 'TRANSFERIR A OTRA CUENTA / BROKER (OPCIONAL)' : 'CUENTA DESTINO'}
             value={transferAccountId}
             onChange={(e) => setTransferAccountId(e.target.value)}
             options={[
-              { value: '', label: 'Seleccionar...' },
+              { value: '', label: mode === 'investment' ? 'Sumar directamente a la cuenta elegida' : 'Seleccionar...' },
               ...transferDestAccounts.map((a) => ({ value: a.id, label: a.name })),
             ]}
           />
         )}
 
-        {/* Categoría (solo gastos e ingresos) */}
-        {(mode === 'expense' || mode === 'income') && (
+        {/* Categoría */}
+        {(mode === 'expense' || mode === 'income' || mode === 'investment') && (
           <div className="flex flex-col gap-1.5 w-full">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[#8B92A9] uppercase tracking-wider">
-                CATEGORÍA
+                CATEGORÍA {mode !== 'expense' && '(OPCIONAL)'}
               </span>
               <button
                 type="button"
@@ -247,6 +246,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
                 }
               }}
               options={[
+                { value: '', label: 'Sin categoría' },
                 ...sortedCategories,
                 { value: '__new__', label: '+ Crear nueva categoría...' },
               ]}
@@ -262,7 +262,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
           placeholder={
             mode === 'income' ? 'Ej: Recompensa de Caza / Salario' :
             mode === 'expense' ? 'Ej: Mana Potion / Café' :
-            mode === 'investment' ? 'Ej: Mejora de Bóveda' :
+            mode === 'investment' ? 'Ej: Inversión en Acciones / Plazo Fijo' :
             'Ej: Transferencia a Bóveda'
           }
           value={description}
@@ -305,7 +305,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
       <CategoryForm
         open={categoryModalOpen}
         onClose={() => setCategoryModalOpen(false)}
-        defaultKind={mode === 'income' ? 'income' : 'expense'}
+        defaultKind={mode === 'expense' ? 'expense' : 'income'}
         categories={categoriesList}
         onCreated={(newCat) => {
           setCategoriesList((prev) => [...prev, newCat])

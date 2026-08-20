@@ -8,7 +8,8 @@ import {
   Pizza,
   Train,
   ShoppingCart,
-  ReceiptText
+  ReceiptText,
+  TrendingUp
 } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { deleteTransaction } from '@/actions/transactions'
@@ -27,13 +28,29 @@ function getTransactionVisuals(tx: Transaction) {
   const desc = (tx.description || '').toLowerCase()
   const cat = (tx.category?.name || '').toLowerCase()
 
+  if (desc.includes('invers') || cat.includes('invers')) {
+    return {
+      bgColor: 'bg-[#a855f7]',
+      textColor: 'text-white',
+      badgeText: 'INVERSIÓN',
+      badgeClass: 'border-[#a855f7]/40 text-[#a855f7] bg-[#a855f7]/10',
+      icon: <TrendingUp size={20} className="stroke-[2.2]" />,
+      defaultCategory: 'Inversiones y Activos',
+      defaultTitle: 'Inversión Registrada',
+      isPositive: true,
+    }
+  }
+
   if (tx.type === 'income' || desc.includes('recompensa') || desc.includes('sueldo') || cat.includes('salario') || cat.includes('ingreso')) {
     return {
       bgColor: 'bg-[#00FF66]',
       textColor: 'text-black',
+      badgeText: 'BOTÍN / INGRESO',
+      badgeClass: 'border-[#00FF66]/40 text-[#00FF66] bg-[#00FF66]/10',
       icon: <Briefcase size={20} className="stroke-[2.2]" />,
       defaultCategory: 'Ingreso / Salario',
       defaultTitle: 'Botín Recibido',
+      isPositive: true,
     }
   }
 
@@ -41,9 +58,12 @@ function getTransactionVisuals(tx: Transaction) {
     return {
       bgColor: 'bg-[#ff4d6d]',
       textColor: 'text-black',
+      badgeText: 'GASTO',
+      badgeClass: 'border-[#293056] text-[#8B92A9] bg-[#14182b]',
       icon: <Pizza size={20} className="stroke-[2.2]" />,
       defaultCategory: 'Comida / Taberna',
       defaultTitle: 'Gasto de Comida',
+      isPositive: false,
     }
   }
 
@@ -51,18 +71,24 @@ function getTransactionVisuals(tx: Transaction) {
     return {
       bgColor: 'bg-[#38d9f5]',
       textColor: 'text-black',
+      badgeText: 'GASTO',
+      badgeClass: 'border-[#293056] text-[#8B92A9] bg-[#14182b]',
       icon: <Train size={20} className="stroke-[2.2]" />,
       defaultCategory: 'Transporte / Viaje',
       defaultTitle: 'Viaje Rápido',
+      isPositive: false,
     }
   }
 
   return {
     bgColor: 'bg-[#232847] border border-[#313a68]',
     textColor: 'text-[#8B92A9]',
+    badgeText: 'GASTO',
+    badgeClass: 'border-[#293056] text-[#8B92A9] bg-[#14182b]',
     icon: <ShoppingCart size={20} className="stroke-[2]" />,
     defaultCategory: 'Compras y Servicios',
     defaultTitle: 'Gasto de Misión',
+    isPositive: false,
   }
 }
 
@@ -71,19 +97,24 @@ export function TransactionList({ transactions = [], accounts = [], categories =
   const [editingTx, setEditingTx] = useState<Transaction | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  // Filtrar según pestaña seleccionada
+  // Filtrar según pestaña seleccionada (inversiones se incluyen en Botín / Ingresos porque suman dinero)
   const filteredList = transactions.filter((tx) => {
-    if (filter === 'income') return tx.type === 'income'
-    if (filter === 'expense') return tx.type === 'expense'
+    const desc = (tx.description || '').toLowerCase()
+    const cat = (tx.category?.name || '').toLowerCase()
+    const isInv = desc.includes('invers') || cat.includes('invers')
+
+    if (filter === 'income') return tx.type === 'income' || isInv
+    if (filter === 'expense') return tx.type === 'expense' && !isInv
     return true
   })
 
   function handleDelete(e: React.MouseEvent, txId: string) {
     e.stopPropagation()
-    if (!confirm('¿Eliminás este registro de forma permanente?')) return
+    if (!confirm('¿Estás seguro de que querés eliminar esta transacción de forma permanente?')) return
+
     startTransition(async () => {
       const res = await deleteTransaction(txId)
-      if (res.success) toast.success('Registro eliminado')
+      if (res.success) toast.success('Transacción eliminada con éxito.')
       else toast.error(res.error)
     })
   }
@@ -113,7 +144,7 @@ export function TransactionList({ transactions = [], accounts = [], categories =
               : 'bg-[#1e233d] text-[#8B92A9] border border-[#293056] hover:text-white hover:bg-[#252b49]'
           )}
         >
-          BOTÍN
+          BOTÍN / INVERSIÓN
         </button>
 
         <button
@@ -140,7 +171,7 @@ export function TransactionList({ transactions = [], accounts = [], categories =
           </p>
           <p className="text-[11px] text-[#8B92A9] max-w-xs">
             {filter === 'income' 
-              ? 'No has registrado ingresos o botines todavía.' 
+              ? 'No has registrado ingresos, botines o inversiones todavía.' 
               : filter === 'expense' 
               ? 'No has registrado gastos o pagos todavía.' 
               : 'Tus transacciones aparecerán aquí en cuanto las agregues.'}
@@ -149,7 +180,6 @@ export function TransactionList({ transactions = [], accounts = [], categories =
       ) : (
         <div className="flex flex-col gap-3">
           {filteredList.map((tx) => {
-            const isIncome = tx.type === 'income'
             const visuals = getTransactionVisuals(tx)
             const title = tx.description || visuals.defaultTitle
             const categoryName = tx.category?.name || visuals.defaultCategory
@@ -191,29 +221,27 @@ export function TransactionList({ transactions = [], accounts = [], categories =
                   </div>
                 </div>
 
-                {/* Bloque Derecho: Monto + Tag INGRESO / GASTO + Acciones */}
+                {/* Bloque Derecho: Monto + Tag + Botón Papelera */}
                 <div className="flex flex-col items-end shrink-0 gap-1.5">
                   <span
                     className={cn(
                       'text-sm sm:text-base font-bold tabular-nums tracking-wide',
-                      isIncome ? 'text-[#00FF66] glow-text-green' : 'text-white'
+                      visuals.isPositive ? 'text-[#00FF66] glow-text-green' : 'text-white'
                     )}
                   >
-                    {isIncome ? '+ ' : '- '}
+                    {visuals.isPositive ? '+ ' : '- '}
                     {formatCurrency(tx.amount, tx.currency || 'ARS')}
                   </span>
 
                   <div className="flex items-center gap-1.5">
-                    {/* Badge INGRESO / GASTO */}
+                    {/* Badge */}
                     <span
                       className={cn(
                         'text-[9px] font-bold px-2 py-0.5 rounded-[2px] tracking-widest uppercase border',
-                        isIncome
-                          ? 'border-[#00FF66]/40 text-[#00FF66] bg-[#00FF66]/10'
-                          : 'border-[#293056] text-[#8B92A9] bg-[#14182b]'
+                        visuals.badgeClass
                       )}
                     >
-                      {isIncome ? 'INGRESO' : 'GASTO'}
+                      {visuals.badgeText}
                     </span>
 
                     {/* Botón Eliminar rápido */}
@@ -233,6 +261,7 @@ export function TransactionList({ transactions = [], accounts = [], categories =
         </div>
       )}
 
+      {/* Modal para editar o borrar transacción */}
       <TransactionEditModal
         open={!!editingTx}
         onClose={() => setEditingTx(null)}

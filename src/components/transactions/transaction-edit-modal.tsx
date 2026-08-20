@@ -5,10 +5,10 @@ import { Modal } from '@/components/ui/modal'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
-import { updateTransaction } from '@/actions/transactions'
+import { updateTransaction, deleteTransaction } from '@/actions/transactions'
 import { CURRENCIES, PAYMENT_METHODS, DEFAULT_CURRENCY } from '@/lib/constants'
 import type { Account, Category, Transaction, TransactionType } from '@/types/database'
-import { cn } from '@/lib/utils'
+import { Trash2 } from 'lucide-react'
 
 interface TransactionEditModalProps {
   open: boolean
@@ -21,6 +21,7 @@ interface TransactionEditModalProps {
 const TYPE_OPTIONS = [
   { value: 'expense', label: '⚔️ GASTO' },
   { value: 'income', label: '💰 BOTÍN / INGRESO' },
+  { value: 'investment', label: '📈 INVERSIÓN (SUMA DINERO)' },
   { value: 'transfer', label: '🔄 TRANSFERENCIA' },
 ]
 
@@ -35,7 +36,7 @@ export function TransactionEditModal({
 
   const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState(DEFAULT_CURRENCY)
-  const [type, setType] = useState<TransactionType>('expense')
+  const [type, setType] = useState<TransactionType | 'investment'>('expense')
   const [accountId, setAccountId] = useState('')
   const [transferAccountId, setTransferAccountId] = useState('')
   const [categoryId, setCategoryId] = useState('')
@@ -48,7 +49,11 @@ export function TransactionEditModal({
     if (transaction && open) {
       setAmount(transaction.amount.toString())
       setCurrency(transaction.currency || DEFAULT_CURRENCY)
-      setType(transaction.type)
+      
+      const isInv = (transaction.description || '').toLowerCase().includes('invers') || 
+                    (transaction.category?.name || '').toLowerCase().includes('invers')
+      
+      setType(isInv && transaction.type === 'income' ? 'investment' : transaction.type)
       setAccountId(transaction.account_id)
       setTransferAccountId(transaction.transfer_account_id ?? '')
       setCategoryId(transaction.category_id ?? '')
@@ -60,7 +65,7 @@ export function TransactionEditModal({
   }, [transaction, open])
 
   const filteredCategories = categories.filter(
-    (c) => c.kind === (type === 'income' ? 'income' : 'expense')
+    (c) => c.kind === (type === 'income' || type === 'investment' ? 'income' : 'expense')
   )
 
   const sortedCategories: { value: string; label: string }[] = []
@@ -77,6 +82,21 @@ export function TransactionEditModal({
 
   const transferDestAccounts = accounts.filter((a) => a.id !== accountId && !a.archived)
 
+  function handleDelete() {
+    if (!transaction) return
+    if (!confirm('¿Estás seguro de que querés eliminar esta transacción de forma permanente?')) return
+
+    startTransition(async () => {
+      const result = await deleteTransaction(transaction.id)
+      if (result.success) {
+        toast.success('Transacción eliminada.')
+        onClose()
+      } else {
+        setError(result.error)
+      }
+    })
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!transaction) return
@@ -91,7 +111,7 @@ export function TransactionEditModal({
       setError('Seleccioná una cuenta.')
       return
     }
-    if ((type === 'expense' || type === 'income') && !categoryId) {
+    if (type === 'expense' && !categoryId) {
       setError('Seleccioná una categoría.')
       return
     }
@@ -100,16 +120,21 @@ export function TransactionEditModal({
       return
     }
 
+    // Inversión guarda como income (o transfer si tiene destino)
+    const actualType: TransactionType = type === 'investment'
+      ? (transferAccountId ? 'transfer' : 'income')
+      : type
+
     startTransition(async () => {
       const result = await updateTransaction({
         id: transaction.id,
         amount: numAmount,
         currency,
-        type,
+        type: actualType,
         account_id: accountId,
-        category_id: type !== 'transfer' && categoryId ? categoryId : undefined,
-        transfer_account_id: type === 'transfer' && transferAccountId ? transferAccountId : undefined,
-        description: description.trim() || undefined,
+        category_id: actualType !== 'transfer' && categoryId ? categoryId : undefined,
+        transfer_account_id: actualType === 'transfer' ? transferAccountId : undefined,
+        description: description.trim() || (type === 'investment' ? 'Inversión' : undefined),
         occurred_at: date,
         payment_method: paymentMethod || undefined,
       })
@@ -128,7 +153,7 @@ export function TransactionEditModal({
       open={open}
       onClose={onClose}
       title="EDITAR TRANSACCIÓN"
-      description="Modificá los detalles de la misión o movimiento."
+      description="Modificá o eliminá los detalles del movimiento."
       size="md"
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 font-mono pt-2">
@@ -144,7 +169,7 @@ export function TransactionEditModal({
           label="TIPO DE MOVIMIENTO"
           value={type}
           onChange={(e) => {
-            setType(e.target.value as TransactionType)
+            setType(e.target.value as TransactionType | 'investment')
             setCategoryId('')
           }}
           options={TYPE_OPTIONS}
@@ -199,7 +224,7 @@ export function TransactionEditModal({
           />
         )}
 
-        {/* Categoría (solo gastos/ingresos) */}
+        {/* Categoría (gastos / ingresos) */}
         {type !== 'transfer' && (
           <Select
             id="edit-tx-category"
@@ -208,7 +233,7 @@ export function TransactionEditModal({
             onChange={(e) => setCategoryId(e.target.value)}
             options={sortedCategories}
             placeholder="Seleccioná una categoría"
-            required
+            required={type === 'expense'}
           />
         )}
 
@@ -240,21 +265,34 @@ export function TransactionEditModal({
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="flex items-center justify-between gap-3 pt-2">
+          {/* Botón Borrar Transacción */}
           <button
             type="button"
-            onClick={onClose}
-            className="px-4 py-2.5 rounded-[4px] border border-[#293056] text-[#8B92A9] hover:text-white hover:bg-[#20253f] text-xs font-bold uppercase transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
+            onClick={handleDelete}
             disabled={isPending}
-            className="btn-arcade-green px-5 py-2.5 rounded-[4px] text-xs font-bold text-black uppercase cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-[4px] bg-[#20253f] text-[#ff4d6d] hover:bg-[#ff4d6d]/20 border border-[#ff4d6d]/30 text-xs font-bold uppercase transition-colors cursor-pointer"
           >
-            {isPending ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+            <Trash2 size={14} />
+            <span>ELIMINAR</span>
           </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3.5 py-2.5 rounded-[4px] border border-[#293056] text-[#8B92A9] hover:text-white hover:bg-[#20253f] text-xs font-bold uppercase transition-colors cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="btn-arcade-green px-4 py-2.5 rounded-[4px] text-xs font-bold text-black uppercase cursor-pointer"
+            >
+              {isPending ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+            </button>
+          </div>
         </div>
       </form>
     </Modal>

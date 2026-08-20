@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { History, Coffee, Car, Briefcase, ShoppingBag, Swords, Pencil } from 'lucide-react'
+import { History, Coffee, Car, Briefcase, ShoppingBag, Swords, Pencil, TrendingUp } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { TransactionEditModal } from '@/components/transactions/transaction-edit-modal'
 import type { Account, Category, Transaction } from '@/types/database'
@@ -18,6 +18,9 @@ function getMissionIcon(description?: string | null, categoryName?: string | nul
   const desc = (description || '').toLowerCase()
   const cat = (categoryName || '').toLowerCase()
 
+  if (desc.includes('invers') || cat.includes('invers')) {
+    return <TrendingUp size={18} className="text-[#a855f7]" />
+  }
   if (desc.includes('starbucks') || desc.includes('cafe') || desc.includes('mana') || cat.includes('comida') || cat.includes('alimento') || cat.includes('restaurante')) {
     return <Coffee size={18} className="text-[#8B92A9]" />
   }
@@ -66,7 +69,10 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
           /* Lista de Misiones REALES */
           <div className="divide-y divide-[#232845]">
             {displayTx.map((tx) => {
-              const isIncome = tx.type === 'income'
+              const desc = (tx.description || '').toLowerCase()
+              const cat = (tx.category?.name || '').toLowerCase()
+              const isInvestment = desc.includes('invers') || cat.includes('invers')
+              const isPositive = tx.type === 'income' || isInvestment
               const formattedDate = formatDate(tx.occurred_at, 'short')
 
               return (
@@ -84,9 +90,9 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <p className="text-xs sm:text-sm font-bold text-white group-hover:text-[#00FF66] transition-colors truncate">
-                          {tx.description || (isIncome ? 'Ingreso registrado' : 'Gasto registrado')}
+                          {tx.description || (isPositive ? 'Ingreso registrado' : 'Gasto registrado')}
                         </p>
-                        <Pencil size={11} className="text-[#5d6786] group-hover:text-[#00FF66] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Pencil size={11} className="text-[#5d6786] group-hover:text-[#00FF66] shrink-0 opacity-60" />
                       </div>
                       <p className="text-[11px] text-[#8B92A9] mt-0.5">
                         {formattedDate} {tx.category?.name && `• ${tx.category.name}`}
@@ -98,10 +104,11 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
                   <div className="shrink-0 text-right">
                     <span
                       className={`text-xs sm:text-sm font-bold tabular-nums tracking-wider ${
-                        isIncome ? 'text-[#00FF66] glow-text-green' : 'text-white'
+                        isInvestment ? 'text-[#a855f7] glow-text-purple' :
+                        isPositive ? 'text-[#00FF66] glow-text-green' : 'text-white'
                       }`}
                     >
-                      {isIncome ? '+ ' : '- '}
+                      {isPositive ? '+ ' : '- '}
                       {formatCurrency(tx.amount, tx.currency || 'ARS')}
                     </span>
                   </div>
@@ -125,7 +132,7 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
         )}
       </div>
 
-      {/* Modal para editar transacción */}
+      {/* Modal para editar o eliminar transacción */}
       <TransactionEditModal
         open={!!editingTx}
         onClose={() => setEditingTx(null)}

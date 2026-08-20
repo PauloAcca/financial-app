@@ -26,6 +26,12 @@ export interface Achievement {
   progressText?: string
 }
 
+function isInvestmentTx(t: Transaction): boolean {
+  const desc = (t.description || '').toLowerCase()
+  const cat = (t.category?.name || '').toLowerCase()
+  return desc.includes('invers') || cat.includes('invers')
+}
+
 export function calculateUserGameStats(
   accounts: Account[] = [],
   transactions: Transaction[] = []
@@ -34,20 +40,20 @@ export function calculateUserGameStats(
   const activeAccounts = accounts.filter(a => !a.archived)
   const totalBalance = activeAccounts.reduce((sum, acc) => sum + (acc.current_balance || 0), 0)
 
-  // 2. Ingresos y Gastos totales
+  // 2. Ingresos y Gastos totales (Inversiones cuentan como botín/activo, no como gasto)
   const totalIncome = transactions
-    .filter(t => t.type === 'income')
+    .filter(t => t.type === 'income' || isInvestmentTx(t))
     .reduce((sum, t) => sum + t.amount, 0)
 
   const totalExpense = transactions
-    .filter(t => t.type === 'expense')
+    .filter(t => t.type === 'expense' && !isInvestmentTx(t))
     .reduce((sum, t) => sum + t.amount, 0)
 
   // 3. Gastos y movimientos de HOY (en base a fecha local)
   const todayStr = new Date().toISOString().split('T')[0]
   const todayTransactions = transactions.filter(t => t.occurred_at.startsWith(todayStr))
   const todayExpense = todayTransactions
-    .filter(t => t.type === 'expense')
+    .filter(t => t.type === 'expense' && !isInvestmentTx(t))
     .reduce((sum, t) => sum + t.amount, 0)
   const todayTxCount = todayTransactions.length
 
@@ -55,7 +61,6 @@ export function calculateUserGameStats(
   // Cada transacción registrada = 50 XP
   // Cada cuenta/bóveda creada = 150 XP
   // Patrimonio: 1 XP por cada $10.000 ARS de saldo neto positivo
-  // (Ej: 3.000.000 ARS = 300 XP; 10.000.000 ARS = 1.000 XP)
   const txXP = transactions.length * 50
   const accXP = activeAccounts.length * 150
   const balanceXP = totalBalance > 0 ? Math.floor(totalBalance / 10000) : 0
