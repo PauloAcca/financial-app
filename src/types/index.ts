@@ -55,6 +55,30 @@ export type CreateRecurringInput = {
 
 export type UpdateRecurringInput = Partial<CreateRecurringInput> & { id: string }
 
+export type CreateLoanInput = {
+  person_name: string
+  type: import('./database').LoanType
+  amount: number
+  currency: string
+  description?: string
+  due_date?: string
+  account_id?: string
+}
+
+export type UpdateLoanInput = Partial<CreateLoanInput> & {
+  id: string
+  status?: import('./database').LoanStatus
+  paid_amount?: number
+}
+
+export type RecordLoanPaymentInput = {
+  loan_id: string
+  amount: number
+  paid_at?: string
+  notes?: string
+  account_id?: string
+}
+
 // Tipo de respuesta unificado para Server Actions
 export type ActionResult<T = void> =
   | { success: true; data: T }

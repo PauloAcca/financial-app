@@ -12,6 +12,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/metas': 'METAS',
   '/profile': 'PERFIL',
   '/accounts': 'CUENTAS',
+  '/prestamos': 'PRÉSTAMOS',
   '/categories': 'CATEGORÍAS',
   '/metrics': 'MÉTRICAS',
   '/chat': 'ASISTENTE',

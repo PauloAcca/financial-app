@@ -16,6 +16,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  HandCoins,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logout } from '@/actions/auth'
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: '/metas',        label: 'METAS',         icon: Trophy },
   { href: '/profile',      label: 'PERFIL',        icon: User },
   { href: '/accounts',     label: 'CUENTAS',       icon: Wallet },
+  { href: '/prestamos',    label: 'PRÉSTAMOS',     icon: HandCoins },
   { href: '/recurring',    label: 'GASTOS FIJOS',  icon: Repeat },
   { href: '/categories',   label: 'CATEGORÍAS',    icon: Tag },
   { href: '/metrics',      label: 'MÉTRICAS',      icon: BarChart2 },

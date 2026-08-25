@@ -127,3 +127,38 @@ export interface ExchangeRate {
   rate: number
   source: string | null
 }
+
+export type LoanType = 'lent' | 'borrowed' // 'lent': Yo presté (por cobrar) | 'borrowed': Me prestaron (por pagar)
+export type LoanStatus = 'pending' | 'partial' | 'paid'
+
+export interface Loan {
+  id: string
+  user_id: string
+  person_name: string
+  type: LoanType
+  amount: number
+  paid_amount: number
+  currency: string
+  description: string | null
+  due_date: string | null
+  account_id: string | null
+  status: LoanStatus
+  created_at: string
+  settled_at: string | null
+  // Joined
+  account?: Pick<Account, 'id' | 'name' | 'color' | 'icon'>
+  payments?: LoanPayment[]
+}
+
+export interface LoanPayment {
+  id: string
+  loan_id: string
+  user_id: string
+  amount: number
+  paid_at: string
+  notes: string | null
+  account_id: string | null
+  created_at: string
+  // Joined
+  account?: Pick<Account, 'id' | 'name' | 'color' | 'icon'>
+}

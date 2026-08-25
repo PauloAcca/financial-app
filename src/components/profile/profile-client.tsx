@@ -25,7 +25,8 @@ import {
   History,
   Bot,
   Eye,
-  EyeOff
+  EyeOff,
+  HandCoins,
 } from 'lucide-react'
 import { logout } from '@/actions/auth'
 import { cn, formatCurrency } from '@/lib/utils'
@@ -49,6 +50,15 @@ const SYSTEM_MODULES = [
     color: '#38d9f5',
     borderColor: 'border-[#38d9f5]/50',
     bgColor: 'bg-[#38d9f5]/15',
+  },
+  {
+    href: '/prestamos',
+    title: 'Préstamos y Deudas',
+    description: 'Dinero prestado a terceros y deudas pendientes',
+    icon: HandCoins,
+    color: '#00FF66',
+    borderColor: 'border-[#00FF66]/50',
+    bgColor: 'bg-[#00FF66]/15',
   },
   {
     href: '/recurring',
