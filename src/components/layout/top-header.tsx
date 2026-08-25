@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -21,6 +22,22 @@ const PAGE_TITLES: Record<string, string> = {
 
 export function TopHeader() {
   const pathname = usePathname()
+  const [avatarUrl, setAvatarUrl] = useState('/pixel-avatar.jpg')
+
+  useEffect(() => {
+    function updateAvatar() {
+      try {
+        const saved = localStorage.getItem('app_user_avatar')
+        if (saved) setAvatarUrl(saved)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    updateAvatar()
+    window.addEventListener('avatar_changed', updateAvatar)
+    return () => window.removeEventListener('avatar_changed', updateAvatar)
+  }, [])
 
   // Buscar coincidencia de título
   const matchingKey = Object.keys(PAGE_TITLES).find(key => 
@@ -68,8 +85,8 @@ export function TopHeader() {
             className="relative w-9 h-9 rounded-[4px] border-2 border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shadow-[0_0_10px_rgba(0,255,102,0.35)] hover:scale-105 active:scale-95 transition-transform"
           >
             <Image
-              src="/pixel-avatar.jpg"
-              alt="Avatar Cipherpunk"
+              src={avatarUrl}
+              alt="Avatar de Jugador"
               width={36}
               height={36}
               className="w-full h-full object-cover"

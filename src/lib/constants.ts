@@ -60,7 +60,13 @@ export const ACCOUNT_COLORS = [
   '#6B7280', '#A855F7',
 ]
 
-// =========================================================
-// PAYMENT METHODS — opciones predefinidas (campo libre también)
-// =========================================================
 export const PAYMENT_METHODS = ['Débito', 'Crédito', 'Transferencia', 'QR', 'Efectivo', 'Débito automático']
+
+// =========================================================
+// AVATAR OPTIONS — Skins de perfil de jugador
+// =========================================================
+export const AVATAR_OPTIONS = [
+  { id: 'cyberpunk-male', name: 'Cipher Runner', role: 'Hombre', url: '/pixel-avatar.jpg' },
+  { id: 'cyberpunk-female', name: 'Cyber Valkyrie', role: 'Mujer', url: '/pixel-avatar-female.jpg' },
+  { id: 'cyberpunk-robot', name: 'Mecha Android', role: 'Robot', url: '/pixel-avatar-robot.jpg' },
+]
