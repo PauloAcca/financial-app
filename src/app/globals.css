@@ -1,15 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Press+Start+2P&family=Share+Tech+Mono&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap');
 @import "tailwindcss";
 
 /* =========================================================
    TAILWIND v4 — @theme tokens (Pixel RPG / Cyber Gamer HUD)
    ========================================================= */
 @theme {
-  /* Tipografía */
-  --font-sans: 'Space Mono', 'Share Tech Mono', monospace, -apple-system, sans-serif;
-  --font-mono: 'Share Tech Mono', 'Space Mono', monospace;
-  --font-pixel: 'Press Start 2P', monospace;
-  --font-display: 'Chakra Petch', 'Share Tech Mono', monospace;
+  /* Tipografía con fallback optimizado */
+  --font-sans: var(--font-space-mono), var(--font-share-tech), 'Space Mono', 'Share Tech Mono', monospace, sans-serif;
+  --font-mono: var(--font-share-tech), var(--font-space-mono), 'Share Tech Mono', 'Space Mono', monospace;
+  --font-pixel: var(--font-press-start), 'Press Start 2P', monospace;
+  --font-display: var(--font-chakra), 'Chakra Petch', monospace;
 
   /* Colores base — paleta profunda Cyber Arcade */
   --color-background: #0f111e;

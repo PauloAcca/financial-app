@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BarChart2, Trophy, Bot } from 'lucide-react'
+import { Home, BarChart2, Wallet, Bot } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'INICIO',    icon: Home },
+  { href: '/accounts',  label: 'CUENTAS',   icon: Wallet },
   { href: '/metrics',   label: 'MÉTRICAS',  icon: BarChart2 },
-  { href: '/metas',     label: 'METAS',     icon: Trophy },
   { href: '/chat',      label: 'AGENTE IA', icon: Bot },
 ]
 

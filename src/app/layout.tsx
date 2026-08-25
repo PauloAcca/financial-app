@@ -1,5 +1,34 @@
 import type { Metadata, Viewport } from 'next'
+import { Space_Mono, Share_Tech_Mono, Press_Start_2P, Chakra_Petch } from 'next/font/google'
 import './globals.css'
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-space-mono',
+  display: 'swap',
+})
+
+const shareTechMono = Share_Tech_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-share-tech',
+  display: 'swap',
+})
+
+const pressStart2P = Press_Start_2P({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-press-start',
+  display: 'swap',
+})
+
+const chakraPetch = Chakra_Petch({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-chakra',
+  display: 'swap',
+})
 
 export const viewport: Viewport = {
   themeColor: '#00FF66',
@@ -41,11 +70,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html
+      lang="es"
+      suppressHydrationWarning
+      className={`${spaceMono.variable} ${shareTechMono.variable} ${pressStart2P.variable} ${chakraPetch.variable}`}
+      style={{ backgroundColor: '#0f111e', color: '#ffffff' }}
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
         {/* Favicon e icono de pestaña de navegador */}
         <link rel="icon" type="image/jpeg" href="/pixel-coin.jpg" />
         <link rel="shortcut icon" href="/pixel-coin.jpg" />
@@ -60,7 +91,11 @@ export default function RootLayout({
         {/* Web App Manifest */}
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className="bg-gradient-app min-h-dvh antialiased" suppressHydrationWarning>
+      <body
+        className="min-h-dvh antialiased bg-[#0f111e] text-white"
+        style={{ backgroundColor: '#0f111e', color: '#ffffff' }}
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>
