@@ -238,7 +238,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input area pegado a la navegación */}
-      <div className="shrink-0 border-t border-[#1e233f] px-3 py-2.5 bg-[#111424]">
+      <div className="shrink-0 border-t border-[#1e233f] px-3 py-2 bg-[#111424]">
         <div className="max-w-lg mx-auto">
           <ChatInput
             value={input}
