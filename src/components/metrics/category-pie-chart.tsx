@@ -1,6 +1,6 @@
 'use client'
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { formatCurrency } from '@/lib/utils'
 
 interface CategoryData {
@@ -42,32 +42,42 @@ export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
   }
 
   return (
-    <div className="h-[350px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="45%"
-            innerRadius={60}
-            outerRadius={100}
-            paddingAngle={5}
-            dataKey="value"
-            stroke="none"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-          <Legend 
-            verticalAlign="bottom" 
-            height={36} 
-            iconType="circle"
-            formatter={(value) => <span className="text-xs text-[var(--color-text-secondary)] ml-1">{value}</span>}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+    <div className="h-[340px] w-full flex flex-col">
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={80}
+              paddingAngle={4}
+              dataKey="value"
+              stroke="none"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1.5">
+        {data.map((entry) => (
+          <div key={entry.name} className="flex items-center gap-1.5">
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: entry.fill }}
+            />
+            <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[120px]">
+              {entry.name}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

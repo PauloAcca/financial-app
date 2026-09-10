@@ -108,7 +108,7 @@ export default async function MetricsPage() {
     .sort((a, b) => b.value - a.value)
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-5 pb-10">
       <div>
         <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Métricas</h1>
         <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">
@@ -116,10 +116,10 @@ export default async function MetricsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Evolución Mensual */}
-        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)] lg:col-span-2">
-          <div className="mb-6">
+        <div className="glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)] lg:col-span-2">
+          <div className="mb-3">
             <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
               Evolución de Ingresos y Gastos
             </h2>
@@ -131,8 +131,8 @@ export default async function MetricsPage() {
         </div>
 
         {/* Gastos por Categoría General */}
-        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)]">
-          <div className="mb-6">
+        <div className="glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)]">
+          <div className="mb-3">
             <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
               Gastos por Categoría General
             </h2>
@@ -144,8 +144,8 @@ export default async function MetricsPage() {
         </div>
 
         {/* Gastos Detallados */}
-        <div className="glass rounded-[var(--radius-xl)] p-6 shadow-[var(--shadow-md)]">
-          <div className="mb-6">
+        <div className="glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)]">
+          <div className="mb-3">
             <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
               Gastos Detallados (Subcategorías)
             </h2>
