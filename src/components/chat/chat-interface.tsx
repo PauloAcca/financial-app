@@ -225,13 +225,13 @@ export function ChatInterface() {
       {/* Messages area - único contenedor scrolleable */}
       <div
         ref={messagesContainerRef}
-        className="flex flex-col flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-[65px] overscroll-contain"
+        className="flex flex-col flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-[84px] overscroll-contain"
       >
         {isEmpty ? (
           <EmptyState onQuickAction={sendMessage} />
         ) : (
           <div className="flex flex-col gap-4 max-w-lg w-full mx-auto relative">
-            <div className="sticky top-[62px] z-20 flex justify-end mb-1 pointer-events-none">
+            <div className="sticky top-[84px] z-20 flex justify-end mb-1 pointer-events-none">
               <button
                 onClick={handleNewChat}
                 className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-[11px] font-bold bg-[#181c31]/90 backdrop-blur-sm text-[#8B92A9] border border-[#293056] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 transition-colors cursor-pointer shadow-sm"
