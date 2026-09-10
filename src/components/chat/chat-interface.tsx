@@ -20,6 +20,7 @@ export function ChatInterface() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   // Cargar estado inicial desde localStorage
@@ -43,9 +44,16 @@ export function ChatInterface() {
     }
   }, [messages, isInitialized])
 
-  // Scroll al último mensaje
+  // Scroll al último mensaje (dentro del contenedor, sin mover ancestros ni la ventana)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current
+      const isStreaming = messages[messages.length - 1]?.isStreaming
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: isStreaming ? 'auto' : 'smooth',
+      })
+    }
   }, [messages])
 
   const sendMessage = useCallback(
@@ -213,17 +221,20 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full relative font-mono">
-      {/* Messages area */}
-      <div className="flex flex-col flex-1 overflow-y-auto px-4 py-4">
+    <div className="flex flex-col h-full min-h-0 relative font-mono">
+      {/* Messages area - único contenedor scrolleable */}
+      <div
+        ref={messagesContainerRef}
+        className="flex flex-col flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-[65px] overscroll-contain"
+      >
         {isEmpty ? (
           <EmptyState onQuickAction={sendMessage} />
         ) : (
-          <div className="flex flex-col gap-4 max-w-lg w-full mx-auto relative pt-7 mt-auto">
-            <div className="absolute top-0 right-0 z-10">
+          <div className="flex flex-col gap-4 max-w-lg w-full mx-auto relative">
+            <div className="sticky top-[62px] z-20 flex justify-end mb-1 pointer-events-none">
               <button
                 onClick={handleNewChat}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-[11px] font-bold bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 transition-colors cursor-pointer"
+                className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-[11px] font-bold bg-[#181c31]/90 backdrop-blur-sm text-[#8B92A9] border border-[#293056] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 transition-colors cursor-pointer shadow-sm"
               >
                 <Plus size={13} className="rotate-45" />
                 LIMPIAR
@@ -237,8 +248,8 @@ export function ChatInterface() {
         )}
       </div>
 
-      {/* Input area pegado a la navegación */}
-      <div className="shrink-0 border-t border-[#1e233f] px-3 py-2 bg-[#111424]">
+      {/* Input area pegado a la navegación inferior */}
+      <div className="shrink-0 border-t border-[#1e233f] px-3 py-2 bg-[#111424] z-20">
         <div className="max-w-lg mx-auto">
           <ChatInput
             value={input}
@@ -254,7 +265,7 @@ export function ChatInterface() {
 
 function EmptyState({ onQuickAction }: { onQuickAction: (text: string) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-6 text-center px-4">
+    <div className="flex flex-col items-center justify-center my-auto min-h-[360px] gap-6 text-center px-4">
       {/* Icon */}
       <div className="w-14 h-14 rounded-[4px] border border-[#00FF66] bg-[#181c31] flex items-center justify-center shadow-[0_0_12px_rgba(0,255,102,0.3)]">
         <Bot size={28} className="text-[#00FF66]" />

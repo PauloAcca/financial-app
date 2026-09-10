@@ -46,8 +46,8 @@ export function TopHeader() {
   const title = matchingKey ? PAGE_TITLES[matchingKey] : 'INICIO'
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#111424]/90 backdrop-blur-md border-b border-[#1e233f] px-4 py-3">
-      <div className="max-w-lg mx-auto flex items-center justify-between">
+    <header className="sticky top-0 z-30 w-full h-[57px] shrink-0 flex items-center bg-[#111424]/90 backdrop-blur-md border-b border-[#1e233f] px-4">
+      <div className="max-w-lg w-full mx-auto flex items-center justify-between">
         {/* Logo & Título */}
         <div className="flex items-center gap-3">
           <Link href="/dashboard" prefetch={true} className="flex items-center gap-2 group">

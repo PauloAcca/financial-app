@@ -19,7 +19,7 @@ export default async function ChatPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col -mx-4 -mt-5 -mb-24 h-[calc(100dvh-57px-64px)]">
+    <div className="flex-1 flex flex-col min-h-0 h-full w-full">
       <ChatInterface />
     </div>
   )

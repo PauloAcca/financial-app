@@ -83,6 +83,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -91,6 +92,7 @@ body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   letter-spacing: 0.02em;
+  overscroll-behavior-y: none;
 }
 
 /* =========================================================
