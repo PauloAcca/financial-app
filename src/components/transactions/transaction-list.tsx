@@ -184,6 +184,12 @@ export function TransactionList({ transactions = [], accounts = [], categories =
             const title = tx.description || visuals.defaultTitle
             const categoryName = tx.category?.name || visuals.defaultCategory
             const dateStr = formatDate(tx.occurred_at, 'short')
+            const appliedLabel = tx.applied_month
+              ? new Date(tx.applied_month + 'T00:00:00')
+                  .toLocaleString('es-AR', { month: 'short', year: 'numeric' })
+                  .replace('.', '')
+                  .toUpperCase()
+              : null
 
             return (
               <div
@@ -215,9 +221,16 @@ export function TransactionList({ transactions = [], accounts = [], categories =
                     <p className="text-xs text-[#8B92A9] mt-0.5 truncate">
                       {categoryName} {tx.account?.name && `• ${tx.account.name}`}
                     </p>
-                    <p className="text-[11px] text-[#00FF66] font-mono mt-1 glow-text-green">
-                      {dateStr}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-[11px] text-[#00FF66] font-mono glow-text-green">
+                        {dateStr}
+                      </p>
+                      {appliedLabel && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-[2px] tracking-wider uppercase border border-[#38d9f5]/40 text-[#38d9f5] bg-[#38d9f5]/10">
+                          → {appliedLabel}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -42,6 +42,7 @@ export async function createTransaction(
       currency: input.currency,
       description: input.description?.trim() ?? null,
       occurred_at: input.occurred_at,
+      applied_month: input.applied_month ? input.applied_month : null,
       transfer_account_id: input.transfer_account_id ?? null,
       payment_method: input.payment_method ?? null,
       source: 'manual',
@@ -57,6 +58,7 @@ export async function createTransaction(
   revalidatePath('/transactions')
   revalidatePath('/dashboard')
   revalidatePath('/accounts')
+  revalidatePath('/metrics')
   return { success: true, data }
 }
 
@@ -80,6 +82,7 @@ export async function updateTransaction(
   if (fields.currency            !== undefined) updates.currency            = fields.currency
   if (fields.description         !== undefined) updates.description         = fields.description?.trim()
   if (fields.occurred_at         !== undefined) updates.occurred_at         = fields.occurred_at
+  if (fields.applied_month       !== undefined) updates.applied_month       = fields.applied_month ? fields.applied_month : null
   if (fields.transfer_account_id !== undefined) updates.transfer_account_id = fields.transfer_account_id
   if (fields.payment_method      !== undefined) updates.payment_method      = fields.payment_method
 
@@ -99,6 +102,7 @@ export async function updateTransaction(
   revalidatePath('/transactions')
   revalidatePath('/dashboard')
   revalidatePath('/accounts')
+  revalidatePath('/metrics')
   return { success: true, data }
 }
 
@@ -124,5 +128,6 @@ export async function deleteTransaction(id: string): Promise<ActionResult> {
   revalidatePath('/transactions')
   revalidatePath('/dashboard')
   revalidatePath('/accounts')
+  revalidatePath('/metrics')
   return { success: true, data: undefined }
 }

@@ -241,6 +241,18 @@ async function toolGetBudgetStatus(
 }
 
 // ---------------------------------------------------------
+// Normaliza el mes aplicado a una fecha YYYY-MM-DD (día 1).
+// Acepta 'YYYY-MM' o 'YYYY-MM-DD'. Devuelve null si es inválido.
+// ---------------------------------------------------------
+function normalizeAppliedMonth(value: unknown): string | null {
+  if (value === undefined || value === null || value === '') return null
+  const raw = String(value).trim()
+  if (/^\d{4}-\d{2}$/.test(raw)) return `${raw}-01`
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw
+  return null
+}
+
+// ---------------------------------------------------------
 // CREATE TRANSACTION
 // ---------------------------------------------------------
 async function toolCreateTransaction(
@@ -248,7 +260,7 @@ async function toolCreateTransaction(
   userId: string,
   args: ToolArgs
 ): Promise<ToolResult> {
-  const { type, amount, currency, account_id, category_id, description, occurred_at, transfer_account_id } = args
+  const { type, amount, currency, account_id, category_id, description, occurred_at, applied_month, transfer_account_id } = args
 
   if (!amount || Number(amount) <= 0) {
     return { success: false, error: 'El monto debe ser mayor a cero.' }
@@ -271,6 +283,7 @@ async function toolCreateTransaction(
       currency: String(currency),
       description: description ? String(description).trim() : null,
       occurred_at: String(occurred_at),
+      applied_month: normalizeAppliedMonth(applied_month),
       transfer_account_id: transfer_account_id ? String(transfer_account_id) : null,
       source: 'chat',
     })

@@ -42,6 +42,7 @@ export function TransactionEditModal({
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
+  const [appliedMonth, setAppliedMonth] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -59,6 +60,7 @@ export function TransactionEditModal({
       setCategoryId(transaction.category_id ?? '')
       setDescription(transaction.description ?? '')
       setDate(transaction.occurred_at)
+      setAppliedMonth(transaction.applied_month ? transaction.applied_month.slice(0, 7) : '')
       setPaymentMethod(transaction.payment_method ?? '')
       setError(null)
     }
@@ -136,6 +138,7 @@ export function TransactionEditModal({
         transfer_account_id: actualType === 'transfer' ? transferAccountId : undefined,
         description: description.trim() || (type === 'investment' ? 'Inversión' : undefined),
         occurred_at: date,
+        applied_month: actualType === 'income' ? (appliedMonth ? `${appliedMonth}-01` : '') : undefined,
         payment_method: paymentMethod || undefined,
       })
 
@@ -264,6 +267,18 @@ export function TransactionEditModal({
             placeholder="Opcional"
           />
         </div>
+
+        {/* Mes de aplicación (solo ingresos) */}
+        {(type === 'income' || (type === 'investment' && !transferAccountId)) && (
+          <Input
+            id="edit-tx-applied-month"
+            label="APLICAR A MES (OPCIONAL)"
+            type="month"
+            value={appliedMonth}
+            onChange={(e) => setAppliedMonth(e.target.value)}
+            helper="Ej: te pagan en agosto pero usás esa plata en septiembre → elegí septiembre."
+          />
+        )}
 
         <div className="flex items-center justify-between gap-3 pt-2">
           {/* Botón Borrar Transacción */}

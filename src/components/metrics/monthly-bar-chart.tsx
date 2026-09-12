@@ -7,11 +7,35 @@ interface MonthlyData {
   month: string
   income: number
   expense: number
+  currency?: string
 }
 
 interface MonthlyBarChartProps {
   data: MonthlyData[]
   currency: string
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MonthlyBarTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    const currency = payload[0]?.payload?.currency ?? 'ARS'
+    return (
+      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 rounded-[var(--radius-lg)] shadow-lg min-w-[150px]">
+        <p className="text-sm font-semibold mb-2 text-[var(--color-text-primary)] capitalize">{label}</p>
+        {payload.map((entry: { color?: string; name?: string; value?: number }, index: number) => (
+          <div key={`item-${index}`} className="flex justify-between items-center text-sm mb-1">
+            <span style={{ color: entry.color }}>
+              {entry.name === 'income' ? 'Ingresos' : 'Gastos'}
+            </span>
+            <span className="font-medium text-[var(--color-text-primary)] ml-3">
+              {formatCurrency(Number(entry.value), currency)}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  return null
 }
 
 export function MonthlyBarChart({ data, currency }: MonthlyBarChartProps) {
@@ -23,34 +47,14 @@ export function MonthlyBarChart({ data, currency }: MonthlyBarChartProps) {
     )
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 rounded-[var(--radius-lg)] shadow-lg min-w-[150px]">
-          <p className="text-sm font-semibold mb-2 text-[var(--color-text-primary)] capitalize">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={`item-${index}`} className="flex justify-between items-center text-sm mb-1">
-              <span style={{ color: entry.color }}>
-                {entry.name === 'income' ? 'Ingresos' : 'Gastos'}
-              </span>
-              <span className="font-medium text-[var(--color-text-primary)] ml-3">
-                {formatCurrency(entry.value, currency)}
-              </span>
-            </div>
-          ))}
-        </div>
-      )
-    }
-    return null
-  }
+  const chartData = data.map((entry) => ({ ...entry, currency }))
 
   return (
     <div className="h-[320px] w-full flex flex-col">
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={data}
+            data={chartData}
             margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
             barGap={4}
           >
@@ -67,7 +71,7 @@ export function MonthlyBarChart({ data, currency }: MonthlyBarChartProps) {
               hide // Ocultamos el eje Y para diseño más limpio
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<MonthlyBarTooltip />}
               cursor={{ fill: 'var(--color-surface-3)', opacity: 0.4 }}
             />
             <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />

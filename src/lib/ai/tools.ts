@@ -24,6 +24,7 @@ export const AI_TOOLS: Tool[] = [
             category_id: { type: SchemaType.STRING, description: 'UUID de la categoría (opcional para transfers)' },
             description: { type: SchemaType.STRING, description: 'Descripción breve (opcional)' },
             occurred_at: { type: SchemaType.STRING, description: 'Fecha YYYY-MM-DD. Usar fecha actual si no se especifica.' },
+            applied_month: { type: SchemaType.STRING, description: 'Mes contable al que se aplica, formato YYYY-MM (opcional). Usar solo si el usuario indica que ese dinero se usará para los gastos de otro mes (ej. cobra agosto y lo usa en septiembre).' },
           },
           required: ['type', 'amount', 'currency', 'account_id', 'occurred_at'],
         },

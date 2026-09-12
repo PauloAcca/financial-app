@@ -7,11 +7,30 @@ interface CategoryData {
   name: string
   value: number
   fill: string
+  currency?: string
 }
 
 interface CategoryPieChartProps {
   data: CategoryData[]
   currency: string
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function CategoryPieTooltip({ active, payload }: any) {
+  if (active && payload && payload.length) {
+    const { name, value, payload: dataPayload } = payload[0]
+    return (
+      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 rounded-[var(--radius-lg)] shadow-lg">
+        <p className="text-sm font-medium text-[var(--color-text-primary)]" style={{ color: dataPayload.fill }}>
+          {name}
+        </p>
+        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+          {formatCurrency(value, dataPayload.currency)}
+        </p>
+      </div>
+    )
+  }
+  return null
 }
 
 export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
@@ -23,23 +42,7 @@ export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
     )
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const { name, value, payload: dataPayload } = payload[0]
-      return (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 rounded-[var(--radius-lg)] shadow-lg">
-          <p className="text-sm font-medium text-[var(--color-text-primary)]" style={{ color: dataPayload.fill }}>
-            {name}
-          </p>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-            {formatCurrency(value, currency)}
-          </p>
-        </div>
-      )
-    }
-    return null
-  }
+  const chartData = data.map((entry) => ({ ...entry, currency }))
 
   return (
     <div className="h-[340px] w-full flex flex-col">
@@ -47,7 +50,7 @@ export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={data}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={50}
@@ -56,11 +59,11 @@ export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
               dataKey="value"
               stroke="none"
             >
-              {data.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
             </Pie>
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+            <Tooltip content={<CategoryPieTooltip />} cursor={{ fill: 'transparent' }} />
           </PieChart>
         </ResponsiveContainer>
       </div>

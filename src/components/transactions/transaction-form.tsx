@@ -61,6 +61,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
   const [categoryId,       setCategoryId]       = useState('')
   const [description,      setDescription]      = useState('')
   const [date,             setDate]             = useState(toISODate(new Date()))
+  const [appliedMonth,     setAppliedMonth]     = useState('')
   const [paymentMethod,    setPaymentMethod]    = useState('')
   const [error,            setError]            = useState<string | null>(null)
 
@@ -90,6 +91,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
     setTransferAccountId('')
     setPaymentMethod('')
     setDate(toISODate(new Date()))
+    setAppliedMonth('')
     setError(null)
   }
 
@@ -166,6 +168,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         transfer_account_id: actualType === 'transfer' ? transferAccountId : undefined,
         description: description.trim() || (mode === 'investment' ? 'Inversión' : undefined),
         occurred_at: date,
+        applied_month: actualType === 'income' && appliedMonth ? `${appliedMonth}-01` : undefined,
         payment_method: paymentMethod || undefined,
       })
 
@@ -398,6 +401,18 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
             placeholder="Opcional"
           />
         </div>
+
+        {/* Mes de aplicación (solo ingresos) */}
+        {(mode === 'income' || (mode === 'investment' && !transferAccountId)) && (
+          <Input
+            id="tx-applied-month"
+            label="APLICAR A MES (OPCIONAL)"
+            type="month"
+            value={appliedMonth}
+            onChange={(e) => setAppliedMonth(e.target.value)}
+            helper="Ej: te pagan en agosto pero usás esa plata en septiembre → elegí septiembre."
+          />
+        )}
 
         <button
           id="btn-submit-transaction"
