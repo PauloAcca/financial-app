@@ -4,6 +4,13 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { MonthlyBarChart } from '@/components/metrics/monthly-bar-chart'
 import { CategoryPieChart } from '@/components/metrics/category-pie-chart'
+import { MetricsKpis } from '@/components/metrics/metrics-kpis'
+import { TopCategories, type TopCategoryItem } from '@/components/metrics/top-categories'
+import {
+  CategoryComparison,
+  type CategoryComparisonItem,
+} from '@/components/metrics/category-comparison'
+import { FixedVariableSplit } from '@/components/metrics/fixed-variable-split'
 
 type MetricsMode = 'date' | 'applied'
 
@@ -14,6 +21,7 @@ export interface MetricTransaction {
   occurred_at: string
   applied_month: string | null
   category_id: string | null
+  recurring_transaction_id: string | null
 }
 
 export interface MetricCategory {
@@ -29,6 +37,12 @@ interface MetricsClientProps {
   defaultCurrency: string
 }
 
+interface AggregatedCategory {
+  name: string
+  value: number
+  fill: string
+}
+
 function monthLabel(isoDate: string): string {
   return new Date(isoDate + 'T00:00:00').toLocaleString('es-AR', {
     month: 'long',
@@ -39,6 +53,71 @@ function monthLabel(isoDate: string): string {
 function effectiveDate(tx: MetricTransaction, mode: MetricsMode): string {
   if (mode === 'applied' && tx.applied_month) return tx.applied_month
   return tx.occurred_at
+}
+
+function sumAmounts(txs: MetricTransaction[]): number {
+  return txs.reduce((total, tx) => total + Number(tx.amount), 0)
+}
+
+function aggregateByParent(
+  txs: MetricTransaction[],
+  categories: MetricCategory[]
+): AggregatedCategory[] {
+  const map: Record<string, { value: number; fill: string }> = {}
+  txs.forEach((tx) => {
+    const cat = categories.find((c) => c.id === tx.category_id)
+    const parentCat = cat?.parent_id ? categories.find((c) => c.id === cat.parent_id) : cat
+    const name = parentCat?.name || 'Sin categoría'
+    const fill = parentCat?.color || '#94a3b8'
+    if (!map[name]) map[name] = { value: 0, fill }
+    map[name].value += Number(tx.amount)
+  })
+  return Object.entries(map)
+    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
+    .sort((a, b) => b.value - a.value)
+}
+
+function aggregateByLeaf(
+  txs: MetricTransaction[],
+  categories: MetricCategory[]
+): AggregatedCategory[] {
+  const map: Record<string, { value: number; fill: string }> = {}
+  txs.forEach((tx) => {
+    const cat = categories.find((c) => c.id === tx.category_id)
+    const name = cat?.name || 'Sin categoría'
+    const fill = cat?.color || '#94a3b8'
+    if (!map[name]) map[name] = { value: 0, fill }
+    map[name].value += Number(tx.amount)
+  })
+  return Object.entries(map)
+    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
+    .sort((a, b) => b.value - a.value)
+}
+
+interface PanelProps {
+  title: string
+  subtitle?: string
+  className?: string
+  children: React.ReactNode
+}
+
+function Panel({ title, subtitle, className, children }: PanelProps) {
+  return (
+    <div
+      className={cn(
+        'glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)]',
+        className
+      )}
+    >
+      <div className="mb-3">
+        <h2 className="text-base font-semibold text-[var(--color-text-primary)]">{title}</h2>
+        {subtitle && (
+          <p className="text-xs text-[var(--color-text-muted)] capitalize mt-1">{subtitle}</p>
+        )}
+      </div>
+      {children}
+    </div>
+  )
 }
 
 export function MetricsClient({ transactions, categories, defaultCurrency }: MetricsClientProps) {
@@ -77,42 +156,83 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
   }))
 
   // =========================================================
-  // Torta: gastos del mes actual
+  // Mes actual y anterior
   // =========================================================
   const currentMonthLabel = new Date(currentYear, currentMonthNum, 1).toLocaleString('es-AR', {
     month: 'long',
     year: 'numeric',
   })
+  const previousMonthLabel = new Date(currentYear, currentMonthNum - 1, 1).toLocaleString('es-AR', {
+    month: 'long',
+    year: 'numeric',
+  })
 
-  const generalMap: Record<string, { value: number; fill: string }> = {}
-  const detailedMap: Record<string, { value: number; fill: string }> = {}
+  const txInMonth = (tx: MetricTransaction, label: string) =>
+    monthLabel(effectiveDate(tx, mode)) === label
 
-  transactions
-    .filter(
-      (tx) => tx.type === 'expense' && monthLabel(effectiveDate(tx, mode)) === currentMonthLabel
-    )
-    .forEach((tx) => {
-      const cat = categories.find((c) => c.id === tx.category_id)
-      const parentCat = cat?.parent_id ? categories.find((c) => c.id === cat.parent_id) : cat
+  const currentExpenses = transactions.filter(
+    (tx) => tx.type === 'expense' && txInMonth(tx, currentMonthLabel)
+  )
+  const previousExpenses = transactions.filter(
+    (tx) => tx.type === 'expense' && txInMonth(tx, previousMonthLabel)
+  )
+  const currentIncomes = transactions.filter(
+    (tx) => tx.type === 'income' && txInMonth(tx, currentMonthLabel)
+  )
 
-      const gName = parentCat?.name || 'Sin categoría'
-      const gColor = parentCat?.color || '#94a3b8'
-      if (!generalMap[gName]) generalMap[gName] = { value: 0, fill: gColor }
-      generalMap[gName].value += Number(tx.amount)
+  // =========================================================
+  // KPIs
+  // =========================================================
+  const totalIncome = sumAmounts(currentIncomes)
+  const totalExpense = sumAmounts(currentExpenses)
+  const balance = totalIncome - totalExpense
+  const savingsRate = totalIncome > 0 ? (balance / totalIncome) * 100 : 0
+  const previousTotalExpense = sumAmounts(previousExpenses)
+  const expenseChangePct =
+    previousTotalExpense > 0
+      ? ((totalExpense - previousTotalExpense) / previousTotalExpense) * 100
+      : null
 
-      const dName = cat?.name || 'Sin categoría'
-      const dColor = cat?.color || '#94a3b8'
-      if (!detailedMap[dName]) detailedMap[dName] = { value: 0, fill: dColor }
-      detailedMap[dName].value += Number(tx.amount)
+  // =========================================================
+  // Ranking y detalle por categoría
+  // =========================================================
+  const generalChartData = aggregateByParent(currentExpenses, categories)
+  const detailedChartData = aggregateByLeaf(currentExpenses, categories)
+
+  const topCategories: TopCategoryItem[] = generalChartData.slice(0, 6).map((cat) => ({
+    ...cat,
+    pct: totalExpense > 0 ? (cat.value / totalExpense) * 100 : 0,
+  }))
+
+  // =========================================================
+  // Comparativa por categoría vs mes anterior
+  // =========================================================
+  const currentByParent = new Map(generalChartData.map((c) => [c.name, c]))
+  const previousByParent = new Map(
+    aggregateByParent(previousExpenses, categories).map((c) => [c.name, c])
+  )
+  const comparisonNames = new Set([...currentByParent.keys(), ...previousByParent.keys()])
+
+  const categoryComparison: CategoryComparisonItem[] = Array.from(comparisonNames)
+    .map((name) => {
+      const current = currentByParent.get(name)?.value ?? 0
+      const previous = previousByParent.get(name)?.value ?? 0
+      const diff = current - previous
+      const pct = previous > 0 ? (diff / previous) * 100 : null
+      const fill =
+        currentByParent.get(name)?.fill ?? previousByParent.get(name)?.fill ?? '#94a3b8'
+      return { name, current, previous, diff, pct, fill }
     })
+    .sort((a, b) => b.current - a.current)
+    .slice(0, 8)
 
-  const generalChartData = Object.entries(generalMap)
-    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
-    .sort((a, b) => b.value - a.value)
-
-  const detailedChartData = Object.entries(detailedMap)
-    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
-    .sort((a, b) => b.value - a.value)
+  // =========================================================
+  // Fijos vs variables
+  // =========================================================
+  const fixedExpense = sumAmounts(
+    currentExpenses.filter((tx) => tx.recurring_transaction_id)
+  )
+  const variableExpense = totalExpense - fixedExpense
 
   return (
     <div className="flex flex-col gap-5 pb-10 font-mono">
@@ -156,45 +276,43 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
         </p>
       </div>
 
+      {/* Resumen del mes */}
+      <MetricsKpis
+        totalIncome={totalIncome}
+        totalExpense={totalExpense}
+        balance={balance}
+        savingsRate={savingsRate}
+        expenseChangePct={expenseChangePct}
+        currency={defaultCurrency}
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Evolución Mensual */}
-        <div className="glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)] lg:col-span-2">
-          <div className="mb-3">
-            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-              Evolución de Ingresos y Gastos
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] mt-1">
-              Últimos 6 meses {mode === 'applied' && '· agrupado por mes aplicado'}
-            </p>
-          </div>
-          <MonthlyBarChart data={barChartData} currency={defaultCurrency} />
-        </div>
+        <Panel title="Top categorías del mes" subtitle={`${currentMonthLabel} · en qué gastaste más`}>
+          <TopCategories items={topCategories} currency={defaultCurrency} />
+        </Panel>
 
-        {/* Gastos por Categoría General */}
-        <div className="glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)]">
-          <div className="mb-3">
-            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-              Gastos por Categoría General
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] capitalize mt-1">
-              {currentMonthLabel} (Agrupado)
-            </p>
-          </div>
+        <Panel title="Comparativa vs mes anterior" subtitle={`${currentMonthLabel} vs ${previousMonthLabel}`}>
+          <CategoryComparison items={categoryComparison} currency={defaultCurrency} />
+        </Panel>
+      </div>
+
+      <Panel title="Gastos fijos vs variables" subtitle={currentMonthLabel}>
+        <FixedVariableSplit fixed={fixedExpense} variable={variableExpense} currency={defaultCurrency} />
+      </Panel>
+
+      {/* Evolución Mensual */}
+      <Panel title="Evolución de Ingresos y Gastos" subtitle={`Últimos 6 meses${mode === 'applied' ? ' · agrupado por mes aplicado' : ''}`}>
+        <MonthlyBarChart data={barChartData} currency={defaultCurrency} />
+      </Panel>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Panel title="Gastos por Categoría General" subtitle={`${currentMonthLabel} (Agrupado)`}>
           <CategoryPieChart data={generalChartData} currency={defaultCurrency} />
-        </div>
+        </Panel>
 
-        {/* Gastos Detallados */}
-        <div className="glass rounded-[var(--radius-xl)] p-4 shadow-[var(--shadow-md)]">
-          <div className="mb-3">
-            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-              Gastos Detallados (Subcategorías)
-            </h2>
-            <p className="text-xs text-[var(--color-text-muted)] capitalize mt-1">
-              {currentMonthLabel} (Específico)
-            </p>
-          </div>
+        <Panel title="Gastos Detallados (Subcategorías)" subtitle={`${currentMonthLabel} (Específico)`}>
           <CategoryPieChart data={detailedChartData} currency={defaultCurrency} />
-        </div>
+        </Panel>
       </div>
     </div>
   )
