@@ -4,6 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { formatCurrency } from '@/lib/utils'
 
 interface CategoryData {
+  id?: string | null
   name: string
   value: number
   fill: string
@@ -13,6 +14,7 @@ interface CategoryData {
 interface CategoryPieChartProps {
   data: CategoryData[]
   currency: string
+  onSelectCategory?: (id: string, name: string) => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,7 +35,7 @@ function CategoryPieTooltip({ active, payload }: any) {
   return null
 }
 
-export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
+export function CategoryPieChart({ data, currency, onSelectCategory }: CategoryPieChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex h-[300px] items-center justify-center text-sm text-[var(--color-text-muted)]">
@@ -58,6 +60,11 @@ export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
               paddingAngle={4}
               dataKey="value"
               stroke="none"
+              cursor={onSelectCategory ? 'pointer' : 'default'}
+              onClick={(entry) => {
+                const item = entry as unknown as CategoryData
+                if (item?.id && onSelectCategory) onSelectCategory(item.id, item.name)
+              }}
             >
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -69,17 +76,32 @@ export function CategoryPieChart({ data, currency }: CategoryPieChartProps) {
       </div>
 
       <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1.5">
-        {data.map((entry) => (
-          <div key={entry.name} className="flex items-center gap-1.5">
-            <span
-              className="w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: entry.fill }}
-            />
-            <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[120px]">
-              {entry.name}
-            </span>
-          </div>
-        ))}
+        {data.map((entry) => {
+          const clickable = !!entry.id && !!onSelectCategory
+          return (
+            <button
+              key={entry.name}
+              type="button"
+              disabled={!clickable}
+              onClick={() => {
+                if (entry.id && onSelectCategory) onSelectCategory(entry.id, entry.name)
+              }}
+              className={
+                clickable
+                  ? 'flex items-center gap-1.5 rounded-[2px] cursor-pointer hover:opacity-80 transition-opacity'
+                  : 'flex items-center gap-1.5'
+              }
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: entry.fill }}
+              />
+              <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[120px]">
+                {entry.name}
+              </span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

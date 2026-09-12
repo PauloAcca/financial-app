@@ -3,6 +3,7 @@
 import { formatCurrency } from '@/lib/utils'
 
 export interface TopCategoryItem {
+  id?: string | null
   name: string
   value: number
   fill: string
@@ -12,9 +13,10 @@ export interface TopCategoryItem {
 interface TopCategoriesProps {
   items: TopCategoryItem[]
   currency: string
+  onSelect?: (id: string, name: string) => void
 }
 
-export function TopCategories({ items, currency }: TopCategoriesProps) {
+export function TopCategories({ items, currency, onSelect }: TopCategoriesProps) {
   if (items.length === 0) {
     return (
       <p className="text-xs text-[var(--color-text-muted)] py-6 text-center">
@@ -27,35 +29,50 @@ export function TopCategories({ items, currency }: TopCategoriesProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {items.map((item, index) => (
-        <div key={item.name} className="flex flex-col gap-1">
-          <div className="flex items-center justify-between gap-2 text-xs">
-            <span className="flex items-center gap-1.5 min-w-0">
-              <span className="text-[10px] font-bold text-[#5d6786] tabular-nums w-4 shrink-0">
-                {index + 1}
+      {items.map((item, index) => {
+        const clickable = !!item.id && !!onSelect
+        return (
+          <button
+            key={item.name}
+            type="button"
+            disabled={!clickable}
+            onClick={() => {
+              if (item.id && onSelect) onSelect(item.id, item.name)
+            }}
+            className={
+              clickable
+                ? 'flex flex-col gap-1 text-left -mx-2 px-2 py-1 rounded-[4px] hover:bg-[#20253f] transition-colors cursor-pointer'
+                : 'flex flex-col gap-1 text-left'
+            }
+          >
+            <div className="flex items-center justify-between gap-2 text-xs">
+              <span className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[10px] font-bold text-[#5d6786] tabular-nums w-4 shrink-0">
+                  {index + 1}
+                </span>
+                <span className="text-[#8B92A9] font-mono truncate">{item.name}</span>
               </span>
-              <span className="text-[#8B92A9] font-mono truncate">{item.name}</span>
-            </span>
-            <span className="flex items-center gap-2 shrink-0">
-              <span className="font-bold text-white tabular-nums">
-                {formatCurrency(item.value, currency)}
+              <span className="flex items-center gap-2 shrink-0">
+                <span className="font-bold text-white tabular-nums">
+                  {formatCurrency(item.value, currency)}
+                </span>
+                <span className="text-[#5d6786] tabular-nums w-9 text-right">
+                  {item.pct.toFixed(1)}%
+                </span>
               </span>
-              <span className="text-[#5d6786] tabular-nums w-9 text-right">
-                {item.pct.toFixed(1)}%
-              </span>
-            </span>
-          </div>
-          <div className="h-1.5 rounded-[1px] bg-[#20253f] overflow-hidden">
-            <div
-              className="h-full rounded-[1px] transition-all"
-              style={{
-                width: `${Math.max((item.value / max) * 100, 2)}%`,
-                backgroundColor: item.fill,
-              }}
-            />
-          </div>
-        </div>
-      ))}
+            </div>
+            <div className="h-1.5 rounded-[1px] bg-[#20253f] overflow-hidden">
+              <div
+                className="h-full rounded-[1px] transition-all"
+                style={{
+                  width: `${Math.max((item.value / max) * 100, 2)}%`,
+                  backgroundColor: item.fill,
+                }}
+              />
+            </div>
+          </button>
+        )
+      })}
     </div>
   )
 }

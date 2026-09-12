@@ -11,6 +11,10 @@ import {
   type CategoryComparisonItem,
 } from '@/components/metrics/category-comparison'
 import { FixedVariableSplit } from '@/components/metrics/fixed-variable-split'
+import {
+  CategoryHistoryModal,
+  type CategoryHistoryTarget,
+} from '@/components/categories/category-history-modal'
 
 type MetricsMode = 'date' | 'applied'
 
@@ -38,6 +42,7 @@ interface MetricsClientProps {
 }
 
 interface AggregatedCategory {
+  id: string | null
   name: string
   value: number
   fill: string
@@ -63,17 +68,17 @@ function aggregateByParent(
   txs: MetricTransaction[],
   categories: MetricCategory[]
 ): AggregatedCategory[] {
-  const map: Record<string, { value: number; fill: string }> = {}
+  const map: Record<string, { value: number; fill: string; id: string | null }> = {}
   txs.forEach((tx) => {
     const cat = categories.find((c) => c.id === tx.category_id)
     const parentCat = cat?.parent_id ? categories.find((c) => c.id === cat.parent_id) : cat
     const name = parentCat?.name || 'Sin categoría'
     const fill = parentCat?.color || '#94a3b8'
-    if (!map[name]) map[name] = { value: 0, fill }
+    if (!map[name]) map[name] = { value: 0, fill, id: parentCat?.id ?? null }
     map[name].value += Number(tx.amount)
   })
   return Object.entries(map)
-    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
+    .map(([name, data]) => ({ name, value: data.value, fill: data.fill, id: data.id }))
     .sort((a, b) => b.value - a.value)
 }
 
@@ -81,16 +86,16 @@ function aggregateByLeaf(
   txs: MetricTransaction[],
   categories: MetricCategory[]
 ): AggregatedCategory[] {
-  const map: Record<string, { value: number; fill: string }> = {}
+  const map: Record<string, { value: number; fill: string; id: string | null }> = {}
   txs.forEach((tx) => {
     const cat = categories.find((c) => c.id === tx.category_id)
     const name = cat?.name || 'Sin categoría'
     const fill = cat?.color || '#94a3b8'
-    if (!map[name]) map[name] = { value: 0, fill }
+    if (!map[name]) map[name] = { value: 0, fill, id: cat?.id ?? null }
     map[name].value += Number(tx.amount)
   })
   return Object.entries(map)
-    .map(([name, data]) => ({ name, value: data.value, fill: data.fill }))
+    .map(([name, data]) => ({ name, value: data.value, fill: data.fill, id: data.id }))
     .sort((a, b) => b.value - a.value)
 }
 
@@ -122,6 +127,9 @@ function Panel({ title, subtitle, className, children }: PanelProps) {
 
 export function MetricsClient({ transactions, categories, defaultCurrency }: MetricsClientProps) {
   const [mode, setMode] = useState<MetricsMode>('date')
+  const [historyCategory, setHistoryCategory] = useState<CategoryHistoryTarget | null>(null)
+
+  const handleSelectCategory = (id: string, name: string) => setHistoryCategory({ id, name })
 
   const now = new Date()
   const currentYear = now.getFullYear()
@@ -221,7 +229,8 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
       const pct = previous > 0 ? (diff / previous) * 100 : null
       const fill =
         currentByParent.get(name)?.fill ?? previousByParent.get(name)?.fill ?? '#94a3b8'
-      return { name, current, previous, diff, pct, fill }
+      const id = currentByParent.get(name)?.id ?? previousByParent.get(name)?.id ?? null
+      return { name, current, previous, diff, pct, fill, id }
     })
     .sort((a, b) => b.current - a.current)
     .slice(0, 8)
@@ -287,12 +296,12 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Panel title="Top categorías del mes" subtitle={`${currentMonthLabel} · en qué gastaste más`}>
-          <TopCategories items={topCategories} currency={defaultCurrency} />
+        <Panel title="Top categorías del mes" subtitle={`${currentMonthLabel} · tocá una para ver el historial`}>
+          <TopCategories items={topCategories} currency={defaultCurrency} onSelect={handleSelectCategory} />
         </Panel>
 
-        <Panel title="Comparativa vs mes anterior" subtitle={`${currentMonthLabel} vs ${previousMonthLabel}`}>
-          <CategoryComparison items={categoryComparison} currency={defaultCurrency} />
+        <Panel title="Comparativa vs mes anterior" subtitle={`${currentMonthLabel} vs ${previousMonthLabel} · tocá una para ver el historial`}>
+          <CategoryComparison items={categoryComparison} currency={defaultCurrency} onSelect={handleSelectCategory} />
         </Panel>
       </div>
 
@@ -306,14 +315,20 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Panel title="Gastos por Categoría General" subtitle={`${currentMonthLabel} (Agrupado)`}>
-          <CategoryPieChart data={generalChartData} currency={defaultCurrency} />
+        <Panel title="Gastos por Categoría General" subtitle={`${currentMonthLabel} (Agrupado) · tocá una porción`}>
+          <CategoryPieChart data={generalChartData} currency={defaultCurrency} onSelectCategory={handleSelectCategory} />
         </Panel>
 
-        <Panel title="Gastos Detallados (Subcategorías)" subtitle={`${currentMonthLabel} (Específico)`}>
-          <CategoryPieChart data={detailedChartData} currency={defaultCurrency} />
+        <Panel title="Gastos Detallados (Subcategorías)" subtitle={`${currentMonthLabel} (Específico) · tocá una porción`}>
+          <CategoryPieChart data={detailedChartData} currency={defaultCurrency} onSelectCategory={handleSelectCategory} />
         </Panel>
       </div>
+
+      <CategoryHistoryModal
+        open={!!historyCategory}
+        onClose={() => setHistoryCategory(null)}
+        category={historyCategory}
+      />
     </div>
   )
 }
