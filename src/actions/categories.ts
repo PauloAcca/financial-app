@@ -3,7 +3,24 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import type { CreateCategoryInput, UpdateCategoryInput, ActionResult } from '@/types'
-import type { Category } from '@/types/database'
+import type { Category, CategoryKind, TransactionType } from '@/types/database'
+
+const TRANSACTION_PATHS = ['/categories', '/transactions', '/dashboard', '/accounts', '/metrics']
+
+function revalidateTransactionPaths() {
+  TRANSACTION_PATHS.forEach((path) => revalidatePath(path))
+}
+
+// Item liviano de transacción para los modales de categoría
+export interface CategoryTransactionItem {
+  id: string
+  amount: number
+  currency: string
+  description: string | null
+  occurred_at: string
+  type: TransactionType
+  account: { name: string } | null
+}
 
 // =========================================================
 // CREATE CATEGORY (solo propias del usuario)
@@ -40,7 +57,10 @@ export async function createCategory(
 }
 
 // =========================================================
-// UPDATE CATEGORY (solo propias, no se pueden editar las del sistema)
+// UPDATE CATEGORY
+// Solo se renombran/modifican metadatos. Las transacciones
+// referencian por category_id, por lo que conservan el vínculo
+// y toman el nuevo nombre automáticamente.
 // =========================================================
 export async function updateCategory(
   input: UpdateCategoryInput
@@ -72,27 +92,50 @@ export async function updateCategory(
     return { success: false, error: 'No se pudo actualizar la categoría.' }
   }
 
-  revalidatePath('/categories')
-  revalidatePath('/transactions')
+  revalidateTransactionPaths()
   return { success: true, data }
 }
 
 // =========================================================
 // DELETE CATEGORY (solo propias)
+// Si se pasa reassignToId, las transacciones de esta categoría
+// se mueven a la categoría destino antes de eliminarla.
+// Si no, quedan sin categoría (FK on delete set null).
 // =========================================================
-export async function deleteCategory(id: string): Promise<ActionResult> {
+export async function deleteCategory(
+  id: string,
+  reassignToId?: string
+): Promise<ActionResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'No autenticado.' }
 
-  // 1. Soltar a los hijos (convertirlos en categorías principales)
+  if (reassignToId && reassignToId === id) {
+    return { success: false, error: 'No podés reasignar a la misma categoría.' }
+  }
+
+  // 1. Reasignar transacciones a la categoría destino (si se indicó)
+  if (reassignToId) {
+    const { error: reassignError } = await supabase
+      .from('transactions')
+      .update({ category_id: reassignToId })
+      .eq('category_id', id)
+      .eq('user_id', user.id)
+
+    if (reassignError) {
+      console.error('deleteCategory reassign:', reassignError)
+      return { success: false, error: 'No se pudieron reasignar las transacciones.' }
+    }
+  }
+
+  // 2. Soltar a los hijos (convertirlos en categorías principales)
   await supabase
     .from('categories')
     .update({ parent_id: null })
     .eq('parent_id', id)
     .eq('user_id', user.id)
 
-  // 2. Eliminar la categoría
+  // 3. Eliminar la categoría
   const { error } = await supabase
     .from('categories')
     .delete()
@@ -105,7 +148,164 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
     return { success: false, error: 'No se pudo eliminar la categoría.' }
   }
 
-  revalidatePath('/categories')
-  revalidatePath('/transactions')
+  revalidateTransactionPaths()
+  return { success: true, data: undefined }
+}
+
+// =========================================================
+// GET CATEGORY TRANSACTIONS — movimientos de una categoría
+// =========================================================
+export async function getCategoryTransactions(
+  categoryId: string
+): Promise<ActionResult<CategoryTransactionItem[]>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'No autenticado.' }
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('id, amount, currency, description, occurred_at, type, account:accounts!account_id(name)')
+    .eq('user_id', user.id)
+    .eq('category_id', categoryId)
+    .order('occurred_at', { ascending: false })
+
+  if (error) {
+    console.error('getCategoryTransactions:', error)
+    return { success: false, error: 'No se pudieron cargar los movimientos.' }
+  }
+
+  return { success: true, data: (data ?? []) as unknown as CategoryTransactionItem[] }
+}
+
+// =========================================================
+// GET UNCATEGORIZED TRANSACTIONS — movimientos sin categoría
+// Filtra por tipo (income/expense) según la categoría.
+// =========================================================
+export async function getUncategorizedTransactions(
+  kind: CategoryKind
+): Promise<ActionResult<CategoryTransactionItem[]>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'No autenticado.' }
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('id, amount, currency, description, occurred_at, type, account:accounts!account_id(name)')
+    .eq('user_id', user.id)
+    .eq('type', kind)
+    .is('category_id', null)
+    .order('occurred_at', { ascending: false })
+
+  if (error) {
+    console.error('getUncategorizedTransactions:', error)
+    return { success: false, error: 'No se pudieron cargar los movimientos.' }
+  }
+
+  return { success: true, data: (data ?? []) as unknown as CategoryTransactionItem[] }
+}
+
+// =========================================================
+// ASSIGN TRANSACTIONS TO CATEGORY — asignación masiva
+// =========================================================
+export async function assignTransactionsToCategory(
+  transactionIds: string[],
+  categoryId: string
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'No autenticado.' }
+
+  if (transactionIds.length === 0) {
+    return { success: false, error: 'No seleccionaste movimientos.' }
+  }
+
+  const { error } = await supabase
+    .from('transactions')
+    .update({ category_id: categoryId })
+    .in('id', transactionIds)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('assignTransactionsToCategory:', error)
+    return { success: false, error: 'No se pudieron asignar los movimientos.' }
+  }
+
+  revalidateTransactionPaths()
+  return { success: true, data: undefined }
+}
+
+// =========================================================
+// GET CATEGORY HISTORY — movimientos de una categoría y sus
+// subcategorías, para el historial con filtro por mes.
+// =========================================================
+export interface CategoryHistoryItem {
+  id: string
+  amount: number
+  currency: string
+  description: string | null
+  occurred_at: string
+  applied_month: string | null
+  type: TransactionType
+  account: { name: string } | null
+  category: { name: string } | null
+}
+
+export async function getCategoryHistory(
+  categoryId: string
+): Promise<ActionResult<CategoryHistoryItem[]>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'No autenticado.' }
+
+  // Incluir subcategorías de la categoría seleccionada
+  const { data: children } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('parent_id', categoryId)
+
+  const ids = [categoryId, ...(children ?? []).map((c) => c.id)]
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('id, amount, currency, description, occurred_at, applied_month, type, account:accounts!account_id(name), category:categories!category_id(name)')
+    .eq('user_id', user.id)
+    .in('category_id', ids)
+    .order('occurred_at', { ascending: false })
+    .limit(1000)
+
+  if (error) {
+    console.error('getCategoryHistory:', error)
+    return { success: false, error: 'No se pudo cargar el historial.' }
+  }
+
+  return { success: true, data: (data ?? []) as unknown as CategoryHistoryItem[] }
+}
+
+// =========================================================
+// UNASSIGN TRANSACTIONS — quitar categoría (masivo)
+// =========================================================
+export async function unassignTransactions(
+  transactionIds: string[]
+): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'No autenticado.' }
+
+  if (transactionIds.length === 0) {
+    return { success: false, error: 'No seleccionaste movimientos.' }
+  }
+
+  const { error } = await supabase
+    .from('transactions')
+    .update({ category_id: null })
+    .in('id', transactionIds)
+    .eq('user_id', user.id)
+
+  if (error) {
+    console.error('unassignTransactions:', error)
+    return { success: false, error: 'No se pudieron quitar los movimientos.' }
+  }
+
+  revalidateTransactionPaths()
   return { success: true, data: undefined }
 }

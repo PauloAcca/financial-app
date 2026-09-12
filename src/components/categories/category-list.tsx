@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { Pencil, Trash2, Plus, History } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { deleteCategory } from '@/actions/categories'
-import { toast } from '@/components/ui/toast'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CategoryForm } from './category-form'
+import { CategoryTransactionsModal } from './category-transactions-modal'
+import { DeleteCategoryModal } from './delete-category-modal'
+import { CategoryHistoryModal } from './category-history-modal'
 import type { Category, CategoryKind } from '@/types/database'
 
 interface CategoryListProps {
@@ -17,23 +18,18 @@ interface CategoryListProps {
 interface CategoryRowProps {
   category: Category
   onEdit: (cat: Category) => void
+  onDelete: (cat: Category) => void
+  onManage: (cat: Category) => void
+  onHistory: (cat: Category) => void
 }
 
-function CategoryRow({ category, onEdit }: CategoryRowProps) {
-  const [isPending, startTransition] = useTransition()
-
-  function handleDelete() {
-    if (!confirm(`¿Eliminás la categoría "${category.name}"? Las transacciones existentes quedarán sin categoría.`)) return
-
-    startTransition(async () => {
-      const result = await deleteCategory(category.id)
-      if (result.success) toast.success('Categoría eliminada.')
-      else toast.error(result.error)
-    })
-  }
-
+function CategoryRow({ category, onEdit, onDelete, onManage, onHistory }: CategoryRowProps) {
   return (
-    <div className="group flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] hover:bg-[var(--color-surface-2)] transition-colors">
+    <div
+      onClick={() => onManage(category)}
+      className="group flex items-center gap-3 px-4 py-3 rounded-[var(--radius-md)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer"
+      title="Gestionar movimientos"
+    >
       {/* Color dot */}
       <div
         className="w-3 h-3 rounded-full shrink-0"
@@ -42,39 +38,70 @@ function CategoryRow({ category, onEdit }: CategoryRowProps) {
 
       <span className="flex-1 text-sm text-[var(--color-text-primary)]">{category.name}</span>
 
-      {category.is_system ? (
-        <Badge variant="system">Sistema</Badge>
-      ) : (
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => onEdit(category)}
-            className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
-                       hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)]
-                       transition-colors cursor-pointer"
-            aria-label={`Editar ${category.name}`}
-          >
-            <Pencil size={14} />
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={isPending}
-            className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
-                       hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)]
-                       transition-colors cursor-pointer disabled:opacity-40"
-            aria-label={`Eliminar ${category.name}`}
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
-      )}
+      {/* Acciones */}
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onHistory(category)
+          }}
+          className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
+                     hover:bg-[var(--color-surface-3)] hover:text-[#38d9f5]
+                     transition-colors cursor-pointer"
+          aria-label={`Ver historial de ${category.name}`}
+          title="Ver historial"
+        >
+          <History size={14} />
+        </button>
+
+        {!category.is_system && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit(category)
+              }}
+              className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
+                         hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)]
+                         transition-colors cursor-pointer"
+              aria-label={`Editar ${category.name}`}
+            >
+              <Pencil size={14} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(category)
+              }}
+              className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
+                         hover:bg-[var(--color-danger-subtle)] hover:text-[var(--color-danger)]
+                         transition-colors cursor-pointer"
+              aria-label={`Eliminar ${category.name}`}
+            >
+              <Trash2 size={14} />
+            </button>
+          </>
+        )}
+      </div>
+
+      {category.is_system && <Badge variant="system">Sistema</Badge>}
     </div>
   )
 }
 
-function renderCategoryTree(categories: Category[], isSystem: boolean, onEdit: (cat: Category) => void) {
+interface TreeProps {
+  categories: Category[]
+  isSystem: boolean
+  onEdit: (cat: Category) => void
+  onDelete: (cat: Category) => void
+  onManage: (cat: Category) => void
+  onHistory: (cat: Category) => void
+}
+
+function renderCategoryTree({ categories, isSystem, onEdit, onDelete, onManage, onHistory }: TreeProps) {
   // Obtenemos solo los padres que correspondan a esta sección (Sistema o Personalizadas)
   const parents = categories.filter(c => !c.parent_id && c.is_system === isSystem)
-  
+
   if (parents.length === 0) return null
 
   return (
@@ -84,10 +111,10 @@ function renderCategoryTree(categories: Category[], isSystem: boolean, onEdit: (
         const subcategories = categories.filter(c => c.parent_id === parent.id)
         return (
           <div key={parent.id} className="flex flex-col">
-            <CategoryRow category={parent} onEdit={onEdit} />
+            <CategoryRow category={parent} onEdit={onEdit} onDelete={onDelete} onManage={onManage} onHistory={onHistory} />
             {subcategories.map(child => (
               <div key={child.id} className="pl-6 border-l-2 border-l-[var(--color-border-subtle)] ml-5">
-                <CategoryRow category={child} onEdit={onEdit} />
+                <CategoryRow category={child} onEdit={onEdit} onDelete={onDelete} onManage={onManage} onHistory={onHistory} />
               </div>
             ))}
           </div>
@@ -103,9 +130,12 @@ interface SectionProps {
   categories: Category[]
   onAdd: (kind: CategoryKind) => void
   onEdit: (cat: Category) => void
+  onDelete: (cat: Category) => void
+  onManage: (cat: Category) => void
+  onHistory: (cat: Category) => void
 }
 
-function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProps) {
+function CategorySection({ title, kind, categories, onAdd, onEdit, onDelete, onManage, onHistory }: SectionProps) {
   const system = categories.filter((c) => c.is_system)
   const custom = categories.filter((c) => !c.is_system)
   const customParents = custom.filter(c => !c.parent_id)
@@ -140,7 +170,7 @@ function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProp
             {/* Categorías del sistema */}
             {system.length > 0 && (
               <div className="px-1 py-1">
-                {renderCategoryTree(categories, true, onEdit)}
+                {renderCategoryTree({ categories, isSystem: true, onEdit, onDelete, onManage, onHistory })}
               </div>
             )}
 
@@ -152,7 +182,7 @@ function CategorySection({ title, kind, categories, onAdd, onEdit }: SectionProp
                     Personalizadas
                   </p>
                 )}
-                {renderCategoryTree(categories, false, onEdit)}
+                {renderCategoryTree({ categories, isSystem: false, onEdit, onDelete, onManage, onHistory })}
               </div>
             )}
           </>
@@ -166,6 +196,9 @@ export function CategoryList({ categories }: CategoryListProps) {
   const [formOpen, setFormOpen]     = useState(false)
   const [defaultKind, setDefaultKind] = useState<CategoryKind>('expense')
   const [editingCat, setEditingCat] = useState<Category | null>(null)
+  const [managingCat, setManagingCat] = useState<Category | null>(null)
+  const [deletingCat, setDeletingCat] = useState<Category | null>(null)
+  const [historyCat, setHistoryCat] = useState<Category | null>(null)
 
   const income  = categories.filter((c) => c.kind === 'income')
   const expense = categories.filter((c) => c.kind === 'expense')
@@ -181,6 +214,18 @@ export function CategoryList({ categories }: CategoryListProps) {
     setFormOpen(true)
   }
 
+  function handleManage(cat: Category) {
+    setFormOpen(false)
+    setEditingCat(null)
+    setManagingCat(cat)
+  }
+
+  function handleHistory(cat: Category) {
+    setFormOpen(false)
+    setEditingCat(null)
+    setHistoryCat(cat)
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -190,6 +235,9 @@ export function CategoryList({ categories }: CategoryListProps) {
           categories={expense}
           onAdd={handleAdd}
           onEdit={handleEdit}
+          onDelete={setDeletingCat}
+          onManage={handleManage}
+          onHistory={handleHistory}
         />
         <CategorySection
           title="Ingresos"
@@ -197,6 +245,9 @@ export function CategoryList({ categories }: CategoryListProps) {
           categories={income}
           onAdd={handleAdd}
           onEdit={handleEdit}
+          onDelete={setDeletingCat}
+          onManage={handleManage}
+          onHistory={handleHistory}
         />
       </div>
 
@@ -206,6 +257,26 @@ export function CategoryList({ categories }: CategoryListProps) {
         editingCategory={editingCat}
         defaultKind={defaultKind}
         categories={categories}
+        onManageTransactions={handleManage}
+      />
+
+      <CategoryTransactionsModal
+        open={!!managingCat}
+        onClose={() => setManagingCat(null)}
+        category={managingCat}
+      />
+
+      <DeleteCategoryModal
+        open={!!deletingCat}
+        onClose={() => setDeletingCat(null)}
+        category={deletingCat}
+        categories={categories}
+      />
+
+      <CategoryHistoryModal
+        open={!!historyCat}
+        onClose={() => setHistoryCat(null)}
+        category={historyCat}
       />
     </>
   )

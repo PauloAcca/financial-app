@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/toast'
 import { createCategory, updateCategory } from '@/actions/categories'
 import { ACCOUNT_COLORS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { ListChecks } from 'lucide-react'
 import type { Category, CategoryKind } from '@/types/database'
 
 const KIND_OPTIONS = [
@@ -23,9 +24,10 @@ interface CategoryFormProps {
   defaultKind?: CategoryKind
   categories?: Category[]
   onCreated?: (category: Category) => void
+  onManageTransactions?: (category: Category) => void
 }
 
-export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'expense', categories = [], onCreated }: CategoryFormProps) {
+export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'expense', categories = [], onCreated, onManageTransactions }: CategoryFormProps) {
   const isEditing = !!editingCategory
   const [isPending, startTransition] = useTransition()
 
@@ -149,6 +151,18 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
             ))}
           </div>
         </div>
+
+        {/* Opción para gestionar movimientos (solo al editar una categoría) */}
+        {isEditing && editingCategory && onManageTransactions && (
+          <button
+            type="button"
+            onClick={() => onManageTransactions(editingCategory)}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[4px] border border-[#293056] text-[#8B92A9] hover:border-[#38d9f5] hover:text-[#38d9f5] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+          >
+            <ListChecks size={14} />
+            Gestionar movimientos de esta categoría
+          </button>
+        )}
 
         <div className="flex justify-end gap-3 pt-2">
           <Button variant="ghost" type="button" onClick={handleClose}>
