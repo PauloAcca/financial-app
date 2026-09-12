@@ -5,6 +5,16 @@ import { createClient } from '@/lib/supabase/server'
 import type { CreateLoanInput, UpdateLoanInput, RecordLoanPaymentInput, ActionResult } from '@/types'
 import type { Loan, LoanPayment, LoanStatus } from '@/types/database'
 
+// Devuelve un mensaje amigable. En desarrollo agrega el detalle real
+// del error de Postgres/Supabase para poder diagnosticar.
+function loanErrorMessage(action: string, error: { message?: string } | null): string {
+  const base = `No se pudo ${action}.`
+  if (process.env.NODE_ENV !== 'production' && error?.message) {
+    return `${base} (${error.message})`
+  }
+  return base
+}
+
 // =========================================================
 // CREATE LOAN
 // =========================================================
@@ -45,7 +55,7 @@ export async function createLoan(
 
   if (error) {
     console.error('createLoan:', error)
-    return { success: false, error: 'No se pudo registrar el préstamo.' }
+    return { success: false, error: loanErrorMessage('registrar el préstamo', error) }
   }
 
   revalidatePath('/prestamos')
@@ -94,7 +104,7 @@ export async function updateLoan(
 
   if (error) {
     console.error('updateLoan:', error)
-    return { success: false, error: 'No se pudo actualizar el préstamo.' }
+    return { success: false, error: loanErrorMessage('actualizar el préstamo', error) }
   }
 
   revalidatePath('/prestamos')
@@ -171,7 +181,7 @@ export async function recordLoanPayment(
 
   if (payErr) {
     console.error('recordLoanPayment:', payErr)
-    return { success: false, error: 'No se pudo registrar el pago.' }
+    return { success: false, error: loanErrorMessage('registrar el pago', payErr) }
   }
 
   // 3. Recalcular total pagado del préstamo

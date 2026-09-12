@@ -7,12 +7,12 @@
 -- =========================================================
 
 alter table transactions
-  add column applied_month date;
+  add column if not exists applied_month date;
 
 comment on column transactions.applied_month is
   'Primer día del mes al que se aplica contablemente la transacción. NULL = usar occurred_at.';
 
 -- Índice para agrupar/filtrar por mes aplicado en métricas.
-create index idx_transactions_applied_month
+create index if not exists idx_transactions_applied_month
   on transactions(user_id, applied_month)
   where applied_month is not null;
