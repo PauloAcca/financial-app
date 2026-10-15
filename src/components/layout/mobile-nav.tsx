@@ -45,16 +45,17 @@ export function MobileNav() {
             prefetch={true}
             onClick={() => setOptimisticPath(href)}
             className={cn(
-              'flex-1 h-full flex flex-col items-center justify-center gap-1 transition-all duration-75',
+              'flex-1 h-full flex items-center justify-center transition-all duration-75',
               'font-mono tracking-wider select-none active:scale-95 touch-manipulation',
               active
                 ? 'bg-[#00FF66] text-[#000000] font-bold shadow-[0_0_12px_rgba(0,255,102,0.4)]'
                 : 'text-[#8B92A9] hover:text-white hover:bg-[#181c31]'
             )}
             aria-current={active ? 'page' : undefined}
+            aria-label={label}
+            title={label}
           >
-            <Icon size={20} className={active ? 'text-black stroke-[2.5]' : 'stroke-[1.8]'} />
-            <span className="text-[10px] uppercase font-bold tracking-widest">{label}</span>
+            <Icon size={22} className={active ? 'text-black stroke-[2.5]' : 'stroke-[1.8]'} />
           </Link>
         )
       })}

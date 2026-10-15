@@ -68,13 +68,14 @@ export function Modal({
         className={cn(
           'relative z-10 w-full bg-[#181c31] border-2 border-[#00FF66] rounded-[4px]',
           'animate-scale-in shadow-[0_0_20px_rgba(0,255,102,0.25)] font-mono',
+          'flex flex-col max-h-[90dvh] overflow-hidden',
           sizeMap[size],
           className
         )}
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-center justify-between p-4 pb-2 border-b border-[#293056]">
+          <div className="flex items-center justify-between p-4 pb-2 border-b border-[#293056] shrink-0">
             <div>
               {title && (
                 <h2
@@ -101,7 +102,7 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className="p-4">{children}</div>
+        <div className="p-4 overflow-y-auto flex-1 min-h-0">{children}</div>
       </div>
     </div>
   )
