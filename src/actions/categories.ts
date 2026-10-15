@@ -244,7 +244,6 @@ export interface CategoryHistoryItem {
   currency: string
   description: string | null
   occurred_at: string
-  applied_month: string | null
   type: TransactionType
   account: { name: string } | null
   category: { name: string } | null
@@ -267,7 +266,7 @@ export async function getCategoryHistory(
 
   const { data, error } = await supabase
     .from('transactions')
-    .select('id, amount, currency, description, occurred_at, applied_month, type, account:accounts!account_id(name), category:categories!category_id(name)')
+    .select('id, amount, currency, description, occurred_at, type, account:accounts!account_id(name), category:categories!category_id(name)')
     .eq('user_id', user.id)
     .in('category_id', ids)
     .order('occurred_at', { ascending: false })

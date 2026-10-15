@@ -55,7 +55,6 @@ export interface Transaction {
   currency: string
   description: string | null
   occurred_at: string
-  applied_month: string | null
   transfer_account_id: string | null
   payment_method: string | null
   source: TransactionSource

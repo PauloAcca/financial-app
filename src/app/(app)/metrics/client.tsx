@@ -16,14 +16,11 @@ import {
   type CategoryHistoryTarget,
 } from '@/components/categories/category-history-modal'
 
-type MetricsMode = 'date' | 'applied'
-
 export interface MetricTransaction {
   id: string
   amount: number
   type: string
   occurred_at: string
-  applied_month: string | null
   category_id: string | null
   recurring_transaction_id: string | null
 }
@@ -53,11 +50,6 @@ function monthLabel(isoDate: string): string {
     month: 'long',
     year: 'numeric',
   })
-}
-
-function effectiveDate(tx: MetricTransaction, mode: MetricsMode): string {
-  if (mode === 'applied' && tx.applied_month) return tx.applied_month
-  return tx.occurred_at
 }
 
 function sumAmounts(txs: MetricTransaction[]): number {
@@ -126,7 +118,6 @@ function Panel({ title, subtitle, className, children }: PanelProps) {
 }
 
 export function MetricsClient({ transactions, categories, defaultCurrency }: MetricsClientProps) {
-  const [mode, setMode] = useState<MetricsMode>('date')
   const [historyCategory, setHistoryCategory] = useState<CategoryHistoryTarget | null>(null)
 
   const handleSelectCategory = (id: string, name: string) => setHistoryCategory({ id, name })
@@ -151,7 +142,7 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
   })
 
   transactions.forEach((tx) => {
-    const label = monthLabel(effectiveDate(tx, mode))
+    const label = monthLabel(tx.occurred_at)
     if (!monthlyMap[label]) return
     if (tx.type === 'income') monthlyMap[label].income += Number(tx.amount)
     else if (tx.type === 'expense') monthlyMap[label].expense += Number(tx.amount)
@@ -176,7 +167,7 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
   })
 
   const txInMonth = (tx: MetricTransaction, label: string) =>
-    monthLabel(effectiveDate(tx, mode)) === label
+    monthLabel(tx.occurred_at) === label
 
   const currentExpenses = transactions.filter(
     (tx) => tx.type === 'expense' && txInMonth(tx, currentMonthLabel)
@@ -252,39 +243,6 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
         </p>
       </div>
 
-      {/* Selector de modo de agrupación */}
-      <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-2 gap-2 max-w-sm">
-          <button
-            onClick={() => setMode('date')}
-            className={cn(
-              'py-2 px-3 rounded-[4px] text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              mode === 'date'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#1e233d] text-[#8B92A9] border border-[#293056] hover:text-white hover:bg-[#252b49]'
-            )}
-          >
-            Por fecha
-          </button>
-          <button
-            onClick={() => setMode('applied')}
-            className={cn(
-              'py-2 px-3 rounded-[4px] text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              mode === 'applied'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#1e233d] text-[#8B92A9] border border-[#293056] hover:text-white hover:bg-[#252b49]'
-            )}
-          >
-            Por mes aplicado
-          </button>
-        </div>
-        <p className="text-[11px] text-[#5d6786]">
-          {mode === 'applied'
-            ? 'Los movimientos con “mes aplicado” se agrupan según el mes en que usás esa plata (ej: sueldo de agosto aplicado a septiembre).'
-            : 'Los movimientos se agrupan por su fecha real.'}
-        </p>
-      </div>
-
       {/* Resumen del mes */}
       <MetricsKpis
         totalIncome={totalIncome}
@@ -310,7 +268,7 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
       </Panel>
 
       {/* Evolución Mensual */}
-      <Panel title="Evolución de Ingresos y Gastos" subtitle={`Últimos 6 meses${mode === 'applied' ? ' · agrupado por mes aplicado' : ''}`}>
+      <Panel title="Evolución de Ingresos y Gastos" subtitle="Últimos 6 meses">
         <MonthlyBarChart data={barChartData} currency={defaultCurrency} />
       </Panel>
 

@@ -19,9 +19,9 @@ export default async function MetricsPage() {
   const [{ data: transactions }, { data: allCategories }, { data: profile }] = await Promise.all([
     supabase
       .from('transactions')
-      .select('id, amount, type, occurred_at, applied_month, category_id, recurring_transaction_id')
+      .select('id, amount, type, occurred_at, category_id, recurring_transaction_id')
       .eq('user_id', uid)
-      .or(`occurred_at.gte.${startStr},applied_month.gte.${startStr}`)
+      .gte('occurred_at', startStr)
       .order('occurred_at', { ascending: true }),
     supabase
       .from('categories')

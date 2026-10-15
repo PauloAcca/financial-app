@@ -34,7 +34,6 @@ export type CreateTransactionInput = {
   currency: string
   description?: string
   occurred_at: string
-  applied_month?: string
   transfer_account_id?: string
   payment_method?: string
 }
