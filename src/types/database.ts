@@ -163,3 +163,15 @@ export interface LoanPayment {
   // Joined
   account?: Pick<Account, 'id' | 'name' | 'color' | 'icon'>
 }
+
+// Valuación (snapshot) del valor de mercado de una inversión/bóveda
+export interface InvestmentValuation {
+  id: string
+  user_id: string
+  account_id: string
+  value: number
+  currency: string
+  valued_at: string
+  notes: string | null
+  created_at: string
+}

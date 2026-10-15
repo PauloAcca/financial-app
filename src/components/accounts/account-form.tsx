@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/toast'
 import { createAccount, updateAccount } from '@/actions/accounts'
 import { ACCOUNT_TYPES, CURRENCIES, ACCOUNT_COLORS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { Wallet, TrendingUp } from 'lucide-react'
 import type { Account, AccountType } from '@/types/database'
 
 interface AccountFormProps {
@@ -65,6 +66,9 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
     })
   }
 
+  const isInvestment = type === 'investment'
+  const accountTypeOptions = ACCOUNT_TYPES.filter((t) => t.value !== 'investment')
+
   return (
     <Modal
       open={open}
@@ -88,13 +92,54 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
           required
         />
 
-        <Select
-          id="account-form-type"
-          label="Tipo de cuenta"
-          value={type}
-          onChange={(e) => setType(e.target.value as AccountType)}
-          options={ACCOUNT_TYPES.map((t) => ({ value: t.value, label: t.label }))}
-        />
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-[var(--color-text-secondary)]">
+            ¿Qué tipo de cuenta es?
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => { if (isInvestment) setType('bank') }}
+              className={cn(
+                'py-2.5 px-3 rounded-[4px] text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                !isInvestment
+                  ? 'bg-[#00FF66] text-black border-[#00FF66] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
+                  : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+              )}
+            >
+              <Wallet size={15} className="stroke-[2.5]" />
+              <span>Cuenta / Billetera</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setType('investment')}
+              className={cn(
+                'py-2.5 px-3 rounded-[4px] text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                isInvestment
+                  ? 'bg-[#a855f7] text-white border-[#a855f7] shadow-[0_0_10px_rgba(168,85,247,0.35)]'
+                  : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+              )}
+            >
+              <TrendingUp size={15} className="stroke-[2.5]" />
+              <span>Inversión</span>
+            </button>
+          </div>
+          {isInvestment && (
+            <p className="text-xs text-[#a855f7]">
+              Se va a mostrar en la sección Inversiones para seguir su valor y rentabilidad.
+            </p>
+          )}
+        </div>
+
+        {!isInvestment && (
+          <Select
+            id="account-form-type"
+            label="Tipo de cuenta"
+            value={type}
+            onChange={(e) => setType(e.target.value as AccountType)}
+            options={accountTypeOptions.map((t) => ({ value: t.value, label: t.label }))}
+          />
+        )}
 
         <Select
           id="account-form-currency"

@@ -12,6 +12,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
+import { buildInvestmentAccountIds, isInvestmentTransaction } from '@/lib/investments'
 import { deleteTransaction } from '@/actions/transactions'
 import { toast } from '@/components/ui/toast'
 import { TransactionEditModal } from '@/components/transactions/transaction-edit-modal'
@@ -24,11 +25,11 @@ interface TransactionListProps {
 }
 
 // Icono y color del bloque según categoría o tipo
-function getTransactionVisuals(tx: Transaction) {
+function getTransactionVisuals(tx: Transaction, isInvestment: boolean) {
   const desc = (tx.description || '').toLowerCase()
   const cat = (tx.category?.name || '').toLowerCase()
 
-  if (desc.includes('invers') || cat.includes('invers')) {
+  if (isInvestment && tx.type !== 'expense') {
     return {
       bgColor: 'bg-[#a855f7]',
       textColor: 'text-white',
@@ -97,14 +98,15 @@ export function TransactionList({ transactions = [], accounts = [], categories =
   const [editingTx, setEditingTx] = useState<Transaction | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  // Filtrar según pestaña seleccionada (inversiones se incluyen en Botín / Ingresos porque suman dinero)
-  const filteredList = transactions.filter((tx) => {
-    const desc = (tx.description || '').toLowerCase()
-    const cat = (tx.category?.name || '').toLowerCase()
-    const isInv = desc.includes('invers') || cat.includes('invers')
+  const investmentAccountIds = buildInvestmentAccountIds(accounts)
+  const isInvestment = (tx: Transaction) => isInvestmentTransaction(tx, investmentAccountIds)
 
-    if (filter === 'income') return tx.type === 'income' || isInv
-    if (filter === 'expense') return tx.type === 'expense' && !isInv
+  // Filtrar según pestaña seleccionada.
+  // Los movimientos que entran a una cuenta de inversión cuentan como botín;
+  // los que salen (retiros/comisiones) no son gasto de consumo.
+  const filteredList = transactions.filter((tx) => {
+    if (filter === 'income') return tx.type === 'income' || (isInvestment(tx) && tx.type !== 'expense')
+    if (filter === 'expense') return tx.type === 'expense' && !isInvestment(tx)
     return true
   })
 
@@ -180,7 +182,7 @@ export function TransactionList({ transactions = [], accounts = [], categories =
       ) : (
         <div className="flex flex-col gap-3">
           {filteredList.map((tx) => {
-            const visuals = getTransactionVisuals(tx)
+            const visuals = getTransactionVisuals(tx, isInvestment(tx))
             const title = tx.description || visuals.defaultTitle
             const categoryName = tx.category?.name || visuals.defaultCategory
             const dateStr = formatDate(tx.occurred_at, 'short')

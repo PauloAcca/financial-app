@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { History, Coffee, Car, Briefcase, ShoppingBag, Swords, Pencil, TrendingUp } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { buildInvestmentAccountIds, isInvestmentTransaction } from '@/lib/investments'
 import { TransactionEditModal } from '@/components/transactions/transaction-edit-modal'
 import type { Account, Category, Transaction } from '@/types/database'
 
@@ -14,11 +15,16 @@ interface RecentTransactionsProps {
 }
 
 // Iconos temáticos según el nombre o categoría
-function getMissionIcon(description?: string | null, categoryName?: string | null, type?: string) {
+function getMissionIcon(
+  description: string | null | undefined,
+  categoryName: string | null | undefined,
+  type: string | undefined,
+  isInvestment: boolean
+) {
   const desc = (description || '').toLowerCase()
   const cat = (categoryName || '').toLowerCase()
 
-  if (desc.includes('invers') || cat.includes('invers')) {
+  if (isInvestment) {
     return <TrendingUp size={18} className="text-[#a855f7]" />
   }
   if (desc.includes('starbucks') || desc.includes('cafe') || desc.includes('mana') || cat.includes('comida') || cat.includes('alimento') || cat.includes('restaurante')) {
@@ -37,6 +43,8 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
   const [editingTx, setEditingTx] = useState<Transaction | null>(null)
   const hasTransactions = transactions.length > 0
   const displayTx = transactions.slice(0, 5)
+
+  const investmentAccountIds = buildInvestmentAccountIds(accounts)
 
   return (
     <>
@@ -69,10 +77,9 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
           /* Lista de Misiones REALES */
           <div className="divide-y divide-[#232845]">
             {displayTx.map((tx) => {
-              const desc = (tx.description || '').toLowerCase()
-              const cat = (tx.category?.name || '').toLowerCase()
-              const isInvestment = desc.includes('invers') || cat.includes('invers')
-              const isPositive = tx.type === 'income' || isInvestment
+              const isInvestment = isInvestmentTransaction(tx, investmentAccountIds)
+              const isIncomingInvestment = isInvestment && !investmentAccountIds.has(tx.account_id)
+              const isPositive = tx.type === 'income' || isIncomingInvestment
               const formattedDate = formatDate(tx.occurred_at, 'short')
 
               return (
@@ -84,7 +91,7 @@ export function RecentTransactions({ transactions, accounts = [], categories = [
                   {/* Icono + Info */}
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 rounded-[4px] bg-[#14182b] border border-[#293056] flex items-center justify-center shrink-0 group-hover:border-[#00FF66]/60 transition-colors">
-                      {getMissionIcon(tx.description, tx.category?.name, tx.type)}
+                      {getMissionIcon(tx.description, tx.category?.name, tx.type, isInvestment)}
                     </div>
 
                     <div className="min-w-0">

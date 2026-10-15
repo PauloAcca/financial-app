@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   HandCoins,
+  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logout } from '@/actions/auth'
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { href: '/metas',        label: 'METAS',         icon: Trophy },
   { href: '/profile',      label: 'PERFIL',        icon: User },
   { href: '/accounts',     label: 'CUENTAS',       icon: Wallet },
+  { href: '/inversiones',  label: 'INVERSIONES',   icon: TrendingUp },
   { href: '/prestamos',    label: 'PRÉSTAMOS',     icon: HandCoins },
   { href: '/recurring',    label: 'GASTOS FIJOS',  icon: Repeat },
   { href: '/categories',   label: 'CATEGORÍAS',    icon: Tag },

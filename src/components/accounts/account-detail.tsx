@@ -103,18 +103,17 @@ export function AccountDetail({
     (tx) => tx.account_id === account.id || tx.transfer_account_id === account.id
   )
 
+  const isInvestmentAccount = account.type === 'investment'
+
   // Calcular métricas específicas de esta cuenta
   let totalIncome = 0
   let totalExpense = 0
 
   accountTransactions.forEach((tx) => {
-    const desc = (tx.description || '').toLowerCase()
-    const cat = (tx.category?.name || '').toLowerCase()
-    const isInv = desc.includes('invers') || cat.includes('invers')
     const amount = Number(tx.amount) || 0
 
     if (tx.account_id === account.id) {
-      if (tx.type === 'income' || isInv) {
+      if (tx.type === 'income') {
         totalIncome += amount
       } else if (tx.type === 'expense') {
         totalExpense += amount
@@ -132,15 +131,14 @@ export function AccountDetail({
   const filteredTransactions = accountTransactions.filter((tx) => {
     const desc = (tx.description || '').toLowerCase()
     const cat = (tx.category?.name || '').toLowerCase()
-    const isInv = desc.includes('invers') || cat.includes('invers')
 
     // Filtro por pestaña
     if (filter === 'income') {
       const isIncomingTransfer = tx.transfer_account_id === account.id && tx.type === 'transfer'
-      const isDirectIncome = tx.account_id === account.id && (tx.type === 'income' || isInv)
+      const isDirectIncome = tx.account_id === account.id && tx.type === 'income'
       if (!isIncomingTransfer && !isDirectIncome) return false
     } else if (filter === 'expense') {
-      const isDirectExpense = tx.account_id === account.id && tx.type === 'expense' && !isInv
+      const isDirectExpense = tx.account_id === account.id && tx.type === 'expense'
       if (!isDirectExpense) return false
     } else if (filter === 'transfer') {
       if (tx.type !== 'transfer') return false
@@ -200,7 +198,6 @@ export function AccountDetail({
   function getAccountTxVisuals(tx: Transaction) {
     const desc = (tx.description || '').toLowerCase()
     const cat = (tx.category?.name || '').toLowerCase()
-    const isInv = desc.includes('invers') || cat.includes('invers')
 
     if (tx.type === 'transfer') {
       const isOutgoing = tx.account_id === account.id
@@ -225,7 +222,8 @@ export function AccountDetail({
       }
     }
 
-    if (isInv) {
+    // Plataforma de inversión: el dinero que entra es un aporte/rendimiento
+    if (isInvestmentAccount && tx.type === 'income') {
       return {
         isPositive: true,
         sign: '+ ',

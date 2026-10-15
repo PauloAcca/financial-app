@@ -1,4 +1,5 @@
 import type { Account, Transaction } from '@/types/database'
+import { buildInvestmentAccountIds, isInvestmentTransaction } from '@/lib/investments'
 
 export interface UserGameStats {
   level: number
@@ -26,12 +27,6 @@ export interface Achievement {
   progressText?: string
 }
 
-function isInvestmentTx(t: Transaction): boolean {
-  const desc = (t.description || '').toLowerCase()
-  const cat = (t.category?.name || '').toLowerCase()
-  return desc.includes('invers') || cat.includes('invers')
-}
-
 export function calculateUserGameStats(
   accounts: Account[] = [],
   transactions: Transaction[] = []
@@ -40,20 +35,25 @@ export function calculateUserGameStats(
   const activeAccounts = accounts.filter(a => !a.archived)
   const totalBalance = activeAccounts.reduce((sum, acc) => sum + (acc.current_balance || 0), 0)
 
-  // 2. Ingresos y Gastos totales (Inversiones cuentan como botín/activo, no como gasto)
+  // 2. Ingresos y Gastos totales.
+  //    Los movimientos ligados a cuentas de inversión son cambios de forma del
+  //    activo (aportes/retiros), no ingreso ni gasto real, así que se excluyen.
+  const investmentAccountIds = buildInvestmentAccountIds(accounts)
+  const isInvestment = (t: Transaction) => isInvestmentTransaction(t, investmentAccountIds)
+
   const totalIncome = transactions
-    .filter(t => t.type === 'income' || isInvestmentTx(t))
+    .filter(t => t.type === 'income' && !isInvestment(t))
     .reduce((sum, t) => sum + t.amount, 0)
 
   const totalExpense = transactions
-    .filter(t => t.type === 'expense' && !isInvestmentTx(t))
+    .filter(t => t.type === 'expense' && !isInvestment(t))
     .reduce((sum, t) => sum + t.amount, 0)
 
   // 3. Gastos y movimientos de HOY (en base a fecha local)
   const todayStr = new Date().toISOString().split('T')[0]
   const todayTransactions = transactions.filter(t => t.occurred_at.startsWith(todayStr))
   const todayExpense = todayTransactions
-    .filter(t => t.type === 'expense' && !isInvestmentTx(t))
+    .filter(t => t.type === 'expense' && !isInvestment(t))
     .reduce((sum, t) => sum + t.amount, 0)
   const todayTxCount = todayTransactions.length
 

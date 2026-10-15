@@ -80,6 +80,18 @@ export type RecordLoanPaymentInput = {
   account_id?: string
 }
 
+export type CreateInvestmentValuationInput = {
+  account_id: string
+  value: number
+  currency: string
+  valued_at?: string
+  notes?: string
+}
+
+export type UpdateInvestmentValuationInput = Partial<CreateInvestmentValuationInput> & {
+  id: string
+}
+
 // Tipo de respuesta unificado para Server Actions
 export type ActionResult<T = void> =
   | { success: true; data: T }

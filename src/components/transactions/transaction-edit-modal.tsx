@@ -21,7 +21,6 @@ interface TransactionEditModalProps {
 const TYPE_OPTIONS = [
   { value: 'expense', label: '⚔️ GASTO' },
   { value: 'income', label: '💰 BOTÍN / INGRESO' },
-  { value: 'investment', label: '📈 INVERSIÓN (SUMA DINERO)' },
   { value: 'transfer', label: '🔄 TRANSFERENCIA' },
 ]
 
@@ -36,7 +35,7 @@ export function TransactionEditModal({
 
   const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState(DEFAULT_CURRENCY)
-  const [type, setType] = useState<TransactionType | 'investment'>('expense')
+  const [type, setType] = useState<TransactionType>('expense')
   const [accountId, setAccountId] = useState('')
   const [transferAccountId, setTransferAccountId] = useState('')
   const [categoryId, setCategoryId] = useState('')
@@ -50,11 +49,8 @@ export function TransactionEditModal({
     if (transaction && open) {
       setAmount(transaction.amount.toString())
       setCurrency(transaction.currency || DEFAULT_CURRENCY)
-      
-      const isInv = (transaction.description || '').toLowerCase().includes('invers') || 
-                    (transaction.category?.name || '').toLowerCase().includes('invers')
-      
-      setType(isInv && transaction.type === 'income' ? 'investment' : transaction.type)
+
+      setType(transaction.type)
       setAccountId(transaction.account_id)
       setTransferAccountId(transaction.transfer_account_id ?? '')
       setCategoryId(transaction.category_id ?? '')
@@ -67,7 +63,7 @@ export function TransactionEditModal({
   }, [transaction, open])
 
   const filteredCategories = categories.filter(
-    (c) => c.kind === (type === 'income' || type === 'investment' ? 'income' : 'expense')
+    (c) => c.kind === (type === 'income' ? 'income' : 'expense')
   )
 
   const sortedCategories: { value: string; label: string }[] = []
@@ -122,10 +118,7 @@ export function TransactionEditModal({
       return
     }
 
-    // Inversión guarda como income (o transfer si tiene destino)
-    const actualType: TransactionType = type === 'investment'
-      ? (transferAccountId ? 'transfer' : 'income')
-      : type
+    const actualType: TransactionType = type
 
     startTransition(async () => {
       const result = await updateTransaction({
@@ -136,7 +129,7 @@ export function TransactionEditModal({
         account_id: accountId,
         category_id: actualType !== 'transfer' && categoryId ? categoryId : undefined,
         transfer_account_id: actualType === 'transfer' ? transferAccountId : undefined,
-        description: description.trim() || (type === 'investment' ? 'Inversión' : undefined),
+        description: description.trim() || undefined,
         occurred_at: date,
         applied_month: actualType === 'income' ? (appliedMonth ? `${appliedMonth}-01` : '') : undefined,
         payment_method: paymentMethod || undefined,
@@ -172,7 +165,7 @@ export function TransactionEditModal({
           label="TIPO DE MOVIMIENTO"
           value={type}
           onChange={(e) => {
-            setType(e.target.value as TransactionType | 'investment')
+            setType(e.target.value as TransactionType)
             setCategoryId('')
           }}
           options={TYPE_OPTIONS}
@@ -269,7 +262,7 @@ export function TransactionEditModal({
         </div>
 
         {/* Mes de aplicación (solo ingresos) */}
-        {(type === 'income' || (type === 'investment' && !transferAccountId)) && (
+        {type === 'income' && (
           <Input
             id="edit-tx-applied-month"
             label="APLICAR A MES (OPCIONAL)"

@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BarChart2, Wallet, Bot } from 'lucide-react'
+import { Home, BarChart2, Wallet, Bot, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'INICIO',    icon: Home },
-  { href: '/accounts',  label: 'CUENTAS',   icon: Wallet },
-  { href: '/metrics',   label: 'MÉTRICAS',  icon: BarChart2 },
-  { href: '/chat',      label: 'AGENTE IA', icon: Bot },
+  { href: '/dashboard',    label: 'INICIO',      icon: Home },
+  { href: '/accounts',     label: 'CUENTAS',     icon: Wallet },
+  { href: '/inversiones',  label: 'INVERSIÓN',   icon: TrendingUp },
+  { href: '/metrics',      label: 'MÉTRICAS',    icon: BarChart2 },
+  { href: '/chat',         label: 'AGENTE IA',   icon: Bot },
 ]
 
 export function MobileNav() {
