@@ -26,6 +26,8 @@ export async function createAccount(
       current_balance: input.initial_balance, // al crear, current = initial
       color: input.color ?? null,
       icon: input.icon ?? null,
+      closing_day: input.type === 'credit_card' ? input.closing_day ?? 1 : null,
+      due_day: input.type === 'credit_card' ? input.due_day ?? 10 : null,
     })
     .select()
     .single()
@@ -60,6 +62,8 @@ export async function updateAccount(
   if (fields.icon            !== undefined) updates.icon            = fields.icon
   if (fields.initial_balance !== undefined) updates.initial_balance = fields.initial_balance
   if (fields.current_balance !== undefined) updates.current_balance = fields.current_balance
+  if (fields.closing_day     !== undefined) updates.closing_day     = fields.closing_day
+  if (fields.due_day         !== undefined) updates.due_day         = fields.due_day
 
   const { data, error } = await supabase
     .from('accounts')

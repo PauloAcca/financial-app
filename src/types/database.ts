@@ -30,6 +30,8 @@ export interface Account {
   color: string | null
   icon: string | null
   archived: boolean
+  closing_day: number | null
+  due_day: number | null
   created_at: string
 }
 

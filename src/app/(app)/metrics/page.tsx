@@ -11,15 +11,16 @@ export default async function MetricsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   const uid = user!.id
 
-  // Rango de fechas: últimos 6 meses (incluyendo el actual)
+  // Rango de fechas: últimos 6 meses (incluyendo el actual).
+  // Se trae un mes extra para capturar compras de tarjeta que cierran dentro del rango.
   const now = new Date()
-  const startDate = new Date(now.getFullYear(), now.getMonth() - 5, 1)
+  const startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1)
   const startStr = startDate.toISOString().split('T')[0]
 
   const [{ data: transactions }, { data: allCategories }, { data: profile }] = await Promise.all([
     supabase
       .from('transactions')
-      .select('id, amount, type, occurred_at, category_id, recurring_transaction_id')
+      .select('id, amount, type, occurred_at, category_id, recurring_transaction_id, account:accounts!account_id(type, closing_day)')
       .eq('user_id', uid)
       .gte('occurred_at', startStr)
       .order('occurred_at', { ascending: true }),
@@ -38,7 +39,7 @@ export default async function MetricsPage() {
 
   return (
     <MetricsClient
-      transactions={(transactions ?? []) as MetricTransaction[]}
+      transactions={(transactions ?? []) as unknown as MetricTransaction[]}
       categories={(allCategories ?? []) as MetricCategory[]}
       defaultCurrency={defaultCurrency}
     />

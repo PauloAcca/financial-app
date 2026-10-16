@@ -9,6 +9,8 @@ export type CreateAccountInput = {
   initial_balance: number
   color?: string
   icon?: string
+  closing_day?: number
+  due_day?: number
 }
 
 export type UpdateAccountInput = Partial<CreateAccountInput> & { 

@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
 import { createAccount, updateAccount } from '@/actions/accounts'
 import { ACCOUNT_TYPES, CURRENCIES, ACCOUNT_COLORS } from '@/lib/constants'
+import { DEFAULT_CLOSING_DAY, DEFAULT_DUE_DAY } from '@/lib/credit-card'
 import { cn } from '@/lib/utils'
 import { Wallet, TrendingUp } from 'lucide-react'
 import type { Account, AccountType } from '@/types/database'
@@ -27,6 +28,12 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
   const [currency, setCurrency] = useState(editingAccount?.currency ?? 'ARS')
   const [balance, setBalance]   = useState(editingAccount ? editingAccount.current_balance.toString() : '0')
   const [color, setColor]       = useState(editingAccount?.color ?? ACCOUNT_COLORS[0])
+  const [closingDay, setClosingDay] = useState(
+    editingAccount?.closing_day != null ? String(editingAccount.closing_day) : String(DEFAULT_CLOSING_DAY)
+  )
+  const [dueDay, setDueDay] = useState(
+    editingAccount?.due_day != null ? String(editingAccount.due_day) : String(DEFAULT_DUE_DAY)
+  )
   const [error, setError]       = useState<string | null>(null)
 
   // Resetear form cuando cambia editingAccount
@@ -36,6 +43,8 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
     setCurrency(editingAccount?.currency ?? 'ARS')
     setBalance(editingAccount ? editingAccount.current_balance.toString() : '0')
     setColor(editingAccount?.color ?? ACCOUNT_COLORS[0])
+    setClosingDay(editingAccount?.closing_day != null ? String(editingAccount.closing_day) : String(DEFAULT_CLOSING_DAY))
+    setDueDay(editingAccount?.due_day != null ? String(editingAccount.due_day) : String(DEFAULT_DUE_DAY))
     setError(null)
   }
 
@@ -52,10 +61,39 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
     if (!name.trim()) { setError('El nombre es obligatorio.'); return }
     if (isNaN(numBalance)) { setError('El saldo debe ser un número válido.'); return }
 
+    const isCard = type === 'credit_card'
+    const numClosing = isCard ? parseInt(closingDay, 10) : undefined
+    const numDue = isCard ? parseInt(dueDay, 10) : undefined
+    if (isCard && (isNaN(numClosing!) || numClosing! < 1 || numClosing! > 31)) {
+      setError('El día de cierre debe estar entre 1 y 31.')
+      return
+    }
+    if (isCard && (isNaN(numDue!) || numDue! < 1 || numDue! > 31)) {
+      setError('El día de vencimiento debe estar entre 1 y 31.')
+      return
+    }
+
     startTransition(async () => {
       const result = isEditing
-        ? await updateAccount({ id: editingAccount!.id, name, type, currency, color, current_balance: numBalance })
-        : await createAccount({ name, type, currency, initial_balance: numBalance, color })
+        ? await updateAccount({
+            id: editingAccount!.id,
+            name,
+            type,
+            currency,
+            color,
+            current_balance: numBalance,
+            closing_day: numClosing,
+            due_day: numDue,
+          })
+        : await createAccount({
+            name,
+            type,
+            currency,
+            initial_balance: numBalance,
+            color,
+            closing_day: numClosing,
+            due_day: numDue,
+          })
 
       if (result.success) {
         toast.success(isEditing ? 'Cuenta actualizada.' : 'Cuenta creada.')
@@ -67,6 +105,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
   }
 
   const isInvestment = type === 'investment'
+  const isCard = type === 'credit_card'
   const accountTypeOptions = ACCOUNT_TYPES.filter((t) => t.value !== 'investment')
 
   return (
@@ -139,6 +178,34 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
             onChange={(e) => setType(e.target.value as AccountType)}
             options={accountTypeOptions.map((t) => ({ value: t.value, label: t.label }))}
           />
+        )}
+
+        {isCard && (
+          <div className="grid grid-cols-2 gap-3 bg-[#14182b] border border-[#293056] rounded-[4px] p-3">
+            <Input
+              id="account-form-closing-day"
+              label="Día de cierre"
+              type="number"
+              min="1"
+              max="31"
+              value={closingDay}
+              onChange={(e) => setClosingDay(e.target.value)}
+              helper="Día del mes en que cierra el resumen"
+            />
+            <Input
+              id="account-form-due-day"
+              label="Día de vencimiento"
+              type="number"
+              min="1"
+              max="31"
+              value={dueDay}
+              onChange={(e) => setDueDay(e.target.value)}
+              helper="Día del mes en que vence el pago"
+            />
+            <p className="col-span-2 text-xs text-[#8B92A9]">
+              Los gastos de esta tarjeta se agruparán en métricas según el mes en que cierra el resumen.
+            </p>
+          </div>
         )}
 
         <Select

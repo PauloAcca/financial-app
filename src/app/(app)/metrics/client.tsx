@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { getBillingMonth } from '@/lib/credit-card'
 import { MonthlyBarChart } from '@/components/metrics/monthly-bar-chart'
 import { CategoryPieChart } from '@/components/metrics/category-pie-chart'
 import { MetricsKpis } from '@/components/metrics/metrics-kpis'
@@ -23,6 +24,7 @@ export interface MetricTransaction {
   occurred_at: string
   category_id: string | null
   recurring_transaction_id: string | null
+  account?: { type: string; closing_day: number | null } | null
 }
 
 export interface MetricCategory {
@@ -50,6 +52,17 @@ function monthLabel(isoDate: string): string {
     month: 'long',
     year: 'numeric',
   })
+}
+
+/**
+ * Fecha efectiva para agrupar: los gastos con tarjeta de crédito se imputan
+ * al mes en que cierra el resumen; el resto, a su fecha real.
+ */
+function effectiveDate(tx: MetricTransaction): string {
+  if (tx.account?.type === 'credit_card' && tx.account.closing_day) {
+    return getBillingMonth(tx.occurred_at, tx.account.closing_day)
+  }
+  return tx.occurred_at
 }
 
 function sumAmounts(txs: MetricTransaction[]): number {
@@ -142,7 +155,7 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
   })
 
   transactions.forEach((tx) => {
-    const label = monthLabel(tx.occurred_at)
+    const label = monthLabel(effectiveDate(tx))
     if (!monthlyMap[label]) return
     if (tx.type === 'income') monthlyMap[label].income += Number(tx.amount)
     else if (tx.type === 'expense') monthlyMap[label].expense += Number(tx.amount)
@@ -167,7 +180,7 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
   })
 
   const txInMonth = (tx: MetricTransaction, label: string) =>
-    monthLabel(tx.occurred_at) === label
+    monthLabel(effectiveDate(tx)) === label
 
   const currentExpenses = transactions.filter(
     (tx) => tx.type === 'expense' && txInMonth(tx, currentMonthLabel)
