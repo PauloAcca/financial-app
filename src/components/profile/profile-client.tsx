@@ -26,6 +26,8 @@ import { logout } from '@/actions/auth'
 import { cn, formatCurrency } from '@/lib/utils'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { toast } from '@/components/ui/toast'
+import { AVATAR_IMAGES } from '@/lib/constants'
 import type { UserGameStats, Achievement } from '@/lib/gamification'
 
 const SYSTEM_MODULES = [
@@ -109,15 +111,30 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
   const [alertsEnabled, setAlertsEnabled] = useState(true)
   const [effectsEnabled, setEffectsEnabled] = useState(false)
   const [isHidden, setIsHidden] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem('hide_balance')
       if (saved !== null) setIsHidden(saved === 'true')
+      const savedAvatar = localStorage.getItem('app_user_avatar')
+      if (savedAvatar && AVATAR_IMAGES.includes(savedAvatar)) setAvatarUrl(savedAvatar)
     } catch (e) {
       console.error(e)
     }
   }, [])
+
+  function selectAvatar(url: string | null) {
+    setAvatarUrl(url)
+    try {
+      if (url) localStorage.setItem('app_user_avatar', url)
+      else localStorage.removeItem('app_user_avatar')
+      window.dispatchEvent(new Event('avatar_changed'))
+    } catch (e) {
+      console.error(e)
+    }
+    toast.success(url ? 'Avatar actualizado' : 'Cambiaste a iniciales')
+  }
 
   function toggleHide() {
     const next = !isHidden
@@ -140,7 +157,7 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
       {/* 1. TARJETA DE PERFIL */}
       <div className="glass rounded-[var(--radius-lg)] p-5">
         <div className="flex items-center gap-4">
-          <Avatar name={displayName} size="xl" />
+          <Avatar name={displayName} src={avatarUrl} size="xl" />
 
           <div className="flex-1 min-w-0">
             <h2 className="font-display text-2xl font-semibold tracking-tight text-[var(--color-text-primary)] truncate">
@@ -171,7 +188,49 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
         </div>
       </div>
 
-      {/* 2. RESUMEN: SALDO Y LOGROS */}
+      {/* 2. AVATAR */}
+      <div className="flex flex-col gap-3">
+        <h3 className="text-xs font-medium text-[var(--color-text-secondary)]">
+          Avatar
+        </h3>
+
+        <div className="glass rounded-[var(--radius-lg)] p-4 flex flex-wrap items-center gap-3">
+          {/* Opción: iniciales */}
+          <button
+            onClick={() => selectAvatar(null)}
+            title="Iniciales"
+            aria-label="Usar iniciales como avatar"
+            className={cn(
+              'rounded-full p-0.5 transition-all duration-200 cursor-pointer active:scale-95',
+              avatarUrl === null
+                ? 'ring-2 ring-[rgba(143,203,176,0.9)] scale-105'
+                : 'ring-1 ring-[rgba(255,255,255,0.1)] hover:ring-[rgba(255,255,255,0.3)]'
+            )}
+          >
+            <Avatar name={displayName} src={null} size="lg" />
+          </button>
+
+          {/* Imágenes */}
+          {AVATAR_IMAGES.map((url) => (
+            <button
+              key={url}
+              onClick={() => selectAvatar(url)}
+              title="Elegir avatar"
+              aria-label={`Elegir avatar ${url}`}
+              className={cn(
+                'rounded-full p-0.5 transition-all duration-200 cursor-pointer active:scale-95',
+                avatarUrl === url
+                  ? 'ring-2 ring-[rgba(143,203,176,0.9)] scale-105'
+                  : 'ring-1 ring-[rgba(255,255,255,0.1)] hover:ring-[rgba(255,255,255,0.3)]'
+              )}
+            >
+              <Avatar name={displayName} src={url} size="lg" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. RESUMEN: SALDO Y LOGROS */}
       <div className="grid grid-cols-2 gap-3.5">
         {/* Saldo total con toggle de visibilidad */}
         <div className="glass rounded-[var(--radius-lg)] p-4">
@@ -204,7 +263,7 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
         </div>
       </div>
 
-      {/* 3. MÓDULOS */}
+      {/* 4. MÓDULOS */}
       <div className="flex flex-col gap-3">
         <h3 className="text-xs font-medium text-[var(--color-text-secondary)]">
           Módulos
@@ -240,7 +299,7 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
         </div>
       </div>
 
-      {/* 4. LOGROS */}
+      {/* 5. LOGROS */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-medium text-[var(--color-text-secondary)]">
@@ -309,7 +368,7 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
         </div>
       </div>
 
-      {/* 5. AJUSTES */}
+      {/* 6. AJUSTES */}
       <div className="flex flex-col gap-3">
         <h3 className="text-xs font-medium text-[var(--color-text-secondary)]">
           Ajustes
@@ -363,7 +422,7 @@ export function ProfileClient({ displayName, currency, stats }: ProfileClientPro
           </div>
         </div>
 
-        {/* 6. CERRAR SESIÓN */}
+        {/* 7. CERRAR SESIÓN */}
         <Button
           onClick={handleLogout}
           disabled={isPending}

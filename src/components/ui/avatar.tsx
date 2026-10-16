@@ -1,8 +1,10 @@
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 /**
- * Avatar — iniciales del usuario sobre vidrio con tinte cálido
- * de la paleta Aura. Determinístico según el nombre.
+ * Avatar — imagen de perfil (si hay una elegida) o iniciales
+ * del usuario sobre vidrio con tinte de la paleta Aura.
+ * Determinístico según el nombre cuando usa iniciales.
  */
 
 const TONES = [
@@ -44,14 +46,42 @@ const SIZES = {
 
 export function Avatar({
   name,
+  src,
   size = 'md',
   className,
 }: {
   name?: string | null
+  src?: string | null
   size?: keyof typeof SIZES
   className?: string
 }) {
   const label = name?.trim() || 'Usuario'
+
+  // Imagen de perfil elegida
+  if (src) {
+    return (
+      <span
+        title={label}
+        className={cn(
+          'relative inline-flex items-center justify-center rounded-full overflow-hidden select-none shrink-0',
+          'border border-[rgba(255,255,255,0.14)]',
+          'shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_2px_10px_rgba(3,6,10,0.4)]',
+          SIZES[size],
+          className
+        )}
+      >
+        <Image
+          src={src}
+          alt={label}
+          fill
+          sizes="64px"
+          className="rounded-full object-cover"
+        />
+      </span>
+    )
+  }
+
+  // Iniciales
   const tone = TONES[hashString(label.toLowerCase()) % TONES.length]
   const initials = getInitials(label)
 
@@ -59,7 +89,7 @@ export function Avatar({
     <span
       title={label}
       className={cn(
-        'inline-flex items-center justify-center rounded-full font-semibold select-none',
+        'inline-flex items-center justify-center rounded-full font-semibold select-none shrink-0',
         'backdrop-blur-md',
         SIZES[size],
         className

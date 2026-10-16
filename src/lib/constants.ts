@@ -61,3 +61,17 @@ export const ACCOUNT_COLORS = [
 ]
 
 export const PAYMENT_METHODS = ['Débito', 'Crédito', 'Transferencia', 'QR', 'Efectivo', 'Débito automático']
+
+// =========================================================
+// AVATARS — imágenes de perfil disponibles (public/avatars)
+// =========================================================
+export const AVATAR_IMAGES = [
+  '/avatars/avatar-1.jpg',
+  '/avatars/avatar-2.jpg',
+  '/avatars/avatar-3.jpg',
+  '/avatars/avatar-4.jpg',
+  '/avatars/avatar-5.jpg',
+  '/avatars/avatar-6.jpg',
+  '/avatars/avatar-7.jpg',
+  '/avatars/avatar-8.jpg',
+]

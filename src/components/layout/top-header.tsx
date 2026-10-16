@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Bell } from 'lucide-react'
 import { Avatar } from '@/components/ui/avatar'
+import { AVATAR_IMAGES } from '@/lib/constants'
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Inicio',
@@ -69,11 +70,14 @@ export function TopHeader({ displayName }: { displayName?: string | null }) {
 }
 
 function HeaderAvatar({ name }: { name?: string | null }) {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [avatarName, setAvatarName] = useState<string | null | undefined>(name)
 
   useEffect(() => {
-    function updateName() {
+    function update() {
       try {
+        const savedUrl = localStorage.getItem('app_user_avatar')
+        setAvatarUrl(savedUrl && AVATAR_IMAGES.includes(savedUrl) ? savedUrl : null)
         const saved = localStorage.getItem('app_user_display_name')
         if (saved) setAvatarName(saved)
         else if (name) setAvatarName(name)
@@ -81,10 +85,14 @@ function HeaderAvatar({ name }: { name?: string | null }) {
         /* noop */
       }
     }
-    updateName()
-    window.addEventListener('display_name_changed', updateName)
-    return () => window.removeEventListener('display_name_changed', updateName)
+    update()
+    window.addEventListener('avatar_changed', update)
+    window.addEventListener('display_name_changed', update)
+    return () => {
+      window.removeEventListener('avatar_changed', update)
+      window.removeEventListener('display_name_changed', update)
+    }
   }, [name])
 
-  return <Avatar name={avatarName} size="sm" />
+  return <Avatar name={avatarName} src={avatarUrl} size="sm" />
 }

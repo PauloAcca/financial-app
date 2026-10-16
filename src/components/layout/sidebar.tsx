@@ -23,6 +23,7 @@ import { logout } from '@/actions/auth'
 import { useState, useEffect, useTransition } from 'react'
 import { BrandMark, Wordmark } from '@/components/ui/brand'
 import { Avatar } from '@/components/ui/avatar'
+import { AVATAR_IMAGES } from '@/lib/constants'
 
 const NAV_ITEMS = [
   { href: '/dashboard',    label: 'Inicio',        icon: Home },
@@ -47,10 +48,25 @@ export function Sidebar({ displayName }: SidebarProps) {
   const [optimisticPath, setOptimisticPath] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setOptimisticPath(null)
   }, [pathname])
+
+  useEffect(() => {
+    function updateAvatar() {
+      try {
+        const saved = localStorage.getItem('app_user_avatar')
+        setAvatarUrl(saved && AVATAR_IMAGES.includes(saved) ? saved : null)
+      } catch {
+        /* noop */
+      }
+    }
+    updateAvatar()
+    window.addEventListener('avatar_changed', updateAvatar)
+    return () => window.removeEventListener('avatar_changed', updateAvatar)
+  }, [])
 
   const currentPath = optimisticPath ?? pathname
 
@@ -121,14 +137,14 @@ export function Sidebar({ displayName }: SidebarProps) {
         {/* Usuario */}
         {!collapsed && displayName && (
           <div className="flex items-center gap-2.5 px-2.5 py-2 bg-[rgba(255,255,255,0.04)] rounded-[var(--radius-md)] border border-[rgba(255,255,255,0.06)]">
-            <Avatar name={displayName} size="sm" />
+            <Avatar name={displayName} src={avatarUrl} size="sm" />
             <div className="min-w-0 flex-1">
               <p className="text-[0.6875rem] text-[var(--color-text-muted)]">Usuario</p>
               <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{displayName}</p>
             </div>
           </div>
         )}
-        {collapsed && displayName && <Avatar name={displayName} size="sm" />}
+        {collapsed && displayName && <Avatar name={displayName} src={avatarUrl} size="sm" />}
 
         {/* Cerrar sesión */}
         <button
