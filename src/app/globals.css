@@ -1,72 +1,75 @@
 @import "tailwindcss";
 
 /* =========================================================
-   TAILWIND v4 — @theme tokens (Pixel RPG / Cyber Gamer HUD)
+   AURA · FINANZAS — Design tokens
+   Estética: vidrio sereno (glassmorphism sobrio y elegante)
+   Fondo de tinta profunda con auroras suaves detrás del vidrio.
    ========================================================= */
 @theme {
-  /* Tipografía con fallback optimizado */
-  --font-sans: var(--font-space-mono), var(--font-share-tech), 'Space Mono', 'Share Tech Mono', monospace, sans-serif;
-  --font-mono: var(--font-share-tech), var(--font-space-mono), 'Share Tech Mono', 'Space Mono', monospace;
-  --font-pixel: var(--font-press-start), 'Press Start 2P', monospace;
-  --font-display: var(--font-chakra), 'Chakra Petch', monospace;
+  /* Tipografía — Outfit (UI, geométrica y calma) + Fraunces (display serif) */
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-outfit), ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+  --font-display: var(--font-fraunces), Georgia, 'Times New Roman', serif;
 
-  /* Colores base — paleta profunda Cyber Arcade */
-  --color-background: #0f111e;
-  --color-surface: #181c31;
-  --color-surface-2: #20253f;
-  --color-surface-3: #2a3154;
-  --color-border: #293056;
-  --color-border-subtle: #1e233f;
+  /* Fondo y vidrio */
+  --color-background: #0A0E14;
+  --color-surface: rgba(255, 255, 255, 0.045);
+  --color-surface-2: rgba(255, 255, 255, 0.07);
+  --color-surface-3: rgba(255, 255, 255, 0.1);
+  --color-border: rgba(255, 255, 255, 0.09);
+  --color-border-subtle: rgba(255, 255, 255, 0.055);
 
-  /* Textos */
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #8B92A9;
-  --color-text-muted: #5d6786;
+  /* Texto — off-white cálido sobre gris salvia */
+  --color-text-primary: #F1F5F2;
+  --color-text-secondary: #9BAAA6;
+  --color-text-muted: #5F6C69;
 
-  /* Acento principal — Verde Neón Terminal */
-  --color-accent: #00FF66;
-  --color-accent-hover: #00cc52;
-  --color-accent-subtle: rgba(0, 255, 102, 0.12);
-  --color-accent-foreground: #000000;
+  /* Acento — salvia serena */
+  --color-accent: #8FCBB0;
+  --color-accent-hover: #A5D8C3;
+  --color-accent-subtle: rgba(143, 203, 176, 0.14);
+  --color-accent-foreground: #0A0E14;
 
-  /* Acentos complementarios de juego */
-  --color-neon-green: #00FF66;
-  --color-neon-pink: #ff4d6d;
-  --color-neon-cyan: #38d9f5;
-  --color-neon-gold: #fbc02d;
+  /* Semánticos — desaturados, en calma */
+  --color-success: #7FD9A4;
+  --color-success-subtle: rgba(127, 217, 164, 0.16);
+  --color-danger: #E3A0AA;
+  --color-danger-subtle: rgba(227, 160, 170, 0.16);
+  --color-warning: #E4C28F;
+  --color-warning-subtle: rgba(228, 194, 143, 0.16);
+  --color-info: #A6B9E8;
+  --color-info-subtle: rgba(166, 185, 232, 0.16);
 
-  /* Semánticos */
-  --color-success: #00FF66;
-  --color-success-subtle: rgba(0, 255, 102, 0.15);
-  --color-danger: #ff4d6d;
-  --color-danger-subtle: rgba(255, 77, 109, 0.15);
-  --color-warning: #fbbf24;
-  --color-warning-subtle: rgba(251, 191, 36, 0.15);
-  --color-info: #38d9f5;
-  --color-info-subtle: rgba(56, 217, 245, 0.15);
+  /* Finanzas */
+  --color-income: #7FD9A4;
+  --color-income-subtle: rgba(127, 217, 164, 0.16);
+  --color-expense: #E3A0AA;
+  --color-expense-subtle: rgba(227, 160, 170, 0.16);
+  --color-transfer: #A6B9E8;
+  --color-transfer-subtle: rgba(166, 185, 232, 0.16);
+  --color-investment: #BFAEE8;
+  --color-investment-subtle: rgba(191, 174, 232, 0.16);
 
-  /* Finanzas / Loot */
-  --color-income: #00FF66;
-  --color-income-subtle: rgba(0, 255, 102, 0.15);
-  --color-expense: #ff4d6d;
-  --color-expense-subtle: rgba(255, 77, 109, 0.15);
-  --color-transfer: #38d9f5;
-  --color-transfer-subtle: rgba(56, 217, 245, 0.15);
-
-  /* Border radius — estilo arcade nítido */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  /* Radios generosos — suavidad visual */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 
-  /* Sombras y resplandor neón */
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.5);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.6);
-  --shadow-lg: 0 8px 24px rgba(0,0,0,0.7);
-  --shadow-neon-green: 0 0 15px rgba(0, 255, 102, 0.35);
-  --shadow-neon-pink: 0 0 15px rgba(255, 77, 109, 0.35);
-  --shadow-neon-cyan: 0 0 15px rgba(56, 217, 245, 0.35);
+  /* Sombras difusas y profundas (nada de neón) */
+  --shadow-sm: 0 1px 2px rgba(4, 8, 12, 0.25);
+  --shadow-md: 0 6px 20px rgba(4, 8, 12, 0.3);
+  --shadow-lg: 0 16px 48px rgba(4, 8, 12, 0.42);
+
+  /* Animaciones — lentas y tranquilas */
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-scale-in: scale-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-in: slide-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-drift-a: drift-a 34s ease-in-out infinite alternate;
+  --animate-drift-b: drift-b 44s ease-in-out infinite alternate;
+  --animate-drift-c: drift-c 52s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 2.2s linear infinite;
 }
 
 /* =========================================================
@@ -77,7 +80,6 @@
 }
 
 html {
-  font-family: var(--font-sans);
   background-color: var(--color-background);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
@@ -89,193 +91,93 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background-color: var(--color-background);
   color: var(--color-text-primary);
-  letter-spacing: 0.02em;
   overscroll-behavior-y: none;
 }
 
-/* =========================================================
-   SCROLLBAR — Estilo terminal retro
-   ========================================================= */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0f111e; }
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-sm);
+::selection {
+  background: rgba(143, 203, 176, 0.28);
+  color: #F1F5F2;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+/* =========================================================
+   SCROLLBAR — discreta y suave
+   ========================================================= */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
 
 /* =========================================================
    FOCUS VISIBLE
    ========================================================= */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid rgba(143, 203, 176, 0.9);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
 /* =========================================================
-   UTILIDADES GAMER HUD & SCANLINES
+   VIDRIO — tres niveles
    ========================================================= */
-
-/* Fondo Scanlines CRT */
-.crt-scanlines {
-  background-color: #111528;
-  background-image: repeating-linear-gradient(
-    0deg,
-    rgba(0, 255, 102, 0.035) 0px,
-    rgba(0, 255, 102, 0.035) 1px,
-    transparent 1px,
-    transparent 4px
-  );
+@utility glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 32px rgba(3, 6, 10, 0.35);
 }
 
-/* Bordes Pixelados Neón */
-.pixel-border-green {
-  border: 2px solid #00FF66;
-  box-shadow: 0 0 12px rgba(0, 255, 102, 0.25);
+@utility glass-soft {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.pixel-border-pink {
-  border: 2px solid #ff4d6d;
-  box-shadow: 0 0 12px rgba(255, 77, 109, 0.25);
+@utility glass-strong {
+  background: rgba(22, 27, 34, 0.62);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 24px 64px rgba(2, 5, 10, 0.55);
 }
 
-.pixel-border-cyan {
-  border: 2px solid #38d9f5;
-  box-shadow: 0 0 12px rgba(56, 217, 245, 0.25);
-}
-
-/* Botones Acción Arcade 3D */
-.btn-arcade-green {
-  background-color: #00FF66;
-  color: #000000;
-  font-family: 'Share Tech Mono', 'Space Mono', monospace;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-bottom: 4px solid #00b347;
-  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
-}
-.btn-arcade-green:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-}
-
-.btn-arcade-pink {
-  background-color: #ff4d6d;
-  color: #000000;
-  font-family: 'Share Tech Mono', 'Space Mono', monospace;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-bottom: 4px solid #cc143d;
-  transition: transform 0.08s ease, border-bottom-width 0.08s ease;
-}
-.btn-arcade-pink:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-}
-
-/* Glassmorphism Cyber */
-.glass {
-  background: rgba(24, 28, 49, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-border);
-}
-
-/* Fondo con viñeta retro */
-.bg-gradient-app {
-  background-color: #0f111e;
-  background-image:
-    radial-gradient(ellipse at 50% 0%, rgba(0, 255, 102, 0.05) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(56, 217, 245, 0.04) 0%, transparent 50%);
-}
-
-/* Texto Glow Neón */
-.glow-text-green {
-  color: #00FF66;
-  text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
-}
-
-.glow-text-pink {
-  color: #ff4d6d;
-  text-shadow: 0 0 8px rgba(255, 77, 109, 0.5);
-}
-
-.glow-text-cyan {
-  color: #38d9f5;
-  text-shadow: 0 0 8px rgba(56, 217, 245, 0.5);
-}
-
-/* Switch estilo retro gamer */
-.retro-switch {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 24px;
-}
-
-.retro-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.retro-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #20253f;
-  border: 1px solid #293056;
-  border-radius: 4px;
-  transition: 0.2s;
-}
-
-.retro-slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 3px;
-  bottom: 3px;
-  background-color: #5d6786;
-  border-radius: 2px;
-  transition: 0.2s;
-}
-
-input:checked + .retro-slider {
-  background-color: rgba(0, 255, 102, 0.2);
-  border-color: #00FF66;
-}
-
-input:checked + .retro-slider:before {
-  transform: translateX(24px);
-  background-color: #00FF66;
-  box-shadow: 0 0 8px #00FF66;
-}
-
-/* Input / Select base arcade */
-.input-base {
+/* =========================================================
+   INPUTS — vidrio con focus sereno
+   ========================================================= */
+@utility input-base {
   width: 100%;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md);
   color: var(--color-text-primary);
   padding: 0.625rem 0.875rem;
   font-size: 0.9375rem;
-  font-family: var(--font-mono);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  font-weight: 400;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   outline: none;
 }
 
 .input-base::placeholder { color: var(--color-text-muted); }
 
 .input-base:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 10px rgba(0, 255, 102, 0.25);
+  border-color: rgba(143, 203, 176, 0.55);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 4px rgba(143, 203, 176, 0.12);
 }
 
 .input-base:disabled {
@@ -283,12 +185,131 @@ input:checked + .retro-slider:before {
   cursor: not-allowed;
 }
 
-/* Animaciones */
-@keyframes pulseGreen {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+/* =========================================================
+   SWITCH — píldora serena
+   Reemplaza al retro-switch. Markup:
+   <label class="switch">
+     <input type="checkbox" />
+     <span class="switch-track"><span class="switch-thumb" /></span>
+   </label>
+   ========================================================= */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
-.animate-pulse-green {
-  animation: pulseGreen 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.switch-track {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: #9BAAA6;
+  transform: translateY(-50%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.switch input:checked ~ .switch-track {
+  background: var(--color-accent-subtle);
+  border-color: rgba(143, 203, 176, 0.5);
+}
+
+.switch input:checked ~ .switch-track .switch-thumb {
+  transform: translateY(-50%) translateX(20px);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(143, 203, 176, 0.18);
+}
+
+.switch input:focus-visible ~ .switch-track {
+  outline: 2px solid rgba(143, 203, 176, 0.9);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   SKELETON — shimmer sutil
+   ========================================================= */
+@utility skeleton {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 60%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 2.2s linear infinite;
+}
+
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drift-a {
+  from { transform: translate3d(-4%, -3%, 0) scale(1); }
+  to { transform: translate3d(4%, 3%, 0) scale(1.08); }
+}
+
+@keyframes drift-b {
+  from { transform: translate3d(3%, 2%, 0) scale(1.05); }
+  to { transform: translate3d(-3%, -3%, 0) scale(1); }
+}
+
+@keyframes drift-c {
+  from { transform: translate3d(0, 3%, 0) scale(1); }
+  to { transform: translate3d(2%, -3%, 0) scale(1.06); }
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* =========================================================
+   MOVIMIENTO REDUCIDO
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

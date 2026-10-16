@@ -17,24 +17,22 @@ interface KpiCardProps {
   value: string
   accent: string
   hint?: React.ReactNode
-  glow?: boolean
 }
 
-function KpiCard({ label, value, accent, hint, glow }: KpiCardProps) {
+function KpiCard({ label, value, accent, hint }: KpiCardProps) {
   return (
-    <div
-      className={cn(
-        'bg-[#181c31] border border-[#293056] rounded-[4px] p-3.5 flex flex-col gap-1.5',
-        glow && 'shadow-[0_0_10px_rgba(0,255,102,0.15)]'
-      )}
-    >
-      <span className="text-[10px] font-bold tracking-widest uppercase text-[#8B92A9]">
+    <div className="glass rounded-[var(--radius-lg)] p-4 flex flex-col gap-1.5">
+      <span className="text-xs font-medium text-[var(--color-text-secondary)]">
         {label}
       </span>
-      <span className={cn('text-lg sm:text-xl font-bold tabular-nums truncate', accent)}>
+      <span className={cn('text-xl font-semibold tabular-nums truncate', accent)}>
         {value}
       </span>
-      {hint && <span className="text-[10px] font-mono leading-tight">{hint}</span>}
+      {hint && (
+        <span className="text-[0.6875rem] leading-tight text-[var(--color-text-muted)]">
+          {hint}
+        </span>
+      )}
     </div>
   )
 }
@@ -54,21 +52,21 @@ export function MetricsKpis({
       <KpiCard
         label="Ingresos del mes"
         value={formatCurrency(totalIncome, currency)}
-        accent="text-[#00FF66] glow-text-green"
+        accent="text-[var(--color-income)]"
       />
 
       <KpiCard
         label="Gastos del mes"
         value={formatCurrency(totalExpense, currency)}
-        accent="text-[#ff4d6d]"
+        accent="text-[var(--color-expense)]"
         hint={
           expenseChangePct === null ? (
-            <span className="text-[#5d6786]">Sin datos del mes anterior</span>
+            <span>Sin datos del mes anterior</span>
           ) : (
             <span
               className={cn(
                 'inline-flex items-center gap-0.5',
-                expenseUp ? 'text-[#ff4d6d]' : 'text-[#00FF66]'
+                expenseUp ? 'text-[var(--color-expense)]' : 'text-[var(--color-income)]'
               )}
             >
               {expenseUp ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
@@ -81,9 +79,9 @@ export function MetricsKpis({
       <KpiCard
         label="Ahorro del mes"
         value={formatCurrency(balance, currency)}
-        accent={balance >= 0 ? 'text-[#38d9f5] glow-text-cyan' : 'text-[#ff4d6d]'}
+        accent={balance >= 0 ? 'text-[var(--color-info)]' : 'text-[var(--color-expense)]'}
         hint={
-          <span className="text-[#5d6786]">
+          <span>
             {balance >= 0 ? 'Te sobró este mes' : 'Gastaste más de lo que ingresó'}
           </span>
         }
@@ -92,9 +90,9 @@ export function MetricsKpis({
       <KpiCard
         label="Tasa de ahorro"
         value={`${savingsRate.toFixed(1)}%`}
-        accent={savingsRate >= 0 ? 'text-[#00FF66] glow-text-green' : 'text-[#ff4d6d]'}
+        accent={savingsRate >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'}
         hint={
-          <span className="text-[#5d6786]">
+          <span>
             {totalIncome > 0 ? 'Ingresos menos gastos' : 'Sin ingresos registrados'}
           </span>
         }

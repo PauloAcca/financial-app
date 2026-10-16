@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   Home,
@@ -22,19 +21,21 @@ import {
 import { cn } from '@/lib/utils'
 import { logout } from '@/actions/auth'
 import { useState, useEffect, useTransition } from 'react'
+import { BrandMark, Wordmark } from '@/components/ui/brand'
+import { Avatar } from '@/components/ui/avatar'
 
 const NAV_ITEMS = [
-  { href: '/dashboard',    label: 'INICIO',        icon: Home },
-  { href: '/transactions', label: 'HISTORIAL',     icon: History },
-  { href: '/metas',        label: 'METAS',         icon: Trophy },
-  { href: '/profile',      label: 'PERFIL',        icon: User },
-  { href: '/accounts',     label: 'CUENTAS',       icon: Wallet },
-  { href: '/inversiones',  label: 'INVERSIONES',   icon: TrendingUp },
-  { href: '/prestamos',    label: 'PRÉSTAMOS',     icon: HandCoins },
-  { href: '/recurring',    label: 'GASTOS FIJOS',  icon: Repeat },
-  { href: '/categories',   label: 'CATEGORÍAS',    icon: Tag },
-  { href: '/metrics',      label: 'MÉTRICAS',      icon: BarChart2 },
-  { href: '/chat',         label: 'ASISTENTE IA',  icon: MessageSquare },
+  { href: '/dashboard',    label: 'Inicio',        icon: Home },
+  { href: '/transactions', label: 'Historial',    icon: History },
+  { href: '/metas',        label: 'Metas',         icon: Trophy },
+  { href: '/profile',      label: 'Perfil',        icon: User },
+  { href: '/accounts',     label: 'Cuentas',       icon: Wallet },
+  { href: '/inversiones',  label: 'Inversiones',   icon: TrendingUp },
+  { href: '/prestamos',    label: 'Préstamos',     icon: HandCoins },
+  { href: '/recurring',    label: 'Gastos fijos',  icon: Repeat },
+  { href: '/categories',   label: 'Categorías',    icon: Tag },
+  { href: '/metrics',      label: 'Métricas',      icon: BarChart2 },
+  { href: '/chat',         label: 'Asistente',    icon: MessageSquare },
 ]
 
 interface SidebarProps {
@@ -61,31 +62,27 @@ export function Sidebar({ displayName }: SidebarProps) {
     <aside
       className={cn(
         'hidden lg:flex flex-col',
-        'bg-[#111424] border-r border-[#1e233f]',
-        'transition-all duration-300 font-mono',
-        collapsed ? 'w-[72px]' : 'w-[230px]'
+        'bg-[rgba(255,255,255,0.02)] backdrop-blur-xl',
+        'border-r border-[rgba(255,255,255,0.06)]',
+        'transition-all duration-300',
+        collapsed ? 'w-[72px]' : 'w-[228px]'
       )}
     >
-      {/* Logo */}
-      <div className={cn('flex items-center gap-3 px-4 h-16 border-b border-[#1e233f]', collapsed && 'justify-center px-0')}>
-        <div className="relative w-8 h-8 rounded-[4px] border border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(0,255,102,0.3)]">
-          <Image
-            src="/pixel-coin.jpg"
-            alt="Pixel Realm"
-            width={32}
-            height={32}
-            className="w-full h-full object-cover"
-          />
-        </div>
-        {!collapsed && (
-          <span className="font-bold text-[#00FF66] tracking-wider text-base glow-text-green truncate">
-            PIXEL REALM
-          </span>
+      {/* Marca */}
+      <div
+        className={cn(
+          'flex items-center gap-3 px-4 h-16 border-b border-[rgba(255,255,255,0.06)]',
+          collapsed && 'justify-center px-0'
         )}
+      >
+        <Link href="/dashboard" prefetch={true} className="flex items-center gap-3">
+          <BrandMark size={30} />
+          {!collapsed && <Wordmark subtitle="finanzas" />}
+        </Link>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-2 py-4 flex flex-col gap-1 overflow-y-auto">
+      {/* Navegación */}
+      <nav className="flex-1 px-2.5 py-4 flex flex-col gap-1 overflow-y-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = currentPath === href || (href !== '/dashboard' && currentPath.startsWith(href))
           return (
@@ -95,62 +92,74 @@ export function Sidebar({ displayName }: SidebarProps) {
               prefetch={true}
               onClick={() => setOptimisticPath(href)}
               className={cn(
-                'flex items-center gap-3 px-3 h-10 rounded-[4px]',
-                'text-xs font-bold tracking-wider transition-all duration-75 select-none',
+                'flex items-center gap-3 px-3 h-10 rounded-[var(--radius-md)]',
+                'text-sm font-medium transition-all duration-200 select-none',
                 collapsed ? 'justify-center px-0' : '',
                 active
-                  ? 'bg-[#00FF66] text-[#000000] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
-                  : 'text-[#8B92A9] hover:bg-[#181c31] hover:text-[#00FF66]'
+                  ? 'bg-[rgba(255,255,255,0.07)] text-[var(--color-text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                  : 'text-[var(--color-text-secondary)] hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--color-text-primary)]'
               )}
               title={collapsed ? label : undefined}
             >
-              <Icon size={18} className={cn('shrink-0', active ? 'text-black stroke-[2.5]' : '')} />
+              <Icon
+                size={18}
+                className={cn('shrink-0 transition-colors', active && 'text-[var(--color-accent)]')}
+              />
               {!collapsed && <span>{label}</span>}
             </Link>
           )
         })}
       </nav>
 
-      {/* Footer */}
-      <div className={cn('px-2 py-3 border-t border-[#1e233f] flex flex-col gap-1', collapsed && 'items-center')}>
+      {/* Pie */}
+      <div
+        className={cn(
+          'px-2.5 py-3 border-t border-[rgba(255,255,255,0.06)] flex flex-col gap-1.5',
+          collapsed && 'items-center'
+        )}
+      >
         {/* Usuario */}
         {!collapsed && displayName && (
-          <div className="px-3 py-2 mb-1 bg-[#181c31] rounded-[4px] border border-[#293056]">
-            <p className="text-[10px] text-[#8B92A9] uppercase">JUGADOR</p>
-            <p className="text-xs font-bold text-[#00FF66] truncate">{displayName}</p>
+          <div className="flex items-center gap-2.5 px-2.5 py-2 bg-[rgba(255,255,255,0.04)] rounded-[var(--radius-md)] border border-[rgba(255,255,255,0.06)]">
+            <Avatar name={displayName} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.6875rem] text-[var(--color-text-muted)]">Usuario</p>
+              <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{displayName}</p>
+            </div>
           </div>
         )}
+        {collapsed && displayName && <Avatar name={displayName} size="sm" />}
 
-        {/* Logout */}
+        {/* Cerrar sesión */}
         <button
           onClick={handleLogout}
           disabled={isPending}
           className={cn(
-            'flex items-center gap-3 px-3 h-10 rounded-[4px] w-full',
-            'text-xs font-bold tracking-wider text-[#ff4d6d]',
-            'hover:bg-[rgba(255,77,109,0.15)] hover:border hover:border-[#ff4d6d]/40',
-            'transition-all duration-150 cursor-pointer',
+            'flex items-center gap-3 px-3 h-10 rounded-[var(--radius-md)] w-full',
+            'text-sm font-medium text-[var(--color-text-secondary)]',
+            'hover:bg-[rgba(227,160,170,0.1)] hover:text-[var(--color-danger)]',
+            'transition-all duration-200 cursor-pointer',
             collapsed && 'justify-center px-0'
           )}
           title="Cerrar sesión"
         >
           <LogOut size={18} className="shrink-0" />
-          {!collapsed && <span>CERRAR SESIÓN</span>}
+          {!collapsed && <span>Cerrar sesión</span>}
         </button>
 
         {/* Colapsar */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
-            'flex items-center gap-3 px-3 h-8 rounded-[4px] w-full',
-            'text-[10px] text-[#5d6786]',
-            'hover:bg-[#181c31] hover:text-white',
-            'transition-all duration-150 cursor-pointer',
+            'flex items-center gap-3 px-3 h-8 rounded-[var(--radius-md)] w-full',
+            'text-xs text-[var(--color-text-muted)]',
+            'hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--color-text-primary)]',
+            'transition-all duration-200 cursor-pointer',
             collapsed && 'justify-center px-0'
           )}
           aria-label={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
         >
-          {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>COLAPSAR</span></>}
+          {collapsed ? <ChevronRight size={16} /> : <><ChevronLeft size={16} /><span>Colapsar</span></>}
         </button>
       </div>
     </aside>

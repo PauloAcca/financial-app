@@ -38,99 +38,75 @@ export function SummaryCards({ stats, currency = DEFAULT_CURRENCY }: SummaryCard
 
   // Saldo total real
   const balance = stats.totalBalance
-  
-  // Barra de salud / balance de 10 bloques (adaptada a escala de ARS)
-  // Llena bloques conforme se acumula saldo positivo
-  const healthTotalBlocks = 10
-  const healthFilledBlocks = balance > 0 
-    ? Math.min(10, Math.max(1, Math.ceil(balance / 500000))) 
-    : 0
-
-  // Barra de actividad del día (10 bloques)
-  const xpTotalBlocks = 10
-  const xpFilledBlocks = stats.todayExpense > 0 
-    ? Math.min(10, Math.max(1, Math.ceil(stats.todayExpense / 25000))) 
-    : 0
 
   return (
-    <div className="flex flex-col gap-4 font-mono">
-      {/* 1. TARJETA SALDO TOTAL (HUD GAMER CON SCANLINES CRT) */}
-      <div className="crt-scanlines pixel-border-green rounded-[4px] p-5 shadow-[0_0_15px_rgba(0,255,102,0.2)]">
-        {/* Encabezado: Saldo total + Botón Ojo + Nivel REAL */}
-        <div className="flex items-center justify-between mb-3">
+    <div className="flex flex-col gap-4">
+      {/* 1. Saldo total */}
+      <div className="glass rounded-[var(--radius-lg)] p-5">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-[#00FF66] text-xs sm:text-sm font-bold tracking-wider uppercase glow-text-green">
-              <span className="text-base">♡</span>
-              <span>SALDO TOTAL</span>
-            </div>
+            <span className="text-xs font-medium text-[var(--color-text-secondary)]">
+              Saldo total
+            </span>
 
-            {/* Botón Ojo para Ocultar / Mostrar Saldo */}
+            {/* Ocultar / mostrar saldo */}
             <button
               onClick={toggleHide}
               aria-label={isHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
-              className="text-[#00FF66]/70 hover:text-[#00FF66] p-1 rounded hover:bg-[#00FF66]/10 transition-colors cursor-pointer"
+              className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] p-1 rounded-full hover:bg-[rgba(255,255,255,0.06)] transition-colors cursor-pointer"
               title={isHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
             >
-              {isHidden ? <EyeOff size={15} /> : <Eye size={15} />}
+              {isHidden ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
 
-          <div className="border border-[#00FF66] px-2.5 py-0.5 bg-[#0f111e] text-[#00FF66] text-xs font-bold tracking-widest rounded-[2px] shadow-[0_0_6px_rgba(0,255,102,0.3)]">
-            NIVEL {stats.level}
-          </div>
+          {/* Nivel — sutil */}
+          <span className="inline-flex items-center px-2.5 py-1 rounded-[var(--radius-full)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)] text-xs font-medium">
+            Nivel {stats.level}
+          </span>
         </div>
 
-        {/* Monto Principal REAL o *** */}
-        <div className="text-2xl sm:text-3xl font-bold text-[#00FF66] tracking-tight glow-text-green mb-4 tabular-nums select-none">
+        {/* Monto principal */}
+        <div className="font-display text-[2rem] sm:text-[2.25rem] font-semibold tracking-tight text-[var(--color-text-primary)] mb-5 tabular-nums select-none">
           {isHidden ? '••••••••' : formatCurrency(balance, currency)}
         </div>
 
-        {/* Barra de Salud / Saldo Segmentada REAL (10 bloques) */}
-        <div className="grid grid-cols-10 gap-1.5 h-3.5 w-full">
-          {Array.from({ length: healthTotalBlocks }).map((_, index) => {
-            const isFilled = index < healthFilledBlocks
-            return (
-              <div
-                key={`health-block-${index}`}
-                className={`h-full rounded-[1px] transition-all duration-300 ${
-                  isFilled
-                    ? 'bg-[#00FF66] shadow-[0_0_6px_rgba(0,255,102,0.6)]'
-                    : 'bg-[#20253f] border border-[#293056]'
-                }`}
-              />
-            )
-          })}
+        {/* Progreso de nivel — barra fina y continua */}
+        <div className="flex flex-col gap-2">
+          <div className="h-1.5 w-full rounded-[var(--radius-full)] bg-[rgba(255,255,255,0.06)] overflow-hidden">
+            <div
+              className="h-full rounded-[var(--radius-full)] bg-[var(--color-accent)] transition-all duration-700"
+              style={{ width: `${Math.max(2, stats.progressPercent)}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <p className="text-[0.6875rem] text-[var(--color-text-muted)]">
+              {stats.currentXP.toLocaleString('es-AR')} / {stats.nextLevelXP.toLocaleString('es-AR')} XP
+            </p>
+            <p className="text-[0.6875rem] text-[var(--color-text-muted)]">
+              {stats.rank}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* 2. TARJETA XP DIARIO / GASTADO HOY */}
-      <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2 text-xs font-bold tracking-wider">
-          <div className="flex items-center gap-1.5 text-[#38d9f5] glow-text-cyan uppercase">
-            <span className="text-sm">☆</span>
-            <span>GASTADO HOY</span>
+      {/* 2. Gastado hoy */}
+      <div className="glass rounded-[var(--radius-lg)] p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-xs font-medium text-[var(--color-text-secondary)]">
+              Gastado hoy
+            </span>
+            <span className="text-xl font-semibold text-[var(--color-text-primary)] tabular-nums mt-1">
+              {isHidden ? '••••' : formatCurrency(stats.todayExpense, currency)}
+            </span>
           </div>
 
-          <div className="text-white tabular-nums font-bold">
-            {formatCurrency(stats.todayExpense, currency)}
-          </div>
-        </div>
-
-        {/* Barra de XP Segmentada Cian (10 bloques) */}
-        <div className="grid grid-cols-10 gap-1.5 h-2.5 w-full">
-          {Array.from({ length: xpTotalBlocks }).map((_, index) => {
-            const isFilled = index < xpFilledBlocks
-            return (
-              <div
-                key={`xp-block-${index}`}
-                className={`h-full rounded-[1px] transition-all duration-300 ${
-                  isFilled
-                    ? 'bg-[#38d9f5] shadow-[0_0_6px_rgba(56,217,245,0.6)]'
-                    : 'bg-[#20253f]'
-                }`}
-              />
-            )
-          })}
+          <span className="text-xs text-[var(--color-text-muted)]">
+            {stats.todayTxCount === 0
+              ? 'Sin movimientos'
+              : `${stats.todayTxCount} ${stats.todayTxCount === 1 ? 'movimiento' : 'movimientos'}`}
+          </span>
         </div>
       </div>
     </div>

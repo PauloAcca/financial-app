@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
+import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { deleteInvestmentValuation } from '@/actions/investments'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
@@ -59,48 +60,62 @@ export function InvestmentDetailModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={`📈 ${account.name.toUpperCase()}`}
+      title={account.name}
       description="Detalle de la inversión, aportes y valuaciones."
       size="lg"
     >
-      <div className="flex flex-col gap-4 font-mono pt-1">
+      <div className="flex flex-col gap-4 pt-1">
         {/* Resumen */}
         <div className="grid grid-cols-2 gap-2.5">
-          <div className="bg-[#14182b] border border-[#293056] rounded-[4px] p-3">
-            <p className="text-[10px] text-[#8B92A9] uppercase tracking-wider flex items-center gap-1">
-              <Gauge size={12} /> VALOR ACTUAL
+          <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3">
+            <p className="text-xs font-medium text-[var(--color-text-secondary)] flex items-center gap-1">
+              <Gauge size={12} /> Valor actual
             </p>
-            <p className="text-base font-bold text-white tabular-nums mt-1">
+            <p className="text-base font-semibold text-[var(--color-text-primary)] tabular-nums mt-1">
               {formatCurrency(currentValue, currency)}
             </p>
           </div>
-          <div className="bg-[#14182b] border border-[#293056] rounded-[4px] p-3">
-            <p className="text-[10px] text-[#8B92A9] uppercase tracking-wider">CAPITAL APORTADO</p>
-            <p className="text-base font-bold text-[#38d9f5] tabular-nums mt-1">
+          <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3">
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">
+              Capital aportado
+            </p>
+            <p className="text-base font-semibold text-[var(--color-transfer)] tabular-nums mt-1">
               {formatCurrency(capital, currency)}
             </p>
           </div>
           <div
             className={cn(
-              'bg-[#14182b] border rounded-[4px] p-3 col-span-2',
-              isUp ? 'border-[#00FF66]/40' : 'border-[#ff4d6d]/40'
+              'bg-[rgba(255,255,255,0.04)] border rounded-[var(--radius-md)] p-3 col-span-2',
+              isUp ? 'border-[rgba(127,217,164,0.35)]' : 'border-[rgba(227,160,170,0.35)]'
             )}
           >
-            <p className="text-[10px] text-[#8B92A9] uppercase tracking-wider">GANANCIA / PÉRDIDA</p>
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">
+              Ganancia / pérdida
+            </p>
             <p
               className={cn(
-                'text-lg font-bold tabular-nums mt-1 flex items-center gap-2',
-                isUp ? 'text-[#00FF66] glow-text-green' : 'text-[#ff4d6d] glow-text-pink'
+                'text-lg font-semibold tabular-nums mt-1 flex items-center gap-2 flex-wrap',
+                isUp ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'
               )}
             >
               {isUp ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
               {isUp ? '+' : ''}
               {formatCurrency(gain, currency)}
               {gainPct !== null && (
-                <span className="text-sm">({isUp ? '+' : ''}{gainPct.toFixed(2)}%)</span>
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-xs font-medium tabular-nums',
+                    isUp
+                      ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)]'
+                      : 'bg-[var(--color-expense-subtle)] text-[var(--color-expense)]'
+                  )}
+                >
+                  {isUp ? '+' : ''}
+                  {gainPct.toFixed(2)}%
+                </span>
               )}
             </p>
-            <p className="text-[10px] text-[#5d6786] mt-1">
+            <p className="text-xs text-[var(--color-text-muted)] mt-1.5">
               Invertido desde {formatDate(since, 'medium')}
             </p>
           </div>
@@ -108,40 +123,34 @@ export function InvestmentDetailModal({
 
         {/* Acciones */}
         <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => onUpdateValue(platform)}
-            className="btn-arcade-green py-2.5 px-3 rounded-[4px] text-xs font-bold text-black flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-          >
+          <Button variant="primary" onClick={() => onUpdateValue(platform)}>
             <Pencil size={14} />
-            <span>ACTUALIZAR VALOR</span>
-          </button>
-          <button
-            onClick={() => onContribute(platform)}
-            className="py-2.5 px-3 rounded-[4px] bg-[#181c31] border border-[#00FF66]/40 text-[#00FF66] text-xs font-bold uppercase tracking-wider hover:bg-[#00FF66]/10 transition-colors cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
-          >
+            Actualizar valor
+          </Button>
+          <Button variant="secondary" onClick={() => onContribute(platform)}>
             <ArrowDownLeft size={14} />
-            <span>APORTE / RETIRO</span>
-          </button>
+            Aporte / retiro
+          </Button>
         </div>
 
-        {/* Historial de valuciones */}
+        {/* Historial de valores */}
         {valuations.length > 0 && (
           <div>
-            <h3 className="text-xs font-bold text-[#a855f7] uppercase tracking-widest flex items-center gap-1.5 mb-2">
+            <h3 className="text-xs font-medium text-[var(--color-text-secondary)] flex items-center gap-1.5 mb-2">
               <Gauge size={14} />
-              <span>HISTORIAL DE VALORES ({valuations.length})</span>
+              <span>Historial de valores ({valuations.length})</span>
             </h3>
             <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
               {valuations.map((v) => (
                 <div
                   key={v.id}
-                  className="bg-[#14182b] border border-[#293056] rounded-[4px] px-3 py-2 flex items-center justify-between gap-2"
+                  className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] px-3 py-2 flex items-center justify-between gap-2"
                 >
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-white tabular-nums">
+                    <p className="text-xs font-medium text-[var(--color-text-primary)] tabular-nums">
                       {formatCurrency(Number(v.value), v.currency)}
                     </p>
-                    <p className="text-[10px] text-[#8B92A9] truncate">
+                    <p className="text-[0.6875rem] text-[var(--color-text-secondary)] truncate">
                       {formatDate(v.valued_at, 'medium')}
                       {v.notes ? ` · ${v.notes}` : ''}
                     </p>
@@ -149,7 +158,7 @@ export function InvestmentDetailModal({
                   <button
                     onClick={() => handleDeleteValuation(v.id)}
                     disabled={isPending}
-                    className="p-1.5 rounded bg-[#20253f] text-[#5d6786] hover:text-[#ff4d6d] hover:bg-[#ff4d6d]/20 transition-colors shrink-0 disabled:opacity-40"
+                    className="p-1.5 rounded-[var(--radius-sm)] bg-[rgba(255,255,255,0.06)] text-[var(--color-text-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-subtle)] transition-colors shrink-0 disabled:opacity-40 cursor-pointer"
                     title="Eliminar valuación"
                   >
                     <Trash2 size={13} />
@@ -160,14 +169,14 @@ export function InvestmentDetailModal({
           </div>
         )}
 
-        {/* Timeline de aportes/retiros */}
+        {/* Movimientos */}
         <div>
-          <h3 className="text-xs font-bold text-[#00FF66] uppercase tracking-widest flex items-center gap-1.5 mb-2">
+          <h3 className="text-xs font-medium text-[var(--color-text-secondary)] flex items-center gap-1.5 mb-2">
             <History size={14} />
-            <span>MOVIMIENTOS ({movements.length})</span>
+            <span>Movimientos ({movements.length})</span>
           </h3>
           {movements.length === 0 ? (
-            <p className="text-[11px] text-[#8B92A9] bg-[#14182b] border border-[#293056] rounded-[4px] p-3 text-center">
+            <p className="text-xs text-[var(--color-text-secondary)] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3 text-center">
               Todavía no registraste aportes ni retiros en esta inversión.
             </p>
           ) : (
@@ -177,28 +186,32 @@ export function InvestmentDetailModal({
                 return (
                   <div
                     key={m.id}
-                    className="bg-[#14182b] border border-[#293056] rounded-[4px] px-3 py-2 flex items-center justify-between gap-2"
+                    className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] px-3 py-2 flex items-center justify-between gap-2"
                   >
-                    <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <div
                         className={cn(
-                          'w-7 h-7 rounded-[4px] flex items-center justify-center shrink-0',
-                          isIn ? 'bg-[#00FF66]/10 text-[#00FF66]' : 'bg-[#ff4d6d]/10 text-[#ff4d6d]'
+                          'w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0',
+                          isIn
+                            ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)]'
+                            : 'bg-[var(--color-expense-subtle)] text-[var(--color-expense)]'
                         )}
                       >
-                        {isIn ? <ArrowDownLeft size={15} /> : <ArrowUpRight size={15} />}
+                        {isIn ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs text-white truncate">
+                        <p className="text-xs text-[var(--color-text-primary)] truncate">
                           {m.description || (isIn ? 'Aporte' : 'Retiro')}
                         </p>
-                        <p className="text-[10px] text-[#8B92A9]">{formatDate(m.date, 'medium')}</p>
+                        <p className="text-[0.6875rem] text-[var(--color-text-secondary)]">
+                          {formatDate(m.date, 'medium')}
+                        </p>
                       </div>
                     </div>
                     <span
                       className={cn(
-                        'text-xs font-bold tabular-nums shrink-0',
-                        isIn ? 'text-[#00FF66]' : 'text-[#ff4d6d]'
+                        'text-xs font-semibold tabular-nums shrink-0',
+                        isIn ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'
                       )}
                     >
                       {isIn ? '+' : '-'}

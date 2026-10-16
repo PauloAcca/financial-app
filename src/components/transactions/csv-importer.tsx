@@ -24,7 +24,7 @@ export function CsvImporter({ accounts }: CsvImporterProps) {
     if (!file) return
 
     if (!selectedAccountId) {
-      toast.error('Por favor, selecciona una cuenta de destino primero.')
+      toast.error('Seleccioná una cuenta de destino primero.')
       return
     }
 
@@ -53,7 +53,7 @@ export function CsvImporter({ accounts }: CsvImporterProps) {
           if (res?.error) {
             toast.error(res.error)
           } else if (res?.success) {
-            toast.success(`Se importaron ${res.count} transacciones exitosamente.`)
+            toast.success(`Se importaron ${res.count} transacciones con éxito.`)
             if (res.newCategories > 0) {
               toast.info(`Se crearon ${res.newCategories} categorías nuevas.`)
             }
@@ -88,14 +88,14 @@ export function CsvImporter({ accounts }: CsvImporterProps) {
         <span className="hidden sm:inline">Importar CSV</span>
       </button>
 
-      <Modal open={open} onClose={() => !isProcessing && setOpen(false)} title="Importar Transacciones" size="sm">
+      <Modal open={open} onClose={() => !isProcessing && setOpen(false)} title="Importar transacciones" size="sm">
         <div className="flex flex-col gap-4 mt-2">
           <p className="text-sm text-[var(--color-text-secondary)]">
-            Sube un archivo <strong>.csv</strong> con tus gastos. Asegúrate de que tenga las columnas: <br/>
-            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded">Fecha</code>, 
-            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded ml-1">Descripción</code>, 
-            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded ml-1">Monto</code>, 
-            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded ml-1">Categoría</code>
+            Subí un archivo <strong>.csv</strong> con tus gastos. Asegurate de que tenga las columnas: <br/>
+            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded-[var(--radius-sm)]">Fecha</code>,
+            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded-[var(--radius-sm)] ml-1">Descripción</code>,
+            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded-[var(--radius-sm)] ml-1">Monto</code>,
+            <code className="text-xs bg-[var(--color-surface-3)] px-1 py-0.5 rounded-[var(--radius-sm)] ml-1">Categoría</code>
           </p>
 
           <div className="flex flex-col gap-1.5">
@@ -106,9 +106,7 @@ export function CsvImporter({ accounts }: CsvImporterProps) {
               value={selectedAccountId}
               onChange={(e) => setSelectedAccountId(e.target.value)}
               disabled={isProcessing || accounts.length === 0}
-              className="w-full h-10 px-3 rounded-[var(--radius-md)] bg-[var(--color-surface)]
-                         border border-[var(--color-border)] text-sm outline-none
-                         focus:border-[var(--color-accent)] transition-colors"
+              className="input-base"
             >
               <option value="" disabled>Seleccioná una cuenta</option>
               {accounts.map(acc => (
@@ -134,11 +132,11 @@ export function CsvImporter({ accounts }: CsvImporterProps) {
             )}
             <div className="text-sm">
               {isProcessing ? (
-                <span className="text-[var(--color-text-primary)] font-medium">Procesando archivo...</span>
+                <span className="text-[var(--color-text-primary)] font-medium">Procesando archivo…</span>
               ) : (
                 <>
-                  <span className="font-semibold text-[var(--color-accent)]">Haz clic para subir</span>
-                  <span className="text-[var(--color-text-secondary)]"> o arrastra un archivo</span>
+                  <span className="font-semibold text-[var(--color-accent)]">Tocá para subir</span>
+                  <span className="text-[var(--color-text-secondary)]"> o arrastrá un archivo</span>
                 </>
               )}
             </div>

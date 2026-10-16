@@ -22,12 +22,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const displayName = profile?.display_name || user.email
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-[#0f111e] overscroll-none">
+    <div className="flex h-dvh overflow-hidden overscroll-none">
       <Sidebar displayName={displayName} />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {/* Top Header visible en todas las resoluciones */}
-        <TopHeader />
+        {/* Header visible en todas las resoluciones */}
+        <TopHeader displayName={displayName} />
 
         <AppContent>
           {children}

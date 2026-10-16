@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-[var(--color-text-secondary)]"
+            className="text-xs font-medium text-[var(--color-text-secondary)]"
           >
             {label}
           </label>
@@ -38,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'input-base',
               leftIcon && 'pl-9',
               rightIcon && 'pr-9',
-              error && 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.15)]',
+              error && 'border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:shadow-[0_0_0_4px_rgba(227,160,170,0.15)]',
               className
             )}
             {...props}

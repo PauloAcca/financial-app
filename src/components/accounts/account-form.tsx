@@ -140,10 +140,10 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
               type="button"
               onClick={() => { if (isInvestment) setType('bank') }}
               className={cn(
-                'py-2.5 px-3 rounded-[4px] text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                'py-2.5 px-3 rounded-[var(--radius-md)] text-xs font-medium flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                 !isInvestment
-                  ? 'bg-[#00FF66] text-black border-[#00FF66] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
-                  : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+                  ? 'bg-[var(--color-accent-subtle)] text-[var(--color-accent)] border-[rgba(143,203,176,0.45)]'
+                  : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.09)] hover:text-[var(--color-text-primary)] hover:bg-[rgba(255,255,255,0.07)]'
               )}
             >
               <Wallet size={15} className="stroke-[2.5]" />
@@ -153,10 +153,10 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
               type="button"
               onClick={() => setType('investment')}
               className={cn(
-                'py-2.5 px-3 rounded-[4px] text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                'py-2.5 px-3 rounded-[var(--radius-md)] text-xs font-medium flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                 isInvestment
-                  ? 'bg-[#a855f7] text-white border-[#a855f7] shadow-[0_0_10px_rgba(168,85,247,0.35)]'
-                  : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+                  ? 'bg-[var(--color-investment-subtle)] text-[var(--color-investment)] border-[rgba(191,174,232,0.45)]'
+                  : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.09)] hover:text-[var(--color-text-primary)] hover:bg-[rgba(255,255,255,0.07)]'
               )}
             >
               <TrendingUp size={15} className="stroke-[2.5]" />
@@ -164,7 +164,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
             </button>
           </div>
           {isInvestment && (
-            <p className="text-xs text-[#a855f7]">
+            <p className="text-xs text-[var(--color-investment)]">
               Se va a mostrar en la sección Inversiones para seguir su valor y rentabilidad.
             </p>
           )}
@@ -181,7 +181,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
         )}
 
         {isCard && (
-          <div className="grid grid-cols-2 gap-3 bg-[#14182b] border border-[#293056] rounded-[4px] p-3">
+          <div className="grid grid-cols-2 gap-3 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.09)] rounded-[var(--radius-md)] p-3">
             <Input
               id="account-form-closing-day"
               label="Día de cierre"
@@ -202,7 +202,7 @@ export function AccountForm({ open, onClose, editingAccount }: AccountFormProps)
               onChange={(e) => setDueDay(e.target.value)}
               helper="Día del mes en que vence el pago"
             />
-            <p className="col-span-2 text-xs text-[#8B92A9]">
+            <p className="col-span-2 text-xs text-[var(--color-text-secondary)]">
               Los gastos de esta tarjeta se agruparán en métricas según el mes en que cierra el resumen.
             </p>
           </div>

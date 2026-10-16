@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Bot, CheckCircle2, Loader2, Mic } from 'lucide-react'
+import { User, Bot, CheckCircle2, Mic } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface Message {
@@ -24,17 +24,17 @@ export function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        'flex gap-2.5 animate-fade-in font-mono',
+        'flex gap-2.5 animate-fade-in',
         isUser ? 'flex-row-reverse' : 'flex-row'
       )}
     >
       {/* Avatar */}
       <div
         className={cn(
-          'w-8 h-8 rounded-[4px] border flex items-center justify-center shrink-0 mt-0.5',
+          'w-8 h-8 rounded-[var(--radius-sm)] border flex items-center justify-center shrink-0 mt-0.5',
           isUser
-            ? 'border-[#00FF66] bg-[#111424] text-[#00FF66]'
-            : 'border-[#38d9f5] bg-[#111424] text-[#38d9f5] shadow-[0_0_8px_rgba(56,217,245,0.3)]'
+            ? 'border-[rgba(143,203,176,0.3)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)]'
+            : 'border-[rgba(166,185,232,0.3)] bg-[var(--color-info-subtle)] text-[var(--color-info)]'
         )}
       >
         {isUser ? <User size={15} /> : <Bot size={16} />}
@@ -44,23 +44,29 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div className={cn('flex flex-col gap-1 max-w-[85%]', isUser && 'items-end')}>
         <div
           className={cn(
-            'px-3.5 py-2.5 rounded-[4px] text-xs sm:text-sm leading-relaxed border',
+            'px-3.5 py-2.5 text-xs sm:text-sm leading-relaxed tabular-nums',
             isUser
-              ? 'bg-[#00FF66] text-black border-[#00FF66] font-bold shadow-[0_0_10px_rgba(0,255,102,0.25)]'
-              : 'bg-[#181c31] text-white border-[#293056] shadow-sm'
+              ? 'bg-[var(--color-accent-subtle)] border border-[rgba(143,203,176,0.3)] text-[var(--color-text-primary)] rounded-[var(--radius-lg)] rounded-br-sm font-medium'
+              : 'glass rounded-[var(--radius-lg)] rounded-bl-sm text-[var(--color-text-primary)]'
           )}
         >
           {message.isStreaming && !message.content ? (
-            <span className="flex items-center gap-2 text-[#8B92A9]">
-              <Loader2 size={14} className="animate-spin text-[#00FF66]" />
-              <span>Procesando datos del oráculo...</span>
+            <span className="flex items-center gap-1.5 text-[var(--color-text-secondary)]">
+              <span>Pensando</span>
+              <span className="flex items-center gap-1 py-1">
+                <span className="w-1 h-1 rounded-full bg-current animate-pulse" />
+                <span className="w-1 h-1 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+                <span className="w-1 h-1 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+              </span>
             </span>
           ) : (
             <div className="flex flex-col gap-2">
               {message.audioData && (
                 <div className={cn(
                   'flex items-center gap-2 text-xs pb-1 mb-1 border-b',
-                  isUser ? 'border-black/20 text-black' : 'border-[#293056] text-[#38d9f5]'
+                  isUser
+                    ? 'border-[rgba(143,203,176,0.25)] text-[var(--color-accent)]'
+                    : 'border-[rgba(255,255,255,0.06)] text-[var(--color-info)]'
                 )}>
                   <Mic size={13} />
                   <span>Audio registrado</span>
@@ -79,8 +85,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
             {message.toolsUsed.map((tool) => (
               <span
                 key={tool}
-                className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-[2px]
-                           bg-[#14182b] border border-[#00FF66]/40 text-[#00FF66]"
+                className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full
+                           bg-[rgba(255,255,255,0.06)] text-[var(--color-text-secondary)]"
               >
                 <CheckCircle2 size={10} />
                 {toolLabel(tool)}
@@ -112,7 +118,7 @@ function MessageContent({
         </span>
       ))}
       {isStreaming && (
-        <span className="inline-block w-1.5 h-3.5 bg-[#00FF66] ml-1 animate-pulse align-middle" />
+        <span className="inline-block w-1.5 h-3.5 bg-[var(--color-accent)] rounded-sm ml-1 animate-pulse align-middle" />
       )}
     </div>
   )
@@ -124,7 +130,7 @@ function InlineMarkdown({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         i % 2 === 1 ? (
-          <strong key={i} className="font-bold underline decoration-dotted">
+          <strong key={i} className="font-semibold">
             {part}
           </strong>
         ) : (
@@ -137,8 +143,8 @@ function InlineMarkdown({ text }: { text: string }) {
 
 function toolLabel(tool: string): string {
   const labels: Record<string, string> = {
-    create_transaction: 'Misión / Gasto registrado',
-    get_accounts: 'Bóvedas consultadas',
+    create_transaction: 'Transacción registrada',
+    get_accounts: 'Cuentas consultadas',
     get_categories: 'Categorías cargadas',
     get_transactions: 'Historial analizado',
     get_budget_status: 'Presupuestos revisados',

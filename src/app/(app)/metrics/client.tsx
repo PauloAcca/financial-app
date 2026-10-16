@@ -248,10 +248,10 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
   const variableExpense = totalExpense - fixedExpense
 
   return (
-    <div className="flex flex-col gap-5 pb-10 font-mono">
+    <div className="flex flex-col gap-5 pb-10">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-wide uppercase">MÉTRICAS</h1>
-        <p className="text-sm text-[#8B92A9] mt-0.5">
+        <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">Métricas</h1>
+        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
           Análisis de tus finanzas en los últimos 6 meses.
         </p>
       </div>
@@ -281,16 +281,16 @@ export function MetricsClient({ transactions, categories, defaultCurrency }: Met
       </Panel>
 
       {/* Evolución Mensual */}
-      <Panel title="Evolución de Ingresos y Gastos" subtitle="Últimos 6 meses">
+      <Panel title="Evolución de ingresos y gastos" subtitle="Últimos 6 meses">
         <MonthlyBarChart data={barChartData} currency={defaultCurrency} />
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Panel title="Gastos por Categoría General" subtitle={`${currentMonthLabel} (Agrupado) · tocá una porción`}>
+        <Panel title="Gastos por categoría general" subtitle={`${currentMonthLabel} (agrupado) · tocá una porción`}>
           <CategoryPieChart data={generalChartData} currency={defaultCurrency} onSelectCategory={handleSelectCategory} />
         </Panel>
 
-        <Panel title="Gastos Detallados (Subcategorías)" subtitle={`${currentMonthLabel} (Específico) · tocá una porción`}>
+        <Panel title="Gastos detallados (subcategorías)" subtitle={`${currentMonthLabel} (específico) · tocá una porción`}>
           <CategoryPieChart data={detailedChartData} currency={defaultCurrency} onSelectCategory={handleSelectCategory} />
         </Panel>
       </div>

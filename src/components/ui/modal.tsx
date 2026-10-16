@@ -58,16 +58,16 @@ export function Modal({
     >
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 bg-[#05070B]/70 backdrop-blur-md animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Panel */}
+      {/* Panel de vidrio */}
       <div
         className={cn(
-          'relative z-10 w-full bg-[#181c31] border-2 border-[#00FF66] rounded-[4px]',
-          'animate-scale-in shadow-[0_0_20px_rgba(0,255,102,0.25)] font-mono',
+          'relative z-10 w-full glass-strong rounded-[var(--radius-lg)]',
+          'animate-scale-in',
           'flex flex-col max-h-[90dvh] overflow-hidden',
           sizeMap[size],
           className
@@ -75,26 +75,26 @@ export function Modal({
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-center justify-between p-4 pb-2 border-b border-[#293056] shrink-0">
+          <div className="flex items-center justify-between p-5 pb-3 border-b border-[rgba(255,255,255,0.08)] shrink-0">
             <div>
               {title && (
                 <h2
                   id="modal-title"
-                  className="text-sm font-bold text-[#00FF66] tracking-wider uppercase glow-text-green"
+                  className="font-display text-lg font-semibold tracking-tight text-[var(--color-text-primary)]"
                 >
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="mt-0.5 text-xs text-[#8B92A9]">
+                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                   {description}
                 </p>
               )}
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-[2px] text-[#8B92A9] hover:bg-[#20253f] hover:text-[#ff4d6d] transition-colors cursor-pointer shrink-0"
-              aria-label="Cerrar modal"
+              className="p-1.5 rounded-full text-[var(--color-text-secondary)] hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer shrink-0"
+              aria-label="Cerrar"
             >
               <X size={18} />
             </button>
@@ -102,7 +102,7 @@ export function Modal({
         )}
 
         {/* Content */}
-        <div className="p-4 overflow-y-auto flex-1 min-h-0">{children}</div>
+        <div className="p-5 overflow-y-auto flex-1 min-h-0">{children}</div>
       </div>
     </div>
   )

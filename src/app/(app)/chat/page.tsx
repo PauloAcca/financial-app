@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { generateInsights } from '@/lib/ai/insights'
 import { ChatInterface } from '@/components/chat/chat-interface'
 
-export const metadata: Metadata = { title: 'Asistente IA · Pixel Realm' }
+export const metadata: Metadata = { title: 'Asistente IA · Aura' }
 
 export const dynamic = 'force-dynamic'
 

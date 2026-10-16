@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, Plus, Bot } from 'lucide-react'
+import { Plus, Bot } from 'lucide-react'
 import { ChatMessage, type Message } from './chat-message'
 import { ChatInput } from './chat-input'
 
@@ -205,8 +205,8 @@ export function ChatInterface() {
 
   if (!isInitialized) {
     return (
-      <div className="flex flex-col h-full items-center justify-center font-mono">
-        <div className="w-6 h-6 border-2 border-[#00FF66] border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex flex-col h-full items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
   }
@@ -221,7 +221,7 @@ export function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 relative font-mono">
+    <div className="flex flex-col h-full min-h-0 relative">
       {/* Messages area - único contenedor scrolleable */}
       <div
         ref={messagesContainerRef}
@@ -234,10 +234,10 @@ export function ChatInterface() {
             <div className="sticky top-[84px] z-20 flex justify-end mb-1 pointer-events-none">
               <button
                 onClick={handleNewChat}
-                className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] text-[11px] font-bold bg-[#181c31]/90 backdrop-blur-sm text-[#8B92A9] border border-[#293056] hover:text-[#ff4d6d] hover:border-[#ff4d6d]/40 transition-colors cursor-pointer shadow-sm"
+                className="pointer-events-auto flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-full)] text-[11px] font-medium glass-soft text-[var(--color-text-secondary)] hover:text-[var(--color-danger)] hover:border-[rgba(227,160,170,0.4)] transition-colors cursor-pointer"
               >
                 <Plus size={13} className="rotate-45" />
-                LIMPIAR
+                Limpiar
               </button>
             </div>
             {messages.map((msg, i) => (
@@ -249,7 +249,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input area pegado a la navegación inferior */}
-      <div className="shrink-0 border-t border-[#1e233f] px-3 py-2 bg-[#111424] z-20">
+      <div className="shrink-0 border-t border-[rgba(255,255,255,0.06)] px-3 py-2 z-20">
         <div className="max-w-lg mx-auto">
           <ChatInput
             value={input}
@@ -267,15 +267,15 @@ function EmptyState({ onQuickAction }: { onQuickAction: (text: string) => void }
   return (
     <div className="flex flex-col items-center justify-center my-auto min-h-[360px] gap-6 text-center px-4">
       {/* Icon */}
-      <div className="w-14 h-14 rounded-[4px] border border-[#00FF66] bg-[#181c31] flex items-center justify-center shadow-[0_0_12px_rgba(0,255,102,0.3)]">
-        <Bot size={28} className="text-[#00FF66]" />
+      <div className="w-14 h-14 rounded-[var(--radius-lg)] border border-[rgba(143,203,176,0.3)] bg-[var(--color-accent-subtle)] flex items-center justify-center">
+        <Bot size={28} className="text-[var(--color-accent)]" />
       </div>
 
       <div>
-        <h2 className="text-base font-bold text-[#00FF66] tracking-wider uppercase glow-text-green mb-1.5">
-          ORÁCULO INTELIGENTE IA
+        <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-1.5">
+          Asistente financiero
         </h2>
-        <p className="text-xs text-[#8B92A9] max-w-xs leading-relaxed">
+        <p className="text-xs text-[var(--color-text-secondary)] max-w-xs leading-relaxed">
           Registrá gastos por voz o texto, consultá saldos y analizá tu rendimiento financiero en lenguaje natural.
         </p>
       </div>
@@ -286,10 +286,9 @@ function EmptyState({ onQuickAction }: { onQuickAction: (text: string) => void }
           <button
             key={action.label}
             onClick={() => onQuickAction(action.prompt)}
-            className="px-3 py-1.5 rounded-[4px] text-xs font-bold
-                       bg-[#181c31] border border-[#293056]
-                       text-white
-                       hover:border-[#00FF66] hover:text-[#00FF66] hover:bg-[#1e233d]
+            className="px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-medium
+                       glass-soft text-[var(--color-text-secondary)]
+                       hover:text-[var(--color-accent)] hover:border-[rgba(143,203,176,0.35)]
                        transition-all duration-150 cursor-pointer"
           >
             {action.label}

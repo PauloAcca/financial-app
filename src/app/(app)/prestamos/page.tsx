@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { LoansClient } from './client'
 import { DEFAULT_CURRENCY } from '@/lib/constants'
 
-export const metadata: Metadata = { title: 'Préstamos y Deudas · Pixel Realm' }
+export const metadata: Metadata = { title: 'Préstamos y Deudas · Aura' }
 
 export default async function LoansPage() {
   const supabase = await createClient()

@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { updateTransaction, deleteTransaction } from '@/actions/transactions'
 import { CURRENCIES, PAYMENT_METHODS, DEFAULT_CURRENCY } from '@/lib/constants'
@@ -19,9 +20,9 @@ interface TransactionEditModalProps {
 }
 
 const TYPE_OPTIONS = [
-  { value: 'expense', label: '⚔️ GASTO' },
-  { value: 'income', label: '💰 BOTÍN / INGRESO' },
-  { value: 'transfer', label: '🔄 TRANSFERENCIA' },
+  { value: 'expense', label: 'Gasto' },
+  { value: 'income', label: 'Ingreso' },
+  { value: 'transfer', label: 'Transferencia' },
 ]
 
 export function TransactionEditModal({
@@ -145,21 +146,21 @@ export function TransactionEditModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="EDITAR TRANSACCIÓN"
+      title="Editar transacción"
       description="Modificá o eliminá los detalles del movimiento."
       size="md"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 font-mono pt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-2">
         {error && (
-          <div className="px-4 py-3 rounded-[4px] bg-[rgba(255,77,109,0.15)] border border-[#ff4d6d]/40">
-            <p className="text-xs text-[#ff4d6d] font-bold">{error}</p>
+          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[rgba(227,160,170,0.35)]">
+            <p className="text-xs text-[var(--color-danger)] font-medium">{error}</p>
           </div>
         )}
 
         {/* Tipo */}
         <Select
           id="edit-tx-type"
-          label="TIPO DE MOVIMIENTO"
+          label="Tipo de movimiento"
           value={type}
           onChange={(e) => {
             setType(e.target.value as TransactionType)
@@ -173,7 +174,7 @@ export function TransactionEditModal({
           <div className="flex-1">
             <Input
               id="edit-tx-amount"
-              label="MONTO ($)"
+              label="Monto ($)"
               type="number"
               step="0.01"
               min="0.01"
@@ -186,7 +187,7 @@ export function TransactionEditModal({
           <div className="w-28">
             <Select
               id="edit-tx-currency"
-              label="MONEDA"
+              label="Moneda"
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
               options={CURRENCIES.map((c) => ({ value: c.code, label: c.code }))}
@@ -197,7 +198,7 @@ export function TransactionEditModal({
         {/* Cuenta */}
         <Select
           id="edit-tx-account"
-          label={type === 'transfer' ? 'CUENTA ORIGEN' : 'CUENTA'}
+          label={type === 'transfer' ? 'Cuenta origen' : 'Cuenta'}
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
           options={accounts.filter((a) => !a.archived).map((a) => ({ value: a.id, label: a.name }))}
@@ -207,7 +208,7 @@ export function TransactionEditModal({
         {type === 'transfer' && (
           <Select
             id="edit-tx-transfer-dest"
-            label="CUENTA DESTINO"
+            label="Cuenta destino"
             value={transferAccountId}
             onChange={(e) => setTransferAccountId(e.target.value)}
             options={[
@@ -221,7 +222,7 @@ export function TransactionEditModal({
         {type !== 'transfer' && (
           <Select
             id="edit-tx-category"
-            label="CATEGORÍA"
+            label="Categoría"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             options={sortedCategories}
@@ -233,7 +234,7 @@ export function TransactionEditModal({
         {/* Descripción */}
         <Input
           id="edit-tx-desc"
-          label="DESCRIPCIÓN"
+          label="Descripción"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
@@ -242,7 +243,7 @@ export function TransactionEditModal({
         <div className="grid grid-cols-2 gap-3">
           <Input
             id="edit-tx-date"
-            label="FECHA"
+            label="Fecha"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -250,7 +251,7 @@ export function TransactionEditModal({
           />
           <Select
             id="edit-tx-payment-method"
-            label="MEDIO DE PAGO"
+            label="Medio de pago"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
             options={PAYMENT_METHODS.map((m) => ({ value: m, label: m }))}
@@ -260,31 +261,34 @@ export function TransactionEditModal({
 
         <div className="flex items-center justify-between gap-3 pt-2">
           {/* Botón Borrar Transacción */}
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="sm"
             onClick={handleDelete}
             disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-2.5 rounded-[4px] bg-[#20253f] text-[#ff4d6d] hover:bg-[#ff4d6d]/20 border border-[#ff4d6d]/30 text-xs font-bold uppercase transition-colors cursor-pointer"
           >
             <Trash2 size={14} />
-            <span>ELIMINAR</span>
-          </button>
+            Eliminar
+          </Button>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={onClose}
-              className="px-3.5 py-2.5 rounded-[4px] border border-[#293056] text-[#8B92A9] hover:text-white hover:bg-[#20253f] text-xs font-bold uppercase transition-colors cursor-pointer"
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="primary"
+              size="sm"
               disabled={isPending}
-              className="btn-arcade-green px-4 py-2.5 rounded-[4px] text-xs font-bold text-black uppercase cursor-pointer"
             >
-              {isPending ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
-            </button>
+              {isPending ? 'Guardando…' : 'Guardar cambios'}
+            </Button>
           </div>
         </div>
       </form>

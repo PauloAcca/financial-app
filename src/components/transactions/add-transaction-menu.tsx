@@ -6,6 +6,7 @@ import { Plus, Mic, Square, Loader2, Keyboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from '@/components/ui/toast'
 import { Modal } from '@/components/ui/modal'
+import { Button } from '@/components/ui/button'
 import type { Message } from '@/components/chat/chat-message'
 
 export function AddTransactionMenu() {
@@ -128,11 +129,11 @@ export function AddTransactionMenu() {
       localStorage.setItem('app_finanzas_chat_history', JSON.stringify(finalHistory))
 
       if (transactionCreated) {
-        toast.success('¡Transacción registrada con éxito!')
+        toast.success('Transacción registrada con éxito.')
         setOpen(false)
         router.refresh()
       } else {
-        toast.info('La IA respondió, pero no registró una transacción.')
+        toast.info('El asistente respondió, pero no registró una transacción.')
         setOpen(false)
       }
     } catch (err) {
@@ -147,17 +148,11 @@ export function AddTransactionMenu() {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 h-10 px-4 rounded-[var(--radius-md)]
-                   bg-[var(--color-accent)] text-white text-sm font-medium
-                   hover:bg-[var(--color-accent-hover)] transition-colors
-                   shadow-[0_0_16px_rgba(99,102,241,0.3)]"
-      >
+      <Button onClick={() => setOpen(true)}>
         <Plus size={16} />
         <span className="hidden sm:inline">Nueva transacción</span>
         <span className="sm:hidden">Agregar</span>
-      </button>
+      </Button>
 
       <Modal open={open} onClose={() => !isBusy && setOpen(false)} title="Agregar gasto" size="sm">
         <div className="grid grid-cols-2 gap-4 mt-4">
@@ -185,7 +180,7 @@ export function AddTransactionMenu() {
               "flex flex-col items-center justify-center gap-3 p-6 rounded-[var(--radius-xl)]",
               "border transition-all duration-200 relative overflow-hidden",
               isRecording 
-                ? "border-red-500 bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.2)]" 
+                ? "border-[rgba(227,160,170,0.45)] bg-[var(--color-danger-subtle)]" 
                 : "border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)]",
               isProcessing && "opacity-50 cursor-not-allowed"
             )}
@@ -193,7 +188,7 @@ export function AddTransactionMenu() {
             <div className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
               isRecording 
-                ? "bg-red-500 text-white animate-pulse" 
+                ? "bg-[var(--color-danger)] text-[#0A0E14] animate-pulse" 
                 : "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]",
               isProcessing && "bg-transparent text-[var(--color-accent)]"
             )}>
@@ -206,12 +201,12 @@ export function AddTransactionMenu() {
               )}
             </div>
             <span className="text-sm font-medium text-[var(--color-text-primary)] relative z-10">
-              {isProcessing ? 'Procesando...' : isRecording ? 'Grabando...' : 'Por voz'}
+              {isProcessing ? 'Procesando…' : isRecording ? 'Grabando…' : 'Por voz'}
             </span>
             
             {/* Animación de ondas cuando graba */}
             {isRecording && (
-              <div className="absolute inset-0 bg-red-500/5 animate-[pulse_1.5s_ease-in-out_infinite]" />
+              <div className="absolute inset-0 bg-[rgba(227,160,170,0.06)] animate-[pulse_1.5s_ease-in-out_infinite]" />
             )}
           </button>
         </div>

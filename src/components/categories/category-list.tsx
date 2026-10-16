@@ -46,7 +46,7 @@ function CategoryRow({ category, onEdit, onDelete, onManage, onHistory }: Catego
             onHistory(category)
           }}
           className="p-1.5 rounded-[var(--radius-md)] text-[var(--color-text-muted)]
-                     hover:bg-[var(--color-surface-3)] hover:text-[#38d9f5]
+                     hover:bg-[var(--color-surface-3)] hover:text-[var(--color-info)]
                      transition-colors cursor-pointer"
           aria-label={`Ver historial de ${category.name}`}
           title="Ver historial"
@@ -178,7 +178,7 @@ function CategorySection({ title, kind, categories, onAdd, onEdit, onDelete, onM
             {customParents.length > 0 && (
               <div className={cn('px-1 py-1', system.length > 0 && 'border-t border-[var(--color-border-subtle)]')}>
                 {system.length > 0 && (
-                  <p className="px-4 py-1.5 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
+                  <p className="px-4 py-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
                     Personalizadas
                   </p>
                 )}

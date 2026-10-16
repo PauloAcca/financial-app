@@ -1,6 +1,7 @@
 'use client'
 
 import { TrendingUp, TrendingDown, Calendar, ArrowDownLeft, ArrowUpRight, Pencil } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
 import { ACCOUNT_TYPE_CONFIG } from '@/lib/constants'
 import type { InvestmentPlatform } from '@/lib/investments'
@@ -32,16 +33,16 @@ export function InvestmentCard({
     <div
       onClick={() => onSelect(platform)}
       className={cn(
-        'group bg-[#181c31] border rounded-[6px] p-4 font-mono transition-all duration-200 cursor-pointer select-none relative shadow-sm',
-        'hover:shadow-[0_0_15px_rgba(168,85,247,0.18)] hover:translate-y-[-2px] active:scale-[0.99]',
-        isUp ? 'border-[#00FF66]/40 hover:border-[#00FF66]' : 'border-[#ff4d6d]/40 hover:border-[#ff4d6d]'
+        'group glass rounded-[var(--radius-lg)] p-4 transition-all duration-300 cursor-pointer select-none',
+        'hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(3,6,10,0.45)]',
+        'active:translate-y-0 active:scale-[0.99]'
       )}
     >
       {/* Cabecera */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <div
-            className="w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border"
+            className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0 border"
             style={{
               backgroundColor: `${account.color ?? config.defaultColor}20`,
               borderColor: `${account.color ?? config.defaultColor}55`,
@@ -51,10 +52,10 @@ export function InvestmentCard({
             <TrendingUp size={20} className="stroke-[2.5]" />
           </div>
           <div className="min-w-0">
-            <h3 className="font-bold text-white text-sm sm:text-base tracking-wide truncate group-hover:text-[#00FF66] transition-colors">
+            <h3 className="font-medium text-[var(--color-text-primary)] text-sm sm:text-base truncate group-hover:text-[var(--color-accent)] transition-colors">
               {account.name}
             </h3>
-            <span className="text-[10px] font-bold tracking-wider uppercase text-[#a855f7]">
+            <span className="text-[0.6875rem] font-medium text-[var(--color-investment)]">
               {config.label} · {account.currency}
             </span>
           </div>
@@ -65,7 +66,7 @@ export function InvestmentCard({
             stop(e)
             onUpdateValue(platform)
           }}
-          className="p-1.5 rounded bg-[#20253f] text-[#5d6786] hover:text-[#00FF66] hover:bg-[#00FF66]/15 transition-colors shrink-0"
+          className="p-1.5 rounded-[var(--radius-sm)] bg-[rgba(255,255,255,0.06)] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors shrink-0 cursor-pointer"
           title="Actualizar valor"
         >
           <Pencil size={14} />
@@ -73,34 +74,44 @@ export function InvestmentCard({
       </div>
 
       {/* Números */}
-      <div className="bg-[#14182b] border border-[#293056] rounded-[4px] p-3 mb-3">
-        <p className="text-[10px] text-[#8B92A9] uppercase tracking-wider">VALOR ACTUAL</p>
-        <p className="text-lg sm:text-xl font-bold text-white tabular-nums tracking-tight">
+      <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3 mb-3">
+        <p className="text-xs font-medium text-[var(--color-text-secondary)]">Valor actual</p>
+        <p className="text-lg sm:text-xl font-semibold text-[var(--color-text-primary)] tabular-nums tracking-tight mt-1">
           {hidden ? '••••••' : formatCurrency(currentValue, account.currency)}
         </p>
 
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#20253f]">
+        <div className="flex items-center justify-between mt-2.5 pt-2.5 border-t border-[rgba(255,255,255,0.06)]">
           <div>
-            <p className="text-[10px] text-[#5d6786] uppercase">APORTADO</p>
-            <p className="text-xs font-bold text-[#8B92A9] tabular-nums">
+            <p className="text-[0.6875rem] text-[var(--color-text-muted)]">Aportado</p>
+            <p className="text-xs font-medium text-[var(--color-text-secondary)] tabular-nums mt-0.5">
               {hidden ? '••••' : formatCurrency(capital, account.currency)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-[#5d6786] uppercase">GANANCIA / PÉRDIDA</p>
+            <p className="text-[0.6875rem] text-[var(--color-text-muted)]">Ganancia / pérdida</p>
             <p
               className={cn(
-                'text-xs font-bold tabular-nums flex items-center gap-1 justify-end',
-                isUp ? 'text-[#00FF66]' : 'text-[#ff4d6d]'
+                'text-xs font-semibold tabular-nums flex items-center gap-1 justify-end mt-0.5',
+                isUp ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'
               )}
             >
               {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-              <span>
+              <span className="flex items-center">
                 {hidden
                   ? '••••'
                   : `${isUp ? '+' : ''}${formatCurrency(gain, account.currency)}`}
                 {gainPct !== null && !hidden && (
-                  <span className="ml-1">({isUp ? '+' : ''}{gainPct.toFixed(2)}%)</span>
+                  <span
+                    className={cn(
+                      'ml-1 rounded-full px-1.5 py-px text-[0.625rem] font-medium tabular-nums',
+                      gainPct >= 0
+                        ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)]'
+                        : 'bg-[var(--color-expense-subtle)] text-[var(--color-expense)]'
+                    )}
+                  >
+                    {gainPct >= 0 ? '+' : ''}
+                    {gainPct.toFixed(2)}%
+                  </span>
                 )}
               </span>
             </p>
@@ -110,8 +121,8 @@ export function InvestmentCard({
 
       {/* Footer */}
       <div className="flex items-center justify-between text-xs pt-1">
-        <div className="flex items-center gap-1.5 text-[#8B92A9] text-[11px]">
-          <Calendar size={13} className="text-[#5d6786]" />
+        <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)] text-[11px]">
+          <Calendar size={13} className="text-[var(--color-text-muted)]" />
           <span>
             {lastValuedAt
               ? `Valorado: ${formatDate(lastValuedAt, 'short')}`
@@ -122,28 +133,30 @@ export function InvestmentCard({
         </div>
 
         <div className="flex items-center gap-1.5" onClick={stop}>
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => onContribute(platform)}
-            className="px-2.5 py-1 rounded-[4px] text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm active:scale-95 border bg-[#181c31] text-[#00FF66] border-[#00FF66]/40 hover:bg-[#00FF66]/10 flex items-center gap-1"
             title="Registrar aporte o retiro"
           >
-            <ArrowDownLeft size={12} className="stroke-[3]" />
-            <span>Aportar</span>
-          </button>
+            <ArrowDownLeft size={12} className="stroke-[2.5]" />
+            Aportar
+          </Button>
         </div>
       </div>
 
       {!hasValuation && (
-        <button
+        <Button
+          variant="secondary"
+          className="mt-3 w-full bg-[var(--color-investment-subtle)] text-[var(--color-investment)] border-[rgba(191,174,232,0.35)] hover:bg-[rgba(191,174,232,0.22)] hover:border-[rgba(191,174,232,0.5)]"
           onClick={(e) => {
             stop(e)
             onUpdateValue(platform)
           }}
-          className="mt-3 w-full py-1.5 rounded-[4px] bg-[#a855f7]/10 border border-[#a855f7]/40 text-[#a855f7] text-[11px] font-bold uppercase tracking-wider hover:bg-[#a855f7]/20 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
         >
           <ArrowUpRight size={12} />
-          <span>Cargar valor actual para ver la ganancia</span>
-        </button>
+          Cargar valor actual para ver la ganancia
+        </Button>
       )}
     </div>
   )

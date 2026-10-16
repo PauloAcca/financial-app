@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { Plus, CheckCircle2, Clock, AlertCircle, ToggleLeft, ToggleRight, Trash2, Repeat, Pencil } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { toast } from '@/components/ui/toast'
 import { Modal } from '@/components/ui/modal'
 import { Input } from '@/components/ui/input'
@@ -175,20 +176,22 @@ export function RecurringClient({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between gap-3 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Gastos Fijos</h1>
-          <p className="text-sm text-[var(--color-text-secondary)] mt-0.5 capitalize">
+          <h1 className="font-display text-xl sm:text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+            Gastos fijos
+          </h1>
+          <p className="text-xs text-[var(--color-text-secondary)] mt-1 capitalize">
             {monthLabel} — {active.length} activo{active.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button id="btn-new-recurring" onClick={handleOpenNew}>
-          <Plus size={16} /> Nuevo fijo
+        <Button id="btn-new-recurring" onClick={handleOpenNew} size="sm">
+          <Plus size={15} /> Nuevo fijo
         </Button>
       </div>
 
       {/* Banner SQL */}
-      <div className="mb-6 px-4 py-3 rounded-[var(--radius-md)] bg-amber-500/10 border border-amber-500/30 text-sm text-amber-400 flex gap-2">
+      <div className="mb-6 px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-warning-subtle)] border border-[rgba(228,194,143,0.35)] text-sm text-[var(--color-warning)] flex gap-2">
         <AlertCircle size={16} className="mt-0.5 shrink-0" />
         <span>
           Si es la primera vez que usás esta sección, corré el script SQL de la migración 005 en tu panel de Supabase para crear la tabla de pagos.
@@ -197,15 +200,15 @@ export function RecurringClient({
 
       {active.length === 0 && inactive.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <div className="w-16 h-16 rounded-full bg-[var(--color-surface-2)] flex items-center justify-center">
-            <Repeat size={32} className="text-[var(--color-text-muted)]" />
+          <div className="w-14 h-14 rounded-[var(--radius-full)] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center text-[var(--color-text-muted)]">
+            <Repeat size={28} />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-[var(--color-text-primary)]">No tenés gastos fijos todavía</p>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1">Agregá tus suscripciones, alquileres o cuotas.</p>
+            <p className="text-sm font-medium text-[var(--color-text-primary)]">No tenés gastos fijos todavía</p>
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1 max-w-xs">Agregá tus suscripciones, alquileres o cuotas.</p>
           </div>
-          <Button id="btn-new-recurring-empty" onClick={handleOpenNew}>
-            <Plus size={16} /> Agregar primero
+          <Button id="btn-new-recurring-empty" onClick={handleOpenNew} size="sm">
+            <Plus size={15} /> Agregar el primero
           </Button>
         </div>
       ) : (
@@ -213,7 +216,7 @@ export function RecurringClient({
           {/* Activos */}
           {active.length > 0 && (
             <section>
-              <h2 className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Activos</h2>
+              <h2 className="text-xs font-medium text-[var(--color-text-secondary)] mb-3">Activos</h2>
               <div className="flex flex-col gap-3">
                 {active.map(r => (
                   <RecurringCard
@@ -234,7 +237,7 @@ export function RecurringClient({
           {/* Inactivos */}
           {inactive.length > 0 && (
             <section>
-              <h2 className="text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Pausados</h2>
+              <h2 className="text-xs font-medium text-[var(--color-text-secondary)] mb-3">Pausados</h2>
               <div className="flex flex-col gap-3">
                 {inactive.map(r => (
                   <RecurringCard
@@ -293,10 +296,20 @@ export function RecurringClient({
 
           <Input id="rec-next" label="Próxima fecha" type="date" value={formNext} onChange={e => setFormNext(e.target.value)} required />
 
-          <label className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] cursor-pointer select-none">
-            <input type="checkbox" className="rounded" checked={formSub} onChange={e => setFormSub(e.target.checked)} />
-            Es una suscripción
-          </label>
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="rec-sub" className="text-sm text-[var(--color-text-secondary)] cursor-pointer select-none">
+              Es una suscripción
+            </label>
+            <label className="switch">
+              <input
+                id="rec-sub"
+                type="checkbox"
+                checked={formSub}
+                onChange={e => setFormSub(e.target.checked)}
+              />
+              <span className="switch-track"><span className="switch-thumb" /></span>
+            </label>
+          </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <Button variant="ghost" type="button" onClick={() => { setFormOpen(false); resetForm() }}>Cancelar</Button>
@@ -326,17 +339,16 @@ function RecurringCard({ item, isPaid, isPending, onMarkPaid, onEdit, onToggle, 
 
   return (
     <div className={cn(
-      'bg-[var(--color-surface)] border rounded-[var(--radius-lg)] p-4',
+      'glass rounded-[var(--radius-lg)] p-4',
       'flex items-center gap-4',
-      !item.active && 'opacity-50',
-      isPaid ? 'border-[var(--color-income)]/30' : 'border-[var(--color-border)]'
+      !item.active && 'opacity-50'
     )}>
       {/* Estado de pago */}
       <div className={cn(
-        'w-10 h-10 rounded-full flex items-center justify-center shrink-0',
+        'w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0 border',
         isPaid
-          ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)]'
-          : 'bg-[var(--color-surface-2)] text-[var(--color-text-muted)]'
+          ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)] border-transparent'
+          : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-muted)] border-[rgba(255,255,255,0.07)]'
       )}>
         {isPaid ? <CheckCircle2 size={20} /> : <Clock size={20} />}
       </div>
@@ -344,19 +356,19 @@ function RecurringCard({ item, isPaid, isPending, onMarkPaid, onEdit, onToggle, 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-medium text-[var(--color-text-primary)] truncate">{item.description}</p>
+          <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{item.description}</p>
           {item.is_subscription && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-accent-subtle)] text-[var(--color-accent)] font-medium shrink-0">SUB</span>
+            <Badge variant="default" className="shrink-0">Suscripción</Badge>
           )}
         </div>
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
           <span className={cn('text-sm font-semibold tabular-nums', isExpense ? 'text-[var(--color-expense)]' : 'text-[var(--color-income)]')}>
             {isExpense ? '−' : '+'}{formatCurrency(item.amount, item.currency)}
           </span>
-          <span className="text-xs text-[var(--color-text-muted)]">· {FREQ_LABELS[item.frequency]}</span>
+          <span className="text-xs text-[var(--color-text-muted)]">• {FREQ_LABELS[item.frequency]}</span>
           {(item as RecurringTransaction & { account?: { name: string } }).account && (
             <span className="text-xs text-[var(--color-text-muted)] truncate">
-              · {(item as RecurringTransaction & { account?: { name: string } }).account?.name}
+              • {(item as RecurringTransaction & { account?: { name: string } }).account?.name}
             </span>
           )}
         </div>
@@ -368,22 +380,24 @@ function RecurringCard({ item, isPaid, isPending, onMarkPaid, onEdit, onToggle, 
           <Button
             id={`btn-mark-paid-${item.id}`}
             size="sm"
-            variant="ghost"
+            variant="success"
             onClick={onMarkPaid}
             loading={isPending}
-            className="text-[var(--color-income)] border border-[var(--color-income)]/30 hover:bg-[var(--color-income-subtle)]"
           >
             <CheckCircle2 size={14} />
             <span className="hidden sm:inline">Pagado</span>
           </Button>
         )}
         {isPaid && (
-          <span className="text-xs text-[var(--color-income)] font-medium px-2 py-1 rounded bg-[var(--color-income-subtle)]">✓ Pagado</span>
+          <Badge variant="income">
+            <CheckCircle2 size={11} />
+            <span>Pagado</span>
+          </Badge>
         )}
         <button
           onClick={onEdit}
           disabled={isPending}
-          className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors p-1"
+          className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[rgba(255,255,255,0.06)] transition-colors cursor-pointer disabled:opacity-50"
           title="Editar"
         >
           <Pencil size={16} />
@@ -391,7 +405,7 @@ function RecurringCard({ item, isPaid, isPending, onMarkPaid, onEdit, onToggle, 
         <button
           onClick={onToggle}
           disabled={isPending}
-          className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors p-1"
+          className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:bg-[rgba(255,255,255,0.06)] transition-colors cursor-pointer disabled:opacity-50"
           title={item.active ? 'Pausar' : 'Activar'}
         >
           {item.active ? <ToggleRight size={20} className="text-[var(--color-accent)]" /> : <ToggleLeft size={20} />}
@@ -399,7 +413,7 @@ function RecurringCard({ item, isPaid, isPending, onMarkPaid, onEdit, onToggle, 
         <button
           onClick={onDelete}
           disabled={isPending}
-          className="text-[var(--color-text-muted)] hover:text-[var(--color-danger)] transition-colors p-1"
+          className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-danger-subtle)] transition-colors cursor-pointer disabled:opacity-50"
           title="Eliminar"
         >
           <Trash2 size={16} />

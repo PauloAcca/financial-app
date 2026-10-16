@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
@@ -69,7 +70,7 @@ export function InvestmentContributionModal({
       })
 
       if (res.success) {
-        toast.success(isContribution ? '¡Aporte registrado!' : '¡Retiro registrado!')
+        toast.success(isContribution ? 'Aporte registrado.' : 'Retiro registrado.')
         onClose()
         onSuccess?.()
       } else {
@@ -82,13 +83,13 @@ export function InvestmentContributionModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={direction === 'in' ? '💰 REGISTRAR APORTE' : '💸 REGISTRAR RETIRO'}
+      title={direction === 'in' ? 'Registrar aporte' : 'Registrar retiro'}
       description={`Movimiento de dinero en "${platform.account.name}"`}
       size="md"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 font-mono pt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-2">
         {error && (
-          <div className="px-4 py-3 rounded-[4px] bg-[#ff4d6d]/15 border border-[#ff4d6d]/30 text-xs text-[#ff4d6d]">
+          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[rgba(227,160,170,0.35)] text-xs text-[var(--color-danger)]">
             {error}
           </div>
         )}
@@ -99,33 +100,33 @@ export function InvestmentContributionModal({
             type="button"
             onClick={() => setDirection('in')}
             className={cn(
-              'py-2.5 px-3 rounded-[4px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+              'py-2.5 px-3 rounded-[var(--radius-md)] text-xs font-medium flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
               direction === 'in'
-                ? 'bg-[#00FF66] text-black border-[#00FF66] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
-                : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+                ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)] border-[rgba(127,217,164,0.45)]'
+                : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.08)] hover:text-[var(--color-text-primary)] hover:border-[rgba(255,255,255,0.14)]'
             )}
           >
-            <ArrowDownLeft size={16} className="stroke-[3]" />
-            <span>APORTAR</span>
+            <ArrowDownLeft size={16} className="stroke-[2.5]" />
+            <span>Aportar</span>
           </button>
           <button
             type="button"
             onClick={() => setDirection('out')}
             className={cn(
-              'py-2.5 px-3 rounded-[4px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+              'py-2.5 px-3 rounded-[var(--radius-md)] text-xs font-medium flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
               direction === 'out'
-                ? 'bg-[#ff4d6d] text-white border-[#ff4d6d] shadow-[0_0_10px_rgba(255,77,109,0.3)]'
-                : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+                ? 'bg-[var(--color-expense-subtle)] text-[var(--color-expense)] border-[rgba(227,160,170,0.45)]'
+                : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.08)] hover:text-[var(--color-text-primary)] hover:border-[rgba(255,255,255,0.14)]'
             )}
           >
-            <ArrowUpRight size={16} className="stroke-[3]" />
-            <span>RETIRAR</span>
+            <ArrowUpRight size={16} className="stroke-[2.5]" />
+            <span>Retirar</span>
           </button>
         </div>
 
         <Input
           id="contribution-amount"
-          label="MONTO"
+          label="Monto"
           type="number"
           step="0.01"
           min="0.01"
@@ -138,7 +139,7 @@ export function InvestmentContributionModal({
 
         <Select
           id="contribution-account"
-          label={direction === 'in' ? 'CUENTA DE ORIGEN' : 'CUENTA DE DESTINO'}
+          label={direction === 'in' ? 'Cuenta de origen' : 'Cuenta de destino'}
           value={counterAccountId}
           onChange={(e) => setCounterAccountId(e.target.value)}
           options={[
@@ -149,7 +150,7 @@ export function InvestmentContributionModal({
 
         <Input
           id="contribution-date"
-          label="FECHA"
+          label="Fecha"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
@@ -158,30 +159,23 @@ export function InvestmentContributionModal({
 
         <Input
           id="contribution-desc"
-          label="DESCRIPCIÓN (OPCIONAL)"
+          label="Descripción (opcional)"
           placeholder='Ej: "Aporte mensual", "Rescate parcial"'
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-[#293056]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-[4px] bg-[#181c31] border border-[#293056] text-[#8B92A9] text-xs font-bold uppercase hover:text-white transition-colors cursor-pointer"
-          >
+        <div className="flex justify-end gap-2.5 pt-3 border-t border-[rgba(255,255,255,0.06)]">
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant={direction === 'in' ? 'success' : 'danger'}
             disabled={isPending}
-            className={cn(
-              'px-4 py-2 rounded-[4px] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50',
-              direction === 'in' ? 'bg-[#00FF66] text-black hover:bg-[#00cc52]' : 'bg-[#ff4d6d] text-white hover:bg-[#e03a58]'
-            )}
           >
-            {isPending ? 'Registrando...' : direction === 'in' ? 'Registrar Aporte' : 'Registrar Retiro'}
-          </button>
+            {isPending ? 'Registrando…' : direction === 'in' ? 'Registrar aporte' : 'Registrar retiro'}
+          </Button>
         </div>
       </form>
     </Modal>

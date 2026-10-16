@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { AccountsClient } from './client'
 
-export const metadata: Metadata = { title: 'Cuentas · Pixel Realm' }
+export const metadata: Metadata = { title: 'Cuentas · Aura' }
 
 export default async function AccountsPage() {
   const supabase = await createClient()

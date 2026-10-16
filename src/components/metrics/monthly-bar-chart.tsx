@@ -20,7 +20,7 @@ function MonthlyBarTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
     const currency = payload[0]?.payload?.currency ?? 'ARS'
     return (
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 rounded-[var(--radius-lg)] shadow-lg min-w-[150px]">
+      <div className="bg-[rgba(20,25,32,0.85)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] p-3 rounded-[12px] shadow-[var(--shadow-lg)] min-w-[150px]">
         <p className="text-sm font-semibold mb-2 text-[var(--color-text-primary)] capitalize">{label}</p>
         {payload.map((entry: { color?: string; name?: string; value?: number }, index: number) => (
           <div key={`item-${index}`} className="flex justify-between items-center text-sm mb-1">
@@ -58,7 +58,7 @@ export function MonthlyBarChart({ data, currency }: MonthlyBarChartProps) {
             margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
             barGap={4}
           >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" opacity={0.5} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.08)" />
             <XAxis
               dataKey="month"
               axisLine={false}
@@ -72,21 +72,21 @@ export function MonthlyBarChart({ data, currency }: MonthlyBarChartProps) {
             />
             <Tooltip
               content={<MonthlyBarTooltip />}
-              cursor={{ fill: 'var(--color-surface-3)', opacity: 0.4 }}
+              cursor={{ fill: 'rgba(255,255,255,0.06)' }}
             />
-            <Bar dataKey="income" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-            <Bar dataKey="expense" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
+            <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+            <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} maxBarSize={40} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       <div className="mt-1 flex justify-end gap-4">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-income)]" />
           <span className="text-xs text-[var(--color-text-secondary)]">Ingresos</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-expense)]" />
           <span className="text-xs text-[var(--color-text-secondary)]">Gastos</span>
         </div>
       </div>

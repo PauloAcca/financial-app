@@ -142,7 +142,7 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
                 className={cn(
                   'w-6 h-6 rounded-full transition-all duration-150 cursor-pointer',
                   color === c
-                    ? 'ring-2 ring-offset-2 ring-offset-[var(--color-surface)] ring-white scale-110'
+                    ? 'ring-2 ring-offset-2 ring-offset-[var(--color-surface)] ring-[var(--color-text-primary)] scale-110'
                     : 'hover:scale-105'
                 )}
                 style={{ backgroundColor: c }}
@@ -154,14 +154,16 @@ export function CategoryForm({ open, onClose, editingCategory, defaultKind = 'ex
 
         {/* Opción para gestionar movimientos (solo al editar una categoría) */}
         {isEditing && editingCategory && onManageTransactions && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
+            className="w-full"
             onClick={() => onManageTransactions(editingCategory)}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[4px] border border-[#293056] text-[#8B92A9] hover:border-[#38d9f5] hover:text-[#38d9f5] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
           >
             <ListChecks size={14} />
             Gestionar movimientos de esta categoría
-          </button>
+          </Button>
         )}
 
         <div className="flex justify-end gap-3 pt-2">

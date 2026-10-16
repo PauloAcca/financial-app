@@ -22,7 +22,7 @@ function CategoryPieTooltip({ active, payload }: any) {
   if (active && payload && payload.length) {
     const { name, value, payload: dataPayload } = payload[0]
     return (
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 rounded-[var(--radius-lg)] shadow-lg">
+      <div className="bg-[rgba(20,25,32,0.85)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] p-3 rounded-[12px] shadow-[var(--shadow-lg)]">
         <p className="text-sm font-medium text-[var(--color-text-primary)]" style={{ color: dataPayload.fill }}>
           {name}
         </p>
@@ -88,7 +88,7 @@ export function CategoryPieChart({ data, currency, onSelectCategory }: CategoryP
               }}
               className={
                 clickable
-                  ? 'flex items-center gap-1.5 rounded-[2px] cursor-pointer hover:opacity-80 transition-opacity'
+                  ? 'flex items-center gap-1.5 rounded-[var(--radius-md)] cursor-pointer hover:opacity-80 transition-opacity'
                   : 'flex items-center gap-1.5'
               }
             >

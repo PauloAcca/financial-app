@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trophy, Target, Sparkles, Plus, Swords, Shield, Coins, CheckCircle2, Trash2 } from 'lucide-react'
+import { Trophy, Target, Plus, Trash2 } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
-import { cn } from '@/lib/utils'
 
 interface Goal {
   id: string
@@ -25,7 +25,7 @@ export default function MetasPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Cargar metas reales del usuario desde localStorage
+  // Cargar metas del usuario desde localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('pixel_realm_goals')
@@ -62,16 +62,16 @@ export default function MetasPage() {
     const newGoal: Goal = {
       id: Date.now().toString(),
       title,
-      category: 'Misión de Ahorro',
+      category: 'Meta de ahorro',
       current: numCurrent,
       target: numTarget,
       rewardXP: Math.round(numTarget * 0.1),
-      color: '#00FF66',
+      color: '#8FCBB0',
     }
 
     const updated = [...goals, newGoal]
     saveGoals(updated)
-    toast.success('¡Misión activada con éxito!')
+    toast.success('Meta creada')
     setModalOpen(false)
     setTitle('')
     setTarget('')
@@ -80,44 +80,47 @@ export default function MetasPage() {
 
   function handleDeleteGoal(id: string) {
     if (!confirm('¿Eliminás esta meta?')) return
-    const updated = goals.filter(g => g.id !== id)
+    const updated = goals.filter((g) => g.id !== id)
     saveGoals(updated)
     toast.success('Meta eliminada')
   }
 
-  return (
-    <div className="flex flex-col gap-5 max-w-md mx-auto w-full font-mono pb-6">
-      {/* BOTÓN CREAR NUEVA META */}
-      <button
-        onClick={() => setModalOpen(true)}
-        className="btn-arcade-green flex items-center justify-center gap-2 py-3.5 px-4 rounded-[4px] cursor-pointer shadow-sm"
-      >
-        <Plus size={18} className="text-black stroke-[3]" />
-        <span className="text-xs font-bold font-mono tracking-widest text-black uppercase">
-          NUEVA META / QUEST
-        </span>
-      </button>
+  // Normalizar etiquetas de datos previos
+  const displayCategory = (c: string) => (c === 'Misión de Ahorro' ? 'Meta de ahorro' : c)
 
-      {/* LISTA DE QUESTS DE AHORRO REALES */}
+  return (
+    <div className="flex flex-col gap-5 max-w-md mx-auto w-full pb-6">
+      {/* Crear nueva meta */}
+      <Button
+        onClick={() => setModalOpen(true)}
+        size="lg"
+        className="w-full"
+        type="button"
+      >
+        <Plus size={17} className="stroke-[2.4]" />
+        Nueva meta
+      </Button>
+
+      {/* Lista de metas */}
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between text-xs font-bold tracking-widest uppercase">
-          <div className="flex items-center gap-2 text-[#00FF66]">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-text-secondary)]">
             <Target size={14} />
-            <span>MISIONES ACTIVAS ({goals.length})</span>
+            <span>Metas activas ({goals.length})</span>
           </div>
         </div>
-        <div className="h-px bg-[#293056] w-full" />
+        <div className="h-px bg-[rgba(255,255,255,0.07)] w-full" />
 
         {isLoaded && goals.length === 0 ? (
-          <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-8 text-center flex flex-col items-center justify-center gap-2">
-            <div className="w-12 h-12 rounded-[4px] bg-[#14182b] border border-[#293056] flex items-center justify-center text-[#5d6786] mb-1">
-              <Trophy size={22} />
+          <div className="glass rounded-[var(--radius-lg)] p-8 text-center flex flex-col items-center justify-center gap-2">
+            <div className="w-12 h-12 rounded-[var(--radius-full)] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center text-[var(--color-text-muted)] mb-1">
+              <Trophy size={20} />
             </div>
-            <p className="text-xs font-bold text-white uppercase tracking-wide">
-              NO TENÉS METAS ACTIVAS
+            <p className="text-sm font-medium text-[var(--color-text-primary)]">
+              Sin metas activas
             </p>
-            <p className="text-[11px] text-[#8B92A9] max-w-xs">
-              Creá tu primera misión de ahorro con el botón de arriba para seguir tu progreso.
+            <p className="text-xs text-[var(--color-text-secondary)] max-w-xs">
+              Creá tu primera meta de ahorro para seguir tu progreso con calma.
             </p>
           </div>
         ) : (
@@ -128,26 +131,26 @@ export default function MetasPage() {
               return (
                 <div
                   key={goal.id}
-                  className="bg-[#181c31] border border-[#293056] rounded-[4px] p-4 flex flex-col gap-3 hover:border-[#384277] transition-all relative group"
+                  className="glass rounded-[var(--radius-lg)] p-4 flex flex-col gap-3 transition-all duration-300 hover:bg-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.14)] relative group"
                 >
-                  {/* Header de la Meta */}
+                  {/* Encabezado */}
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="text-sm font-bold text-white tracking-wide">
+                      <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
                         {goal.title}
                       </h3>
-                      <p className="text-xs text-[#8B92A9] mt-0.5">
-                        {goal.category}
+                      <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                        {displayCategory(goal.category)}
                       </p>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-[#38d9f5] bg-[#14182b] border border-[#293056] px-2 py-0.5 rounded-[2px] tabular-nums">
-                        +{goal.rewardXP} XP
+                      <span className="text-xs font-medium text-[var(--color-accent)] bg-[var(--color-accent-subtle)] px-2 py-0.5 rounded-[var(--radius-full)] tabular-nums">
+                        +{goal.rewardXP.toLocaleString('es-AR')} XP
                       </span>
                       <button
                         onClick={() => handleDeleteGoal(goal.id)}
-                        className="p-1 text-[#5d6786] hover:text-[#ff4d6d] opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-1.5 rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-danger)] hover:bg-[rgba(227,160,170,0.1)] opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
                         title="Eliminar meta"
                       >
                         <Trash2 size={14} />
@@ -155,18 +158,21 @@ export default function MetasPage() {
                     </div>
                   </div>
 
-                  {/* Montos y Porcentaje */}
+                  {/* Montos y porcentaje */}
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white font-bold tabular-nums">
-                      ${goal.current.toLocaleString('es-AR')} <span className="text-[#8B92A9]">/ ${goal.target.toLocaleString('es-AR')}</span>
+                    <span className="text-[var(--color-text-primary)] font-medium tabular-nums">
+                      ${goal.current.toLocaleString('es-AR')}{' '}
+                      <span className="text-[var(--color-text-secondary)]">
+                        / ${goal.target.toLocaleString('es-AR')}
+                      </span>
                     </span>
-                    <span className="font-bold text-[#00FF66] tabular-nums">{pct}%</span>
+                    <span className="font-medium text-[var(--color-accent)] tabular-nums">{pct}%</span>
                   </div>
 
-                  {/* Barra de progreso */}
-                  <div className="w-full bg-[#20253f] h-2.5 rounded-[2px] overflow-hidden border border-[#293056]">
+                  {/* Progreso */}
+                  <div className="w-full bg-[rgba(255,255,255,0.06)] h-1.5 rounded-[var(--radius-full)] overflow-hidden">
                     <div
-                      className="h-full transition-all duration-500 bg-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.6)]"
+                      className="h-full transition-all duration-500 bg-[var(--color-accent)] rounded-[var(--radius-full)]"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -178,18 +184,18 @@ export default function MetasPage() {
       </div>
 
       {/* Modal Crear Meta */}
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="NUEVA MISIÓN / META" size="sm">
-        <form onSubmit={handleCreateGoal} className="flex flex-col gap-4 font-mono pt-2">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nueva meta" size="sm">
+        <form onSubmit={handleCreateGoal} className="flex flex-col gap-4 pt-2">
           <Input
-            label="NOMBRE DE LA MISIÓN"
-            placeholder="Ej: Bóveda Fondo de Emergencia"
+            label="Nombre de la meta"
+            placeholder="Ej: Fondo de emergencia"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
 
           <Input
-            label="MONTO OBJETIVO ($)"
+            label="Monto objetivo ($)"
             type="number"
             step="0.01"
             min="1"
@@ -200,7 +206,7 @@ export default function MetasPage() {
           />
 
           <Input
-            label="MONTO YA AHORRADO ($)"
+            label="Monto ya ahorrado ($)"
             type="number"
             step="0.01"
             min="0"
@@ -209,12 +215,9 @@ export default function MetasPage() {
             onChange={(e) => setCurrent(e.target.value)}
           />
 
-          <button
-            type="submit"
-            className="btn-arcade-green py-3 rounded-[4px] text-xs font-bold tracking-widest text-black uppercase mt-2 cursor-pointer"
-          >
-            ACTIVAR MISIÓN
-          </button>
+          <Button type="submit" size="lg" className="w-full mt-1">
+            Crear meta
+          </Button>
         </form>
       </Modal>
     </div>

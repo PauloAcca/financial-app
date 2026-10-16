@@ -8,11 +8,12 @@ import {
   ArrowDownLeft,
   Search,
   CheckCircle2,
-  Clock,
   Eye,
   EyeOff,
 } from 'lucide-react'
 import { cn, formatCurrency } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { LoanCard } from '@/components/loans/loan-card'
 import { LoanForm } from '@/components/loans/loan-form'
 import { LoanDetailModal } from '@/components/loans/loan-detail-modal'
@@ -127,94 +128,89 @@ export function LoansClient({ loans, accounts, defaultCurrency }: LoansClientPro
   }
 
   return (
-    <div className="flex flex-col gap-5 font-mono">
+    <div className="flex flex-col gap-5">
       {/* 1. Header Principal */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-wide uppercase">
-            PRÉSTAMOS Y DEUDAS
+          <h1 className="font-display text-xl sm:text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+            Préstamos y deudas
           </h1>
-          <p className="text-xs text-[#8B92A9] mt-0.5">
+          <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
             Registro de dinero prestado y deudas • No afecta tu saldo total
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleOpenCreate('lent')}
-            className="btn-arcade-green py-2 px-3.5 rounded-[4px] text-xs font-bold text-black flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
-          >
-            <Plus size={16} className="stroke-[3]" />
-            <span>NUEVO PRÉSTAMO</span>
-          </button>
+          <Button onClick={() => handleOpenCreate('lent')} size="sm">
+            <Plus size={15} className="stroke-[2.5]" />
+            <span>Nuevo préstamo</span>
+          </Button>
         </div>
       </div>
 
-      {/* 2. HUD Superior: Resumen de Préstamos (Scanlines CRT) */}
-      <div className="crt-scanlines pixel-border-green rounded-[4px] p-5 shadow-[0_0_15px_rgba(0,255,102,0.15)] relative overflow-hidden">
+      {/* 2. Resumen de préstamos */}
+      <div className="glass rounded-[var(--radius-lg)] p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-[#00FF66] text-xs sm:text-sm font-bold tracking-wider uppercase glow-text-green flex items-center gap-1.5">
-              <HandCoins size={16} />
-              <span>BALANCE NETO DE PRÉSTAMOS</span>
+            <span className="text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] flex items-center gap-1.5">
+              <HandCoins size={16} className="text-[var(--color-accent)]" />
+              <span>Balance neto de préstamos</span>
             </span>
 
             <button
               onClick={toggleHide}
               aria-label={isHidden ? 'Mostrar saldo' : 'Ocultar saldo'}
-              className="text-[#00FF66]/70 hover:text-[#00FF66] p-1 rounded hover:bg-[#00FF66]/10 transition-colors cursor-pointer"
+              className="text-[var(--color-text-muted)] hover:text-[var(--color-accent)] p-1 rounded-[var(--radius-sm)] hover:bg-[rgba(255,255,255,0.06)] transition-colors cursor-pointer"
             >
               {isHidden ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
 
-          <div className="border border-[#00FF66] px-2.5 py-0.5 bg-[#0f111e] text-[#00FF66] text-xs font-bold tracking-widest rounded-[2px]">
-            {countActivos} ACTIVOS
-          </div>
+          <Badge variant="default">{countActivos} activos</Badge>
         </div>
 
         {/* Monto Balance Neto */}
         <div
           className={cn(
-            'text-2xl sm:text-3xl font-bold tracking-tight mb-4 tabular-nums select-none',
-            balanceNeto >= 0 ? 'text-[#00FF66] glow-text-green' : 'text-[#ff4d6d] glow-text-pink'
+            'text-2xl sm:text-3xl font-semibold tracking-tight mb-4 tabular-nums select-none',
+            balanceNeto >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'
           )}
         >
           {isHidden ? '••••••••' : `${balanceNeto >= 0 ? '+ ' : ''}${formatCurrency(balanceNeto, defaultCurrency)}`}
         </div>
 
         {/* Grilla de 3 Métricas */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-[#293056]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-[rgba(255,255,255,0.07)]">
           {/* 1. Por Cobrar */}
-          <div className="bg-[#14182b] border border-[#00FF66]/30 rounded-[4px] p-3 flex flex-col">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#00FF66] uppercase">
-              <ArrowUpRight size={14} className="stroke-[3]" />
-              <span>ME DEBEN (POR COBRAR)</span>
+          <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3 flex flex-col">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
+              <ArrowUpRight size={14} className="text-[var(--color-income)]" />
+              <span>Me deben (por cobrar)</span>
             </div>
-            <span className="text-base sm:text-lg font-bold text-[#00FF66] tabular-nums mt-1">
+            <span className="text-base sm:text-lg font-semibold text-[var(--color-income)] tabular-nums mt-1">
               {isHidden ? '••••' : formatCurrency(totalPorCobrar, defaultCurrency)}
             </span>
           </div>
 
           {/* 2. Por Pagar */}
-          <div className="bg-[#14182b] border border-[#ff4d6d]/30 rounded-[4px] p-3 flex flex-col">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#ff4d6d] uppercase">
-              <ArrowDownLeft size={14} className="stroke-[3]" />
-              <span>DEBO (POR PAGAR)</span>
+          <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3 flex flex-col">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
+              <ArrowDownLeft size={14} className="text-[var(--color-expense)]" />
+              <span>Debo (por pagar)</span>
             </div>
-            <span className="text-base sm:text-lg font-bold text-[#ff4d6d] tabular-nums mt-1">
+            <span className="text-base sm:text-lg font-semibold text-[var(--color-expense)] tabular-nums mt-1">
               {isHidden ? '••••' : formatCurrency(totalPorPagar, defaultCurrency)}
             </span>
           </div>
 
           {/* 3. Saldados */}
-          <div className="bg-[#14182b] border border-[#293056] rounded-[4px] p-3 flex flex-col">
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#8B92A9] uppercase">
+          <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3 flex flex-col">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
               <CheckCircle2 size={14} />
-              <span>SALDADOS / HISTÓRICOS</span>
+              <span>Saldados / históricos</span>
             </div>
-            <span className="text-base sm:text-lg font-bold text-white tabular-nums mt-1">
-              {countSaldados} REGISTROS
+            <span className="text-base sm:text-lg font-semibold text-[var(--color-text-primary)] tabular-nums mt-1">
+              {countSaldados} registros
             </span>
           </div>
         </div>
@@ -224,111 +220,90 @@ export function LoansClient({ loans, accounts, defaultCurrency }: LoansClientPro
       <div className="flex flex-col gap-3">
         {/* Filtros Segmentados */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          <button
+          <Button
+            variant={filter === 'all' ? 'primary' : 'secondary'}
+            size="sm"
+            className="w-full"
             onClick={() => setFilter('all')}
-            className={cn(
-              'py-2 px-2 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              filter === 'all'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-white'
-            )}
           >
-            TODOS ({loans.length})
-          </button>
+            Todos ({loans.length})
+          </Button>
 
-          <button
+          <Button
+            variant={filter === 'lent' ? 'primary' : 'secondary'}
+            size="sm"
+            className="w-full"
             onClick={() => setFilter('lent')}
-            className={cn(
-              'py-2 px-2 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              filter === 'lent'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-white'
-            )}
           >
-            ME DEBEN
-          </button>
+            Me deben
+          </Button>
 
-          <button
+          <Button
+            variant={filter === 'borrowed' ? 'primary' : 'secondary'}
+            size="sm"
+            className="w-full"
             onClick={() => setFilter('borrowed')}
-            className={cn(
-              'py-2 px-2 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              filter === 'borrowed'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-white'
-            )}
           >
-            DEBO
-          </button>
+            Debo
+          </Button>
 
-          <button
+          <Button
+            variant={filter === 'pending' ? 'primary' : 'secondary'}
+            size="sm"
+            className="w-full"
             onClick={() => setFilter('pending')}
-            className={cn(
-              'py-2 px-2 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              filter === 'pending'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-white'
-            )}
           >
-            PENDIENTES
-          </button>
+            Pendientes
+          </Button>
 
-          <button
+          <Button
+            variant={filter === 'paid' ? 'primary' : 'secondary'}
+            size="sm"
+            className="w-full"
             onClick={() => setFilter('paid')}
-            className={cn(
-              'py-2 px-2 rounded-[4px] text-xs font-bold tracking-wider uppercase transition-all cursor-pointer text-center active:scale-95',
-              filter === 'paid'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_10px_rgba(0,255,102,0.4)]'
-                : 'bg-[#181c31] text-[#8B92A9] border border-[#293056] hover:text-white'
-            )}
           >
-            SALDADOS
-          </button>
+            Saldados
+          </Button>
         </div>
 
         {/* Buscador */}
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5d6786]" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar por persona o concepto..."
-            className="w-full pl-9 pr-4 py-2 bg-[#181c31] border border-[#293056] rounded-[4px] text-xs text-white placeholder-[#5d6786] focus:border-[#00FF66] focus:outline-none transition-colors"
+            placeholder="Buscar por persona o concepto…"
+            className="input-base pl-9"
           />
         </div>
       </div>
 
       {/* 4. Lista de Préstamos */}
       {filteredLoans.length === 0 ? (
-        <div className="bg-[#181c31] border border-[#293056] rounded-[4px] flex flex-col items-center justify-center py-16 px-4 gap-3 text-center">
-          <div className="w-14 h-14 rounded-[4px] bg-[#14182b] border border-[#293056] flex items-center justify-center text-[#5d6786]">
+        <div className="glass rounded-[var(--radius-lg)] flex flex-col items-center justify-center py-16 px-4 gap-3 text-center">
+          <div className="w-14 h-14 rounded-[var(--radius-full)] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center text-[var(--color-text-muted)]">
             <HandCoins size={28} />
           </div>
           <div>
-            <p className="font-bold text-white text-sm uppercase tracking-wide">
-              NO HAY PRÉSTAMOS REGISTRADOS
+            <p className="font-medium text-[var(--color-text-primary)] text-sm">
+              No hay préstamos registrados
             </p>
-            <p className="text-xs text-[#8B92A9] mt-1 max-w-xs">
+            <p className="text-xs text-[var(--color-text-secondary)] mt-1 max-w-xs">
               {searchTerm
                 ? 'No se encontraron préstamos que coincidan con la búsqueda.'
                 : 'Llevá el control exacto de la plata que prestaste o te prestaron.'}
             </p>
           </div>
           <div className="flex gap-2 mt-2">
-            <button
-              onClick={() => handleOpenCreate('lent')}
-              className="btn-arcade-green py-2 px-3.5 rounded-[4px] text-xs font-bold text-black flex items-center gap-1.5 cursor-pointer active:scale-95"
-            >
+            <Button variant="primary" size="sm" onClick={() => handleOpenCreate('lent')}>
               <Plus size={15} />
-              <span>PRESTÉ DINERO</span>
-            </button>
-            <button
-              onClick={() => handleOpenCreate('borrowed')}
-              className="btn-arcade-pink py-2 px-3.5 rounded-[4px] text-xs font-bold text-black flex items-center gap-1.5 cursor-pointer active:scale-95"
-            >
+              <span>Presté dinero</span>
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => handleOpenCreate('borrowed')}>
               <Plus size={15} />
-              <span>ME PRESTARON DINERO</span>
-            </button>
+              <span>Me prestaron dinero</span>
+            </Button>
           </div>
         </div>
       ) : (

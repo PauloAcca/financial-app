@@ -1,22 +1,29 @@
 {
-  "name": "Pixel Realm Finanzas",
-  "short_name": "Pixel Realm",
-  "description": "Tu asistente personal y control financiero RPG",
+  "name": "Aura · Finanzas",
+  "short_name": "Aura",
+  "description": "Tus finanzas personales con claridad y calma.",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0f111e",
-  "theme_color": "#00FF66",
+  "background_color": "#0A0E14",
+  "theme_color": "#0A0E14",
   "icons": [
     {
-      "src": "/pixel-coin.jpg",
-      "sizes": "192x192 512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.png",
-      "sizes": "180x180",
-      "type": "image/png"
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

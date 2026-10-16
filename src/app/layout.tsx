@@ -1,37 +1,22 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Mono, Share_Tech_Mono, Press_Start_2P, Chakra_Petch } from 'next/font/google'
+import { Outfit, Fraunces } from 'next/font/google'
+import { AuroraBackdrop } from '@/components/layout/aurora-backdrop'
 import './globals.css'
 
-const spaceMono = Space_Mono({
+const outfit = Outfit({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-space-mono',
+  variable: '--font-outfit',
   display: 'swap',
 })
 
-const shareTechMono = Share_Tech_Mono({
+const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-share-tech',
-  display: 'swap',
-})
-
-const pressStart2P = Press_Start_2P({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-press-start',
-  display: 'swap',
-})
-
-const chakraPetch = Chakra_Petch({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-chakra',
+  variable: '--font-fraunces',
   display: 'swap',
 })
 
 export const viewport: Viewport = {
-  themeColor: '#00FF66',
+  themeColor: '#0A0E14',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -40,27 +25,25 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Pixel Realm · Finanzas',
-    template: '%s · Pixel Realm',
+    default: 'Aura · Finanzas',
+    template: '%s · Aura',
   },
-  description: 'Tu asistente personal y control financiero RPG. Controlá tu botín, misiones y gastos en un solo lugar.',
-  keywords: ['finanzas personales', 'presupuesto', 'gastos', 'ingresos', 'ahorro', 'pixel realm', 'rpg finanzas'],
+  description:
+    'Tus finanzas personales con claridad y calma: cuentas, gastos, metas, inversiones y asistencia con IA.',
+  keywords: [
+    'finanzas personales',
+    'presupuesto',
+    'gastos',
+    'ingresos',
+    'ahorro',
+    'inversiones',
+    'aura finanzas',
+  ],
   manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/pixel-coin.jpg', type: 'image/jpeg' },
-      { url: '/icon.png', type: 'image/png' },
-    ],
-    shortcut: '/pixel-coin.jpg',
-    apple: [
-      { url: '/pixel-coin.jpg', sizes: '180x180', type: 'image/jpeg' },
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Pixel Realm',
+    title: 'Aura',
   },
 }
 
@@ -73,29 +56,21 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${spaceMono.variable} ${shareTechMono.variable} ${pressStart2P.variable} ${chakraPetch.variable}`}
-      style={{ backgroundColor: '#0f111e', color: '#ffffff' }}
+      className={`${outfit.variable} ${fraunces.variable}`}
+      style={{ backgroundColor: '#0A0E14' }}
     >
       <head>
-        {/* Favicon e icono de pestaña de navegador */}
-        <link rel="icon" type="image/jpeg" href="/pixel-coin.jpg" />
-        <link rel="shortcut icon" href="/pixel-coin.jpg" />
-        
-        {/* Icono para iPhone / iPad ("Añadir a pantalla de inicio") */}
-        <link rel="apple-touch-icon" href="/pixel-coin.jpg" />
-        <link rel="apple-touch-icon-precomposed" href="/pixel-coin.jpg" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Pixel Realm" />
-        
         {/* Web App Manifest */}
         <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="Aura" />
       </head>
-      <body
-        className="min-h-dvh antialiased bg-[#0f111e] text-white"
-        style={{ backgroundColor: '#0f111e', color: '#ffffff' }}
-        suppressHydrationWarning
-      >
+      <body className="min-h-dvh antialiased">
+        <AuroraBackdrop />
         {children}
       </body>
     </html>

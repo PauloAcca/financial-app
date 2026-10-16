@@ -4,13 +4,14 @@ import { useState, useEffect, useTransition } from 'react'
 import { cn, toISODate } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { createTransaction } from '@/actions/transactions'
 import { createLoan } from '@/actions/loans'
 import { CategoryForm } from '@/components/categories/category-form'
 import { CURRENCIES, PAYMENT_METHODS, DEFAULT_CURRENCY } from '@/lib/constants'
 import type { Account, Category, TransactionType, LoanType } from '@/types/database'
-import { ArrowLeftRight, Plus, PiggyBank, Swords, HandCoins, ArrowUpRight, ArrowDownLeft } from 'lucide-react'
+import { ArrowLeftRight, Plus, PiggyBank, ArrowUpCircle, HandCoins, ArrowUpRight, ArrowDownLeft } from 'lucide-react'
 
 interface TransactionFormProps {
   accounts: Account[]
@@ -22,10 +23,10 @@ interface TransactionFormProps {
 }
 
 const MODE_OPTIONS: { value: TransactionType | 'loan'; label: string; icon: React.ReactNode; color: string }[] = [
-  { value: 'expense',    label: 'GASTO',         icon: <Swords size={18} />,     color: 'var(--color-neon-pink)' },
-  { value: 'income',     label: 'BOTÍN',         icon: <PiggyBank size={18} />,  color: 'var(--color-neon-green)' },
-  { value: 'loan',       label: 'PRÉSTAMO',      icon: <HandCoins size={18} />,  color: '#00FF66' },
-  { value: 'transfer',   label: 'TRANSFER.',     icon: <ArrowLeftRight size={18} />, color: 'var(--color-neon-cyan)' },
+  { value: 'expense',    label: 'Gasto',         icon: <ArrowUpCircle size={18} />,    color: 'var(--color-expense)' },
+  { value: 'income',     label: 'Ingreso',       icon: <PiggyBank size={18} />,        color: 'var(--color-income)' },
+  { value: 'loan',       label: 'Préstamo',      icon: <HandCoins size={18} />,        color: 'var(--color-income)' },
+  { value: 'transfer',   label: 'Transferencia', icon: <ArrowLeftRight size={18} />,  color: 'var(--color-transfer)' },
 ]
 
 export function TransactionForm({ accounts, categories, defaultCurrency = DEFAULT_CURRENCY, initialType = 'expense', initialAccountId, onSuccess }: TransactionFormProps) {
@@ -123,8 +124,8 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         if (result.success) {
           toast.success(
             loanType === 'lent'
-              ? '¡Préstamo otorgado registrado! (No descuenta saldo de cuenta)'
-              : '¡Préstamo recibido registrado con éxito!'
+              ? 'Préstamo otorgado registrado (no descuenta saldo de cuenta).'
+              : 'Préstamo recibido registrado con éxito.'
           )
           resetForm()
           setPersonName('')
@@ -169,9 +170,9 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
 
       if (result.success) {
         const labels: Record<TransactionType, string> = {
-          income: '¡Botín añadido con éxito! 💰',
-          expense: '¡Jefe pagado / Gasto registrado! ⚔️',
-          transfer: 'Transferencia registrada ✓',
+          income: 'Ingreso registrado con éxito.',
+          expense: 'Gasto registrado con éxito.',
+          transfer: 'Transferencia registrada con éxito.',
         }
         toast.success(labels[mode as TransactionType])
         resetForm()
@@ -183,7 +184,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
   }
 
   return (
-    <div className="bg-[#181c31] border border-[#293056] rounded-[4px] p-5 shadow-sm font-mono">
+    <div className="glass rounded-[var(--radius-lg)] p-5">
       {/* Selector de tipo de transacción */}
       <div className="grid grid-cols-4 gap-1.5 mb-5">
         {MODE_OPTIONS.map(({ value, label, icon }) => (
@@ -192,63 +193,63 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
             type="button"
             onClick={() => { setMode(value); setCategoryId(''); setTransferAccountId('') }}
             className={cn(
-              'flex flex-col items-center gap-1 py-2 px-1 rounded-[4px]',
-              'border transition-all duration-150 cursor-pointer text-xs font-bold tracking-wider',
+              'flex flex-col items-center gap-1 py-2.5 px-1 rounded-[var(--radius-md)]',
+              'border transition-all duration-200 cursor-pointer text-xs font-medium',
               mode === value
-                ? 'border-[#00FF66] bg-[#00FF66]/15 text-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.3)]'
-                : 'border-[#293056] text-[#8B92A9] hover:border-[#384277] hover:text-white hover:bg-[#20253f]'
+                ? 'border-[rgba(143,203,176,0.45)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)]'
+                : 'border-[rgba(255,255,255,0.09)] bg-[rgba(255,255,255,0.03)] text-[var(--color-text-secondary)] hover:bg-[rgba(255,255,255,0.07)] hover:text-[var(--color-text-primary)]'
             )}
             aria-pressed={mode === value}
           >
             {icon}
-            <span className="text-[8px] sm:text-[9px] leading-tight uppercase truncate">{label}</span>
+            <span className="text-[10px] sm:text-[11px] leading-tight truncate">{label}</span>
           </button>
         ))}
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
-          <div className="px-4 py-3 rounded-[4px] bg-[rgba(255,77,109,0.15)] border border-[#ff4d6d]/40">
-            <p className="text-xs text-[#ff4d6d] font-bold">{error}</p>
+          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[rgba(227,160,170,0.35)]">
+            <p className="text-xs text-[var(--color-danger)] font-medium">{error}</p>
           </div>
         )}
 
         {/* MODO PRÉSTAMO: Selector de tipo de préstamo y Persona */}
         {mode === 'loan' && (
-          <div className="flex flex-col gap-3 bg-[#14182b] border border-[#293056] rounded-[4px] p-3">
+          <div className="flex flex-col gap-3 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.09)] rounded-[var(--radius-md)] p-3">
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setLoanType('lent')}
                 className={cn(
-                  'py-2 px-2 rounded-[4px] text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 border transition-all cursor-pointer',
+                  'py-2 px-2 rounded-[var(--radius-md)] text-xs font-medium flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                   loanType === 'lent'
-                    ? 'bg-[#00FF66] text-black border-[#00FF66] shadow-[0_0_8px_rgba(0,255,102,0.3)]'
-                    : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+                    ? 'bg-[var(--color-income)] text-[#0A0E14] border-[var(--color-income)]'
+                    : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.09)] hover:text-[var(--color-text-primary)] hover:bg-[rgba(255,255,255,0.07)]'
                 )}
               >
-                <ArrowUpRight size={14} className="stroke-[3]" />
-                <span>PRESTÉ (ME DEBEN)</span>
+                <ArrowUpRight size={14} className="stroke-[2.5]" />
+                <span>Presté (me deben)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setLoanType('borrowed')}
                 className={cn(
-                  'py-2 px-2 rounded-[4px] text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 border transition-all cursor-pointer',
+                  'py-2 px-2 rounded-[var(--radius-md)] text-xs font-medium flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                   loanType === 'borrowed'
-                    ? 'bg-[#ff4d6d] text-white border-[#ff4d6d] shadow-[0_0_8px_rgba(255,77,109,0.3)]'
-                    : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
+                    ? 'bg-[var(--color-expense)] text-[#0A0E14] border-[var(--color-expense)]'
+                    : 'bg-[rgba(255,255,255,0.04)] text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.09)] hover:text-[var(--color-text-primary)] hover:bg-[rgba(255,255,255,0.07)]'
                 )}
               >
-                <ArrowDownLeft size={14} className="stroke-[3]" />
-                <span>ME PRESTARON (DEBO)</span>
+                <ArrowDownLeft size={14} className="stroke-[2.5]" />
+                <span>Me prestaron (debo)</span>
               </button>
             </div>
 
             <Input
               id="loan-form-person"
-              label={loanType === 'lent' ? '¿A QUIÉN LE PRESTASTE?' : '¿QUIÉN TE PRESTÓ?'}
+              label={loanType === 'lent' ? '¿A quién le prestaste?' : '¿Quién te prestó?'}
               placeholder='Ej: "Juan Perez", "Mamá", "Carlos"'
               value={personName}
               onChange={(e) => setPersonName(e.target.value)}
@@ -262,7 +263,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
           <div className="flex-1">
             <Input
               id="tx-amount"
-              label="MONTO ($)"
+              label="Monto ($)"
               type="number"
               step="0.01"
               min="0.01"
@@ -275,7 +276,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
           <div className="w-28">
             <Select
               id="tx-currency"
-              label="MONEDA"
+              label="Moneda"
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
               options={CURRENCIES.map((c) => ({ value: c.code, label: c.code }))}
@@ -287,9 +288,9 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         <Select
           id="tx-account"
           label={
-            mode === 'loan' ? 'CUENTA DE REFERENCIA (OPCIONAL)' :
-            mode === 'transfer' ? 'CUENTA ORIGEN' :
-            'CUENTA'
+            mode === 'loan' ? 'Cuenta de referencia (opcional)' :
+            mode === 'transfer' ? 'Cuenta origen' :
+            'Cuenta'
           }
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
@@ -304,7 +305,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         {mode === 'loan' && (
           <Input
             id="loan-due-date"
-            label="FECHA LÍMITE DE DEVOLUCIÓN (OPCIONAL)"
+            label="Fecha límite de devolución (opcional)"
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
@@ -315,7 +316,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         {mode === 'transfer' && (
           <Select
             id="tx-form-transfer-dest"
-            label="CUENTA DESTINO"
+            label="Cuenta destino"
             value={transferAccountId}
             onChange={(e) => setTransferAccountId(e.target.value)}
             options={[
@@ -329,15 +330,15 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         {(mode === 'expense' || mode === 'income') && (
           <div className="flex flex-col gap-1.5 w-full">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#8B92A9] uppercase tracking-wider">
-                CATEGORÍA {mode !== 'expense' && '(OPCIONAL)'}
+              <span className="text-xs font-medium text-[var(--color-text-secondary)]">
+                Categoría {mode !== 'expense' && '(opcional)'}
               </span>
               <button
                 type="button"
                 onClick={() => setCategoryModalOpen(true)}
-                className="text-[11px] text-[#00FF66] hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-xs text-[var(--color-accent)] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Plus size={12} /> NUEVA
+                <Plus size={12} /> Nueva
               </button>
             </div>
             <Select
@@ -363,12 +364,12 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         {/* Descripción */}
         <Input
           id="tx-desc"
-          label="DESCRIPCIÓN DE LA MISIÓN"
+          label="Descripción"
           placeholder={
             mode === 'loan' ? 'Ej: Préstamo personal / Para compras' :
-            mode === 'income' ? 'Ej: Recompensa de Caza / Salario' :
-            mode === 'expense' ? 'Ej: Mana Potion / Café' :
-            'Ej: Transferencia a Bóveda'
+            mode === 'income' ? 'Ej: Sueldo / Venta' :
+            mode === 'expense' ? 'Ej: Café / Almuerzo' :
+            'Ej: Transferencia a caja de ahorro'
           }
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -378,7 +379,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
         <div className="grid grid-cols-2 gap-3">
           <Input
             id="tx-date"
-            label="FECHA"
+            label="Fecha"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
@@ -386,7 +387,7 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
           />
           <Select
             id="tx-payment-method"
-            label="MÉTODO"
+            label="Método de pago"
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
             options={PAYMENT_METHODS.map((m) => ({ value: m, label: m }))}
@@ -394,27 +395,26 @@ export function TransactionForm({ accounts, categories, defaultCurrency = DEFAUL
           />
         </div>
 
-        <button
+        <Button
           id="btn-submit-transaction"
           type="submit"
+          size="lg"
+          className="w-full mt-2"
           disabled={isPending}
-          className={cn(
-            'py-3.5 px-4 rounded-[4px] text-xs font-bold font-mono tracking-widest uppercase mt-2 cursor-pointer w-full transition-all',
-            mode === 'expense' || (mode === 'loan' && loanType === 'borrowed') ? 'btn-arcade-pink' : 'btn-arcade-green'
-          )}
+          variant={mode === 'expense' || (mode === 'loan' && loanType === 'borrowed') ? 'danger' : 'primary'}
         >
           {isPending
-            ? 'REGISTRANDO...'
-            : `CONFIRMAR ${
+            ? 'Guardando…'
+            : `Confirmar ${
                 mode === 'expense'
-                  ? 'GASTO'
+                  ? 'gasto'
                   : mode === 'income'
-                  ? 'BOTÍN'
+                  ? 'ingreso'
                   : mode === 'loan'
-                  ? 'PRÉSTAMO'
-                  : 'TRANSFERENCIA'
+                  ? 'préstamo'
+                  : 'transferencia'
               }`}
-        </button>
+        </Button>
       </form>
 
       <CategoryForm

@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
 import { createInvestmentValuation } from '@/actions/investments'
-import { formatCurrency, toISODate } from '@/lib/utils'
+import { cn, formatCurrency, toISODate } from '@/lib/utils'
 import type { InvestmentPlatform } from '@/lib/investments'
 
 interface InvestmentValueModalProps {
@@ -59,7 +60,7 @@ export function InvestmentValueModal({
       })
 
       if (res.success) {
-        toast.success('Valor actualizado. ¡Ganancia recalculada!')
+        toast.success('Valor actualizado. Ganancia recalculada.')
         onClose()
         onSuccess?.()
       } else {
@@ -72,50 +73,62 @@ export function InvestmentValueModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="📈 ACTUALIZAR VALOR DE LA INVERSIÓN"
+      title="Actualizar valor de la inversión"
       description={`¿Cuánto vale hoy "${platform.account.name}"?`}
       size="md"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 font-mono pt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 pt-2">
         {error && (
-          <div className="px-4 py-3 rounded-[4px] bg-[#ff4d6d]/15 border border-[#ff4d6d]/30 text-xs text-[#ff4d6d]">
+          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[rgba(227,160,170,0.35)] text-xs text-[var(--color-danger)]">
             {error}
           </div>
         )}
 
         {/* Comparativa rápida */}
-        <div className="grid grid-cols-3 gap-2 bg-[#14182b] border border-[#293056] rounded-[4px] p-3">
+        <div className="grid grid-cols-3 gap-2 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)] rounded-[var(--radius-md)] p-3">
           <div>
-            <p className="text-[10px] text-[#8B92A9] uppercase">APORTADO</p>
-            <p className="text-xs font-bold text-white tabular-nums mt-0.5">
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Aportado</p>
+            <p className="text-xs font-semibold text-[var(--color-text-primary)] tabular-nums mt-0.5">
               {formatCurrency(platform.capital, currency)}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#8B92A9] uppercase">VALOR ACTUAL</p>
-            <p className="text-xs font-bold text-[#38d9f5] tabular-nums mt-0.5">
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Valor actual</p>
+            <p className="text-xs font-semibold text-[var(--color-transfer)] tabular-nums mt-0.5">
               {isNaN(preview) ? '—' : formatCurrency(preview, currency)}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#8B92A9] uppercase">GANANCIA</p>
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">Ganancia</p>
             <p
-              className={`text-xs font-bold tabular-nums mt-0.5 ${
-                previewGain >= 0 ? 'text-[#00FF66]' : 'text-[#ff4d6d]'
-              }`}
+              className={cn(
+                'text-xs font-semibold tabular-nums mt-0.5 flex items-center gap-1 flex-wrap',
+                previewGain >= 0 ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'
+              )}
             >
               {isNaN(preview)
                 ? '—'
-                : `${previewGain >= 0 ? '+' : ''}${formatCurrency(previewGain, currency)}${
-                    previewPct !== null ? ` (${previewPct >= 0 ? '+' : ''}${previewPct.toFixed(2)}%)` : ''
-                  }`}
+                : `${previewGain >= 0 ? '+' : ''}${formatCurrency(previewGain, currency)}`}
+              {!isNaN(preview) && previewPct !== null && (
+                <span
+                  className={cn(
+                    'rounded-full px-1.5 py-px text-[0.625rem] font-medium tabular-nums',
+                    previewGain >= 0
+                      ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)]'
+                      : 'bg-[var(--color-expense-subtle)] text-[var(--color-expense)]'
+                  )}
+                >
+                  {previewPct >= 0 ? '+' : ''}
+                  {previewPct.toFixed(2)}%
+                </span>
+              )}
             </p>
           </div>
         </div>
 
         <Input
           id="valuation-value"
-          label="VALOR ACTUAL TOTAL"
+          label="Valor actual total"
           type="number"
           step="0.01"
           min="0"
@@ -128,7 +141,7 @@ export function InvestmentValueModal({
 
         <Input
           id="valuation-date"
-          label="FECHA DE LA VALUACIÓN"
+          label="Fecha de la valuación"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
@@ -137,27 +150,19 @@ export function InvestmentValueModal({
 
         <Input
           id="valuation-notes"
-          label="NOTAS (OPCIONAL)"
+          label="Notas (opcional)"
           placeholder='Ej: "Cierre de mes", "Después del rally"'
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
 
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-[#293056]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-[4px] bg-[#181c31] border border-[#293056] text-[#8B92A9] text-xs font-bold uppercase hover:text-white transition-colors cursor-pointer"
-          >
+        <div className="flex justify-end gap-2.5 pt-3 border-t border-[rgba(255,255,255,0.06)]">
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="btn-arcade-green px-4 py-2 rounded-[4px] text-xs font-bold text-black uppercase tracking-wider cursor-pointer active:scale-95 disabled:opacity-50"
-          >
-            {isPending ? 'Guardando...' : 'Guardar Valor'}
-          </button>
+          </Button>
+          <Button type="submit" variant="primary" disabled={isPending}>
+            {isPending ? 'Guardando…' : 'Guardar valor'}
+          </Button>
         </div>
       </form>
     </Modal>

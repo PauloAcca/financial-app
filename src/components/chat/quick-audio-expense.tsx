@@ -152,10 +152,10 @@ export function QuickAudioExpense() {
 
       // 5. Notificar
       if (transactionCreated) {
-        toast.success('¡Transacción registrada con éxito!')
+        toast.success('Transacción registrada')
         router.refresh() // Actualiza el dashboard
       } else {
-        toast.info('La IA respondió, pero no registró una transacción.')
+        toast.info('El asistente respondió, pero no registró una transacción.')
       }
 
     } catch (err) {
@@ -175,7 +175,7 @@ export function QuickAudioExpense() {
         'text-sm font-medium transition-all duration-200',
         'border border-[var(--color-border)] bg-[var(--color-surface-2)]',
         isRecording
-          ? 'bg-red-500/10 text-red-500 border-red-500/50 shadow-[0_0_12px_rgba(239,68,68,0.2)] animate-pulse'
+          ? 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[rgba(227,160,170,0.45)] animate-pulse'
           : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-3)] hover:text-[var(--color-text-primary)]',
         isProcessing && 'opacity-70 cursor-not-allowed'
       )}
@@ -189,7 +189,7 @@ export function QuickAudioExpense() {
         <Mic size={16} />
       )}
       <span className="hidden sm:inline">
-        {isProcessing ? 'Procesando...' : isRecording ? 'Grabando...' : 'Gasto por voz'}
+        {isProcessing ? 'Procesando…' : isRecording ? 'Grabando…' : 'Gasto por voz'}
       </span>
       <span className="sm:hidden">
         {isProcessing ? 'Procesando' : isRecording ? 'Grabando' : 'Voz'}

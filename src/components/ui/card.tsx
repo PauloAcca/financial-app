@@ -12,9 +12,9 @@ export function Card({ children, className, hover, onClick }: CardProps) {
     <div
       onClick={onClick}
       className={cn(
-        'bg-[var(--color-surface)] border border-[var(--color-border)]',
-        'rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)]',
-        hover && 'transition-all duration-200 hover:border-[var(--color-accent)]/40 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5',
+        'glass rounded-[var(--radius-lg)]',
+        hover &&
+          'transition-all duration-300 hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.15)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(3,6,10,0.45)]',
         onClick && 'cursor-pointer',
         className
       )}

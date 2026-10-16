@@ -5,7 +5,7 @@ import { buildPlatform } from '@/lib/investments'
 import { DEFAULT_CURRENCY } from '@/lib/constants'
 import type { Account, InvestmentValuation, Transaction } from '@/types/database'
 
-export const metadata: Metadata = { title: 'Inversiones · Pixel Realm' }
+export const metadata: Metadata = { title: 'Inversiones · Aura' }
 
 export default async function InvestmentsPage() {
   const supabase = await createClient()

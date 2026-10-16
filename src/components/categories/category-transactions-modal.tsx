@@ -34,27 +34,29 @@ function TxRow({
   return (
     <label
       className={cn(
-        'flex items-center gap-3 px-3 py-2 rounded-[4px] cursor-pointer transition-colors',
-        checked ? 'bg-[#00FF66]/10 border border-[#00FF66]/30' : 'hover:bg-[#20253f] border border-transparent'
+        'flex items-center gap-3 px-3 py-2 rounded-[var(--radius-sm)] cursor-pointer transition-colors',
+        checked
+          ? 'bg-[var(--color-accent-subtle)] border border-[rgba(143,203,176,0.4)]'
+          : 'hover:bg-[rgba(255,255,255,0.06)] border border-transparent'
       )}
     >
       <input
         type="checkbox"
         checked={checked}
         onChange={onToggle}
-        className="accent-[#00FF66] cursor-pointer shrink-0"
+        className="accent-[var(--color-accent)] cursor-pointer shrink-0"
       />
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-white truncate">{tx.description || 'Sin descripción'}</p>
-        <p className="text-[10px] text-[#8B92A9] truncate">
+        <p className="text-xs text-[var(--color-text-primary)] truncate">{tx.description || 'Sin descripción'}</p>
+        <p className="text-[10px] text-[var(--color-text-secondary)] truncate">
           {formatDate(tx.occurred_at, 'short')}
           {tx.account?.name ? ` · ${tx.account.name}` : ''}
         </p>
       </div>
       <span
         className={cn(
-          'text-xs font-bold tabular-nums shrink-0',
-          isIncome ? 'text-[#00FF66]' : 'text-white'
+          'text-xs font-semibold tabular-nums shrink-0',
+          isIncome ? 'text-[var(--color-income)]' : 'text-[var(--color-text-primary)]'
         )}
       >
         {isIncome ? '+' : '−'} {formatCurrency(Number(tx.amount), tx.currency)}
@@ -140,7 +142,7 @@ export function CategoryTransactionsModal({ open, onClose, category }: CategoryT
       size="lg"
     >
       {loading ? (
-        <div className="flex items-center justify-center py-10 text-[#8B92A9]">
+        <div className="flex items-center justify-center py-10 text-[var(--color-text-secondary)]">
           <Loader2 size={20} className="animate-spin" />
         </div>
       ) : (
@@ -148,25 +150,22 @@ export function CategoryTransactionsModal({ open, onClose, category }: CategoryT
           {/* Movimientos actuales de la categoría */}
           <section className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8B92A9]">
+              <h3 className="text-xs font-medium text-[var(--color-text-secondary)]">
                 En esta categoría ({inCategory.length})
               </h3>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={handleRemove}
                 disabled={toRemove.size === 0 || isPending}
-                className={cn(
-                  'flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-[4px] border transition-colors cursor-pointer',
-                  toRemove.size === 0
-                    ? 'border-[#293056] text-[#5d6786] cursor-not-allowed'
-                    : 'border-[#ff4d6d]/40 text-[#ff4d6d] hover:bg-[#ff4d6d]/15'
-                )}
+                className="text-[var(--color-danger)] hover:text-[var(--color-danger)]"
               >
                 <Minus size={12} /> Quitar seleccionados
-              </button>
+              </Button>
             </div>
             {inCategory.length === 0 ? (
-              <p className="text-xs text-[#5d6786] py-3 text-center">
+              <p className="text-xs text-[var(--color-text-muted)] py-3 text-center">
                 No hay movimientos en esta categoría.
               </p>
             ) : (
@@ -184,27 +183,24 @@ export function CategoryTransactionsModal({ open, onClose, category }: CategoryT
           </section>
 
           {/* Movimientos sin categoría del mismo tipo */}
-          <section className="flex flex-col gap-2 border-t border-[#1e233f] pt-4">
+          <section className="flex flex-col gap-2 border-t border-[rgba(255,255,255,0.06)] pt-4">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8B92A9]">
+              <h3 className="text-xs font-medium text-[var(--color-text-secondary)]">
                 Sin categoría ({uncategorized.length})
               </h3>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={handleAdd}
                 disabled={toAdd.size === 0 || isPending}
-                className={cn(
-                  'flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-[4px] border transition-colors cursor-pointer',
-                  toAdd.size === 0
-                    ? 'border-[#293056] text-[#5d6786] cursor-not-allowed'
-                    : 'border-[#00FF66]/40 text-[#00FF66] hover:bg-[#00FF66]/15'
-                )}
+                className="text-[var(--color-accent)] hover:text-[var(--color-accent)]"
               >
                 <Plus size={12} /> Agregar seleccionados
-              </button>
+              </Button>
             </div>
             {uncategorized.length === 0 ? (
-              <p className="text-xs text-[#5d6786] py-3 text-center">
+              <p className="text-xs text-[var(--color-text-muted)] py-3 text-center">
                 No hay movimientos sin categoría de este tipo.
               </p>
             ) : (

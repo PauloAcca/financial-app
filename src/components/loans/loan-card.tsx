@@ -1,7 +1,9 @@
 'use client'
 
-import { HandCoins, ArrowUpRight, ArrowDownLeft, Calendar, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
+import { ArrowUpRight, ArrowDownLeft, Calendar, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
 import { cn, formatCurrency, formatDate } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import type { Loan } from '@/types/database'
 
 interface LoanCardProps {
@@ -32,13 +34,9 @@ export function LoanCard({ loan, onSelect, onPayment }: LoanCardProps) {
     <div
       onClick={() => onSelect(loan)}
       className={cn(
-        'group bg-[#181c31] border rounded-[6px] p-4 font-mono transition-all duration-200 cursor-pointer select-none relative shadow-sm',
-        'hover:shadow-[0_0_15px_rgba(0,255,102,0.15)] hover:translate-y-[-2px] active:scale-[0.99]',
-        isPaid
-          ? 'border-[#293056] opacity-75'
-          : isLent
-          ? 'border-[#00FF66]/40 hover:border-[#00FF66]'
-          : 'border-[#ff4d6d]/40 hover:border-[#ff4d6d]'
+        'group glass rounded-[var(--radius-lg)] p-4 transition-all duration-200 cursor-pointer select-none relative',
+        'hover:bg-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.15)] hover:-translate-y-0.5 active:scale-[0.99]',
+        isPaid && 'opacity-75'
       )}
     >
       {/* 1. Cabecera: Persona, Tipo y Estado */}
@@ -46,66 +44,65 @@ export function LoanCard({ loan, onSelect, onPayment }: LoanCardProps) {
         <div className="flex items-center gap-2.5 min-w-0">
           <div
             className={cn(
-              'w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border',
+              'w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0 border border-[rgba(255,255,255,0.07)]',
               isLent
-                ? 'bg-[#00FF66]/10 border-[#00FF66]/30 text-[#00FF66]'
-                : 'bg-[#ff4d6d]/10 border-[#ff4d6d]/30 text-[#ff4d6d]'
+                ? 'bg-[var(--color-income-subtle)] text-[var(--color-income)]'
+                : 'bg-[var(--color-expense-subtle)] text-[var(--color-expense)]'
             )}
           >
             {isLent ? <ArrowUpRight size={20} className="stroke-[2.5]" /> : <ArrowDownLeft size={20} className="stroke-[2.5]" />}
           </div>
 
           <div className="min-w-0">
-            <h3 className="font-bold text-white text-sm sm:text-base tracking-wide truncate group-hover:text-[#00FF66] transition-colors">
+            <h3 className="font-medium text-[var(--color-text-primary)] text-sm sm:text-base truncate group-hover:text-[var(--color-accent)] transition-colors">
               {loan.person_name}
             </h3>
-            <span
-              className={cn(
-                'text-[10px] font-bold tracking-wider uppercase',
-                isLent ? 'text-[#00FF66]' : 'text-[#ff4d6d]'
-              )}
-            >
-              {isLent ? '🟢 LE PRESTÉ (ME DEBE)' : '🔴 ME PRESTÓ (DEBO)'}
-            </span>
+            <div className="mt-1">
+              <Badge variant={isLent ? 'income' : 'expense'}>
+                {isLent ? 'Le presté' : 'Me prestaron'}
+              </Badge>
+            </div>
           </div>
         </div>
 
         {/* Badge de Estado */}
         <div>
           {isPaid ? (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#00FF66]/15 border border-[#00FF66]/40 text-[#00FF66] uppercase flex items-center gap-1">
+            <Badge variant="income">
               <CheckCircle2 size={11} />
-              <span>SALDADO</span>
-            </span>
+              <span>Saldado</span>
+            </Badge>
           ) : isPartial ? (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#38d9f5]/15 border border-[#38d9f5]/40 text-[#38d9f5] uppercase flex items-center gap-1">
+            <Badge variant="transfer">
               <Clock size={11} />
-              <span>PARCIAL</span>
-            </span>
+              <span>Parcial</span>
+            </Badge>
           ) : isOverdue ? (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#ff4d6d]/15 border border-[#ff4d6d]/40 text-[#ff4d6d] uppercase flex items-center gap-1">
+            <Badge variant="expense">
               <AlertCircle size={11} />
-              <span>VENCIDO</span>
-            </span>
+              <span>Vencido</span>
+            </Badge>
           ) : (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-[2px] bg-[#293056] text-[#8B92A9] uppercase">
-              PENDIENTE
-            </span>
+            <Badge variant="muted">Pendiente</Badge>
           )}
         </div>
       </div>
 
       {/* 2. Montos: Restante y Total */}
-      <div className="bg-[#14182b] border border-[#293056] rounded-[4px] p-3 mb-3">
+      <div className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] rounded-[var(--radius-md)] p-3 mb-3">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <p className="text-[10px] text-[#8B92A9] uppercase tracking-wider">
-              {isPaid ? 'MONTO TOTAL SALDADO' : 'MONTO RESTANTE'}
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">
+              {isPaid ? 'Monto total saldado' : 'Monto restante'}
             </p>
             <p
               className={cn(
-                'text-lg sm:text-xl font-bold tabular-nums tracking-tight',
-                isPaid ? 'text-white' : isLent ? 'text-[#00FF66] glow-text-green' : 'text-[#ff4d6d] glow-text-pink'
+                'text-lg sm:text-xl font-semibold tabular-nums tracking-tight mt-0.5',
+                isPaid
+                  ? 'text-[var(--color-text-primary)]'
+                  : isLent
+                  ? 'text-[var(--color-income)]'
+                  : 'text-[var(--color-expense)]'
               )}
             >
               {formatCurrency(isPaid ? totalAmount : remainingAmount, loan.currency)}
@@ -114,8 +111,8 @@ export function LoanCard({ loan, onSelect, onPayment }: LoanCardProps) {
 
           {!isPaid && (
             <div className="text-right">
-              <p className="text-[10px] text-[#5d6786] uppercase">TOTAL INICIAL</p>
-              <p className="text-xs font-bold text-[#8B92A9] tabular-nums">
+              <p className="text-xs text-[var(--color-text-muted)]">Total inicial</p>
+              <p className="text-xs font-medium text-[var(--color-text-secondary)] tabular-nums">
                 {formatCurrency(totalAmount, loan.currency)}
               </p>
             </div>
@@ -124,17 +121,14 @@ export function LoanCard({ loan, onSelect, onPayment }: LoanCardProps) {
 
         {/* Barra de progreso si hay pagos parciales */}
         {!isPaid && paidAmount > 0 && (
-          <div className="mt-2 pt-2 border-t border-[#20253f]">
-            <div className="flex justify-between text-[10px] text-[#8B92A9] mb-1">
-              <span>DEVUELTO: {formatCurrency(paidAmount, loan.currency)}</span>
-              <span>{progressPct}%</span>
+          <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)]">
+            <div className="flex justify-between text-[0.6875rem] text-[var(--color-text-secondary)] mb-1.5">
+              <span className="tabular-nums">Devuelto: {formatCurrency(paidAmount, loan.currency)}</span>
+              <span className="tabular-nums">{progressPct}%</span>
             </div>
-            <div className="w-full h-1.5 bg-[#20253f] rounded-full overflow-hidden">
+            <div className="w-full h-1.5 rounded-[var(--radius-full)] bg-[rgba(255,255,255,0.06)] overflow-hidden">
               <div
-                className={cn(
-                  'h-full transition-all duration-300',
-                  isLent ? 'bg-[#00FF66]' : 'bg-[#ff4d6d]'
-                )}
+                className="h-full rounded-[var(--radius-full)] bg-[var(--color-accent)] transition-all duration-300"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -144,8 +138,8 @@ export function LoanCard({ loan, onSelect, onPayment }: LoanCardProps) {
 
       {/* 3. Footer: Fecha límite y botón de acción */}
       <div className="flex items-center justify-between text-xs pt-1">
-        <div className="flex items-center gap-1.5 text-[#8B92A9] text-[11px]">
-          <Calendar size={13} className="text-[#5d6786]" />
+        <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)] text-[11px]">
+          <Calendar size={13} className="text-[var(--color-text-muted)]" />
           <span>
             {loan.due_date
               ? `Límite: ${formatDate(loan.due_date, 'short')}`
@@ -154,20 +148,16 @@ export function LoanCard({ loan, onSelect, onPayment }: LoanCardProps) {
         </div>
 
         {!isPaid ? (
-          <button
+          <Button
+            variant={isLent ? 'primary' : 'danger'}
+            size="sm"
             onClick={handlePaymentClick}
-            className={cn(
-              'px-2.5 py-1 rounded-[4px] text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm active:scale-95 border',
-              isLent
-                ? 'bg-[#00FF66] text-black border-[#00FF66] hover:bg-[#00cc52]'
-                : 'bg-[#ff4d6d] text-white border-[#ff4d6d] hover:bg-[#e03a58]'
-            )}
           >
-            {isLent ? 'REGISTRAR COBRO' : 'REGISTRAR PAGO'}
-          </button>
+            {isLent ? 'Registrar cobro' : 'Registrar pago'}
+          </Button>
         ) : (
-          <span className="text-[10px] font-bold text-[#5d6786] uppercase">
-            TOCÁ PARA VER DETALLES ➔
+          <span className="text-[11px] text-[var(--color-text-muted)]">
+            Tocá para ver detalles
           </span>
         )}
       </div>

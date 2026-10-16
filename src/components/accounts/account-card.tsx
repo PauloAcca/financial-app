@@ -54,34 +54,30 @@ export function AccountCard({ account, onEdit, onSelect }: AccountCardProps) {
     <div
       onClick={() => onSelect?.(account)}
       className={cn(
-        'relative group bg-[#181c31] rounded-[6px]',
-        'border border-[#293056] shadow-[var(--shadow-sm)]',
+        'relative group glass rounded-[var(--radius-lg)] overflow-hidden',
         'transition-all duration-200 cursor-pointer select-none',
-        'hover:border-[#00FF66] hover:shadow-[0_0_15px_rgba(0,255,102,0.2)] hover:translate-y-[-2px] active:scale-[0.99]',
+        'hover:bg-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.14)] hover:-translate-y-0.5 active:scale-[0.99]',
         account.archived && 'opacity-60'
       )}
     >
-      {/* Barra de color superior */}
-      <div
-        className="h-1 rounded-t-[5px] w-full transition-all group-hover:h-1.5"
-        style={{ background: color }}
-      />
+      {/* Acento de color */}
+      <div className="h-0.5 w-full opacity-70" style={{ background: color }} />
 
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
             {/* Icono */}
             <div
-              className="w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 border border-transparent group-hover:border-[#00FF66]/50 transition-colors"
+              className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center shrink-0"
               style={{ backgroundColor: `${color}20`, color }}
             >
               <IconComponent size={20} />
             </div>
             <div className="min-w-0">
-              <h3 className="font-bold text-white leading-tight font-mono tracking-wide truncate group-hover:text-[#00FF66] transition-colors">
+              <h3 className="font-semibold text-[var(--color-text-primary)] leading-tight truncate">
                 {account.name}
               </h3>
-              <p className="text-xs text-[#8B92A9] font-mono mt-0.5">{account.currency}</p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{account.currency}</p>
             </div>
           </div>
 
@@ -89,8 +85,8 @@ export function AccountCard({ account, onEdit, onSelect }: AccountCardProps) {
             {onEdit && (
               <button
                 onClick={handleEditClick}
-                className="p-1.5 rounded-[4px] text-[#8B92A9]
-                           hover:bg-[#20253f] hover:text-[#00FF66]
+                className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-secondary)]
+                           hover:bg-[rgba(255,255,255,0.07)] hover:text-[var(--color-accent)]
                            transition-colors cursor-pointer"
                 aria-label={`Editar ${account.name}`}
                 title="Editar cuenta"
@@ -101,8 +97,8 @@ export function AccountCard({ account, onEdit, onSelect }: AccountCardProps) {
             <button
               onClick={handleArchiveToggle}
               disabled={isPending}
-              className="p-1.5 rounded-[4px] text-[#8B92A9]
-                         hover:bg-[#20253f] hover:text-[#ff4d6d]
+              className="p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-secondary)]
+                         hover:bg-[rgba(255,255,255,0.07)] hover:text-[var(--color-danger)]
                          transition-colors cursor-pointer disabled:opacity-40"
               aria-label={account.archived ? 'Restaurar cuenta' : 'Archivar cuenta'}
               title={account.archived ? 'Restaurar cuenta' : 'Archivar cuenta'}
@@ -114,13 +110,13 @@ export function AccountCard({ account, onEdit, onSelect }: AccountCardProps) {
 
         {/* Saldo */}
         <div className="mb-3">
-          <p className="text-[11px] text-[#8B92A9] font-mono uppercase tracking-wider mb-0.5">Saldo actual</p>
+          <p className="text-xs text-[var(--color-text-secondary)] mb-0.5">Saldo actual</p>
           <p
             className={cn(
-              'text-2xl font-bold font-mono tabular-nums tracking-tight',
+              'text-2xl font-semibold tabular-nums tracking-tight',
               account.current_balance >= 0
-                ? 'text-[#00FF66] glow-text-green'
-                : 'text-[#ff4d6d] glow-text-pink'
+                ? 'text-[var(--color-income)]'
+                : 'text-[var(--color-expense)]'
             )}
           >
             {formatCurrency(account.current_balance, account.currency)}
@@ -128,20 +124,14 @@ export function AccountCard({ account, onEdit, onSelect }: AccountCardProps) {
         </div>
 
         {/* Badges y botón de acción */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#232845] mt-2">
+        <div className="flex items-center justify-between pt-2 border-t border-[rgba(255,255,255,0.06)] mt-2">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] bg-[#14182b] border border-[#293056] text-[#8B92A9] uppercase">
-              {config.label}
-            </span>
-            {account.archived && (
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] bg-[#293056] text-[#8B92A9] uppercase">
-                Archivada
-              </span>
-            )}
+            <Badge variant="muted">{config.label}</Badge>
+            {account.archived && <Badge variant="system">Archivada</Badge>}
           </div>
 
-          <div className="flex items-center gap-1 text-xs font-mono font-bold text-[#8B92A9] group-hover:text-[#00FF66] transition-colors">
-            <span>VER MOVIMIENTOS</span>
+          <div className="flex items-center gap-1 text-xs font-medium text-[var(--color-text-secondary)] group-hover:text-[var(--color-accent)] transition-colors">
+            <span>Ver movimientos</span>
             <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>

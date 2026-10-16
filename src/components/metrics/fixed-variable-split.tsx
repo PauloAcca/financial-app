@@ -15,38 +15,38 @@ export function FixedVariableSplit({ fixed, variable, currency }: FixedVariableS
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex h-3 w-full rounded-[2px] overflow-hidden bg-[#20253f]">
+      <div className="flex h-1.5 w-full rounded-[var(--radius-full)] overflow-hidden bg-[rgba(255,255,255,0.06)]">
         <div
-          className="h-full bg-[#38d9f5] transition-all"
+          className="h-full bg-[var(--color-info)] transition-all"
           style={{ width: `${fixedPct}%` }}
         />
         <div
-          className="h-full bg-[#fbc02d] transition-all"
+          className="h-full bg-[var(--color-warning)] transition-all"
           style={{ width: `${variablePct}%` }}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#8B92A9]">
-            <span className="w-2 h-2 rounded-full bg-[#38d9f5]" />
+          <span className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-info)]" />
             Fijos
           </span>
-          <span className="text-sm font-bold text-white tabular-nums">
+          <span className="text-sm font-semibold text-[var(--color-text-primary)] tabular-nums">
             {formatCurrency(fixed, currency)}
           </span>
-          <span className="text-[10px] text-[#5d6786]">{fixedPct.toFixed(1)}% del gasto</span>
+          <span className="text-[0.6875rem] text-[var(--color-text-muted)]">{fixedPct.toFixed(1)}% del gasto</span>
         </div>
 
         <div className="flex flex-col gap-1">
-          <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#8B92A9]">
-            <span className="w-2 h-2 rounded-full bg-[#fbc02d]" />
+          <span className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
+            <span className="w-2 h-2 rounded-full bg-[var(--color-warning)]" />
             Variables
           </span>
-          <span className="text-sm font-bold text-white tabular-nums">
+          <span className="text-sm font-semibold text-[var(--color-text-primary)] tabular-nums">
             {formatCurrency(variable, currency)}
           </span>
-          <span className="text-[10px] text-[#5d6786]">{variablePct.toFixed(1)}% del gasto</span>
+          <span className="text-[0.6875rem] text-[var(--color-text-muted)]">{variablePct.toFixed(1)}% del gasto</span>
         </div>
       </div>
     </div>

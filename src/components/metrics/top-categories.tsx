@@ -41,29 +41,29 @@ export function TopCategories({ items, currency, onSelect }: TopCategoriesProps)
             }}
             className={
               clickable
-                ? 'flex flex-col gap-1 text-left -mx-2 px-2 py-1 rounded-[4px] hover:bg-[#20253f] transition-colors cursor-pointer'
+                ? 'flex flex-col gap-1 text-left -mx-2 px-2 py-1 rounded-[var(--radius-md)] hover:bg-[rgba(255,255,255,0.07)] transition-colors cursor-pointer'
                 : 'flex flex-col gap-1 text-left'
             }
           >
             <div className="flex items-center justify-between gap-2 text-xs">
               <span className="flex items-center gap-1.5 min-w-0">
-                <span className="text-[10px] font-bold text-[#5d6786] tabular-nums w-4 shrink-0">
+                <span className="text-[10px] font-medium text-[var(--color-text-muted)] tabular-nums w-4 shrink-0">
                   {index + 1}
                 </span>
-                <span className="text-[#8B92A9] font-mono truncate">{item.name}</span>
+                <span className="text-[var(--color-text-secondary)] truncate">{item.name}</span>
               </span>
               <span className="flex items-center gap-2 shrink-0">
-                <span className="font-bold text-white tabular-nums">
+                <span className="font-semibold text-[var(--color-text-primary)] tabular-nums">
                   {formatCurrency(item.value, currency)}
                 </span>
-                <span className="text-[#5d6786] tabular-nums w-9 text-right">
+                <span className="text-[var(--color-text-muted)] tabular-nums w-9 text-right">
                   {item.pct.toFixed(1)}%
                 </span>
               </span>
             </div>
-            <div className="h-1.5 rounded-[1px] bg-[#20253f] overflow-hidden">
+            <div className="h-1.5 rounded-[var(--radius-full)] bg-[rgba(255,255,255,0.06)] overflow-hidden">
               <div
-                className="h-full rounded-[1px] transition-all"
+                className="h-full rounded-[var(--radius-full)] transition-all"
                 style={{
                   width: `${Math.max((item.value / max) * 100, 2)}%`,
                   backgroundColor: item.fill,

@@ -4,10 +4,10 @@ import { useState, useEffect, useTransition } from 'react'
 import { Modal } from '@/components/ui/modal'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { createLoan, updateLoan } from '@/actions/loans'
 import { CURRENCIES, DEFAULT_CURRENCY } from '@/lib/constants'
-import { cn, toISODate } from '@/lib/utils'
 import type { Loan, LoanType, Account } from '@/types/database'
 import { ArrowUpRight, ArrowDownLeft } from 'lucide-react'
 
@@ -131,46 +131,38 @@ export function LoanForm({
           : 'Registrá un préstamo otorgado o recibido sin alterar el saldo de tus cuentas.'
       }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 font-mono">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {error && (
-          <div className="px-4 py-3 rounded-[4px] bg-[#ff4d6d]/15 border border-[#ff4d6d]/30 text-xs text-[#ff4d6d]">
+          <div className="px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-danger-subtle)] border border-[rgba(227,160,170,0.4)] text-xs text-[var(--color-danger)]">
             {error}
           </div>
         )}
 
-        {/* Selector de Tipo: PRESTÉ vs ME PRESTARON */}
+        {/* Selector de Tipo: Presté vs Me prestaron */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-[#8B92A9] uppercase">
+          <span className="text-xs font-medium text-[var(--color-text-secondary)]">
             Tipo de préstamo
-          </label>
+          </span>
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <Button
               type="button"
+              variant={type === 'lent' ? 'primary' : 'secondary'}
+              className="h-10"
               onClick={() => setType('lent')}
-              className={cn(
-                'py-2.5 px-3 rounded-[4px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
-                type === 'lent'
-                  ? 'bg-[#00FF66] text-black border-[#00FF66] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
-                  : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
-              )}
             >
-              <ArrowUpRight size={16} className="stroke-[3]" />
-              <span>YO PRESTÉ (ME DEBEN)</span>
-            </button>
+              <ArrowUpRight size={16} />
+              <span>Le presté (me deben)</span>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant={type === 'borrowed' ? 'danger' : 'secondary'}
+              className="h-10"
               onClick={() => setType('borrowed')}
-              className={cn(
-                'py-2.5 px-3 rounded-[4px] text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
-                type === 'borrowed'
-                  ? 'bg-[#ff4d6d] text-white border-[#ff4d6d] shadow-[0_0_10px_rgba(255,77,109,0.3)]'
-                  : 'bg-[#181c31] text-[#8B92A9] border-[#293056] hover:text-white'
-              )}
             >
-              <ArrowDownLeft size={16} className="stroke-[3]" />
-              <span>ME PRESTARON (DEBO)</span>
-            </button>
+              <ArrowDownLeft size={16} />
+              <span>Me prestaron (debo)</span>
+            </Button>
           </div>
         </div>
 
@@ -213,7 +205,7 @@ export function LoanForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             id="loan-due-date"
-            label="Fecha límite (Opcional)"
+            label="Fecha límite (opcional)"
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
@@ -223,7 +215,7 @@ export function LoanForm({
           {activeAccounts.length > 0 && (
             <Select
               id="loan-account-ref"
-              label="Cuenta vinculada (Opcional)"
+              label="Cuenta vinculada (opcional)"
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
               options={[
@@ -238,32 +230,23 @@ export function LoanForm({
         {/* Descripción / Notas */}
         <Input
           id="loan-description"
-          label="Concepto o notas (Opcional)"
+          label="Concepto o notas (opcional)"
           placeholder='Ej: "Cena del sábado", "Para el alquiler", "Préstamo personal"'
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
 
-        <div className="flex justify-end gap-2.5 pt-3 border-t border-[#293056]">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 rounded-[4px] bg-[#181c31] border border-[#293056] text-[#8B92A9] text-xs font-bold uppercase hover:text-white transition-colors cursor-pointer"
-          >
+        <div className="flex justify-end gap-2.5 pt-3 border-t border-[rgba(255,255,255,0.07)]">
+          <Button type="button" variant="secondary" onClick={handleClose}>
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant={type === 'lent' ? 'primary' : 'danger'}
             disabled={isPending}
-            className={cn(
-              'px-4 py-2 rounded-[4px] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50',
-              type === 'lent'
-                ? 'bg-[#00FF66] text-black hover:bg-[#00cc52]'
-                : 'bg-[#ff4d6d] text-white hover:bg-[#e03a58]'
-            )}
           >
-            {isPending ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Registrar Préstamo'}
-          </button>
+            {isPending ? 'Guardando…' : isEditing ? 'Guardar cambios' : 'Registrar préstamo'}
+          </Button>
         </div>
       </form>
     </Modal>

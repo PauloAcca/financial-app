@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { PiggyBank, Swords, Mic, Square, Loader2 } from 'lucide-react'
+import { ArrowDownCircle, ArrowUpCircle, Mic, Square, Loader2 } from 'lucide-react'
 import { Modal } from '@/components/ui/modal'
 import { TransactionForm } from '@/components/transactions/transaction-form'
 import { toast } from '@/components/ui/toast'
@@ -66,7 +66,7 @@ export function ActionButtons({ accounts = [], categories = [] }: ActionButtonsP
 
         mediaRecorder.start()
         setIsRecording(true)
-        toast.info('🎙️ Grabando... Hablá claro (ej: "Gasté 5000 pesos en supermercado")')
+        toast.info('Grabando… hablá claro (ej: "Gasté 5000 pesos en supermercado")')
       } catch (err) {
         console.error('Error accediendo al micrófono:', err)
         toast.error('No se pudo acceder al micrófono. Verificá los permisos del navegador.')
@@ -164,7 +164,7 @@ export function ActionButtons({ accounts = [], categories = [] }: ActionButtonsP
       localStorage.setItem('app_finanzas_chat_history', JSON.stringify(finalHistory))
 
       if (transactionCreated) {
-        toast.success('¡Misión / Transacción registrada por voz con éxito! ⚡')
+        toast.success('Transacción registrada por voz')
         router.refresh()
       } else {
         toast.info(assistantMessage ? `IA: ${assistantMessage}` : 'Audio procesado.')
@@ -178,77 +178,67 @@ export function ActionButtons({ accounts = [], categories = [] }: ActionButtonsP
   }
 
   return (
-    <div className="flex flex-col gap-2.5 my-1 font-mono">
-      {/* FILA DE 2 BOTONES PRINCIPALES */}
+    <div className="flex flex-col gap-2.5 my-1">
+      {/* Acciones principales */}
       <div className="grid grid-cols-2 gap-3">
-        {/* BOTÓN 1: AÑADIR BOTÍN (VERDE NEÓN) */}
+        {/* Agregar ingreso */}
         <button
           onClick={() => handleOpen('income')}
-          className="btn-arcade-green flex flex-col items-center justify-center gap-1.5 py-3.5 px-3 rounded-[4px] cursor-pointer active:scale-95 transition-transform"
+          className="bg-[#8FCBB0] text-[#0A0E14] flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-[var(--radius-lg)] cursor-pointer active:translate-y-px transition-all duration-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_10px_rgba(143,203,176,0.2)] hover:bg-[#A5D8C3]"
         >
-          <PiggyBank size={24} className="text-black stroke-[2.2]" />
-          <span className="text-xs font-bold tracking-wider text-black">
-            AÑADIR BOTÍN
-          </span>
+          <ArrowDownCircle size={22} className="stroke-[2]" />
+          <span className="text-sm font-semibold">Agregar ingreso</span>
         </button>
 
-        {/* BOTÓN 2: PAGAR JEFE (ROSA NEÓN) */}
+        {/* Registrar gasto */}
         <button
           onClick={() => handleOpen('expense')}
-          className="btn-arcade-pink flex flex-col items-center justify-center gap-1.5 py-3.5 px-3 rounded-[4px] cursor-pointer active:scale-95 transition-transform"
+          className="glass text-[var(--color-expense)] flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-[var(--radius-lg)] cursor-pointer active:translate-y-px transition-all duration-200 hover:border-[rgba(227,160,170,0.35)] hover:bg-[rgba(227,160,170,0.08)]"
         >
-          <Swords size={24} className="text-black stroke-[2.2]" />
-          <span className="text-xs font-bold tracking-wider text-black">
-            PAGAR JEFE
-          </span>
+          <ArrowUpCircle size={22} className="stroke-[2]" />
+          <span className="text-sm font-semibold text-[var(--color-text-primary)]">Registrar gasto</span>
         </button>
       </div>
 
-      {/* BOTÓN 3: REGISTRAR POR VOZ / AUDIO (PROMINENTE) */}
+      {/* Registrar por voz */}
       <button
         onClick={handleVoiceClick}
         disabled={isProcessing}
         className={cn(
-          'w-full py-3 px-4 rounded-[4px] flex items-center justify-center gap-2.5 transition-all duration-150 cursor-pointer border',
+          'w-full py-3 px-4 rounded-[var(--radius-lg)] flex items-center justify-center gap-2.5 transition-all duration-200 cursor-pointer border',
           isRecording
-            ? 'bg-[#ff4d6d] text-white border-[#ff4d6d] shadow-[0_0_15px_rgba(255,77,109,0.5)] animate-pulse'
+            ? 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border-[rgba(227,160,170,0.45)] animate-pulse'
             : isProcessing
-            ? 'bg-[#181c31] text-[#38d9f5] border-[#38d9f5]/50 opacity-80'
-            : 'bg-[#181c31] border-[#38d9f5]/60 text-[#38d9f5] hover:bg-[#38d9f5]/15 hover:border-[#38d9f5] shadow-[0_0_10px_rgba(56,217,245,0.15)] active:scale-[0.99]'
+            ? 'glass text-[var(--color-text-secondary)] border-[rgba(255,255,255,0.09)] opacity-80'
+            : 'glass text-[var(--color-accent)] hover:border-[rgba(143,203,176,0.4)] hover:bg-[rgba(143,203,176,0.07)] active:scale-[0.99]'
         )}
       >
         {isProcessing ? (
           <>
-            <Loader2 size={18} className="animate-spin text-[#38d9f5]" />
-            <span className="text-xs font-bold tracking-wider uppercase">
-              PROCESANDO AUDIO CON IA...
-            </span>
+            <Loader2 size={17} className="animate-spin" />
+            <span className="text-sm font-medium">Procesando audio…</span>
           </>
         ) : isRecording ? (
           <>
-            <Square size={18} fill="currentColor" />
-            <span className="text-xs font-bold tracking-wider uppercase">
-              GRABANDO... TOCÁ PARA FINALIZAR
-            </span>
+            <Square size={16} fill="currentColor" />
+            <span className="text-sm font-medium">Grabando — tocá para finalizar</span>
           </>
         ) : (
           <>
-            <Mic size={18} className="stroke-[2.5]" />
-            <span className="text-xs font-bold tracking-wider uppercase">
-              🎙️ REGISTRAR GASTO POR VOZ
-            </span>
+            <Mic size={17} className="stroke-[2]" />
+            <span className="text-sm font-medium">Registrar gasto por voz</span>
           </>
         )}
       </button>
 
-      {/* Modal para ingresar Botín o Gasto */}
+      {/* Modal para ingreso o gasto */}
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={selectedType === 'income' ? '💰 REGISTRAR BOTÍN' : '⚔️ PAGAR JEFE / GASTO'}
+        title={selectedType === 'income' ? 'Agregar ingreso' : 'Registrar gasto'}
         size="md"
       >
-        <div className="pt-2">
+        <div className="pt-1">
           <TransactionForm
             accounts={accounts}
             categories={categories}

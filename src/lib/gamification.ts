@@ -57,9 +57,9 @@ export function calculateUserGameStats(
     .reduce((sum, t) => sum + t.amount, 0)
   const todayTxCount = todayTransactions.length
 
-  // 4. Cálculo de XP y Nivel REAL adaptado a escala ARS (Pesos Argentinos)
+  // 4. Cálculo de XP y Nivel (escala ARS)
   // Cada transacción registrada = 50 XP
-  // Cada cuenta/bóveda creada = 150 XP
+  // Cada cuenta creada = 150 XP
   // Patrimonio: 1 XP por cada $10.000 ARS de saldo neto positivo
   const txXP = transactions.length * 50
   const accXP = activeAccounts.length * 150
@@ -71,14 +71,14 @@ export function calculateUserGameStats(
   const currentXPInLevel = totalXP % xpPerLevel
   const progressPercent = Math.min(100, Math.round((currentXPInLevel / xpPerLevel) * 100))
 
-  // 5. Rango según Nivel
-  let rank = 'NOVATO'
-  if (level >= 20) rank = 'GRAN MAESTRO'
-  else if (level >= 10) rank = 'CABALLERO'
-  else if (level >= 5) rank = 'GUERRERO'
-  else if (level >= 2) rank = 'AVENTURERO'
+  // 5. Rango según nivel — vocabulario sobrio
+  let rank = 'Explorador'
+  if (level >= 20) rank = 'Maestría'
+  else if (level >= 10) rank = 'Dominio'
+  else if (level >= 5) rank = 'Equilibrio'
+  else if (level >= 2) rank = 'Constancia'
 
-  // 6. Logros REALES adaptados a magnitudes de Argentina (ARS)
+  // 6. Logros (magnitudes de Argentina, ARS) — tonos de la paleta Aura
   const hasFirstTx = transactions.length >= 1
   const hasFirstAccount = activeAccounts.length >= 1
   const hasSaved500k = totalBalance >= 500000
@@ -97,55 +97,55 @@ export function calculateUserGameStats(
   const achievements: Achievement[] = [
     {
       id: 'first_account',
-      title: 'Bóveda Abierta',
-      description: 'Creaste tu primera cuenta de ahorro o banco',
+      title: 'Primer paso firme',
+      description: 'Creaste tu primera cuenta',
       iconType: 'shield',
-      color: '#00FF66',
+      color: '#7FD9A4',
       unlocked: hasFirstAccount,
       progressText: hasFirstAccount ? 'Completado' : 'Creá 1 cuenta',
     },
     {
       id: 'first_step',
-      title: 'Primer Paso',
-      description: 'Registraste tu primer movimiento en el reino',
+      title: 'En marcha',
+      description: 'Registraste tu primer movimiento',
       iconType: 'swords',
-      color: '#38d9f5',
+      color: '#A6B9E8',
       unlocked: hasFirstTx,
       progressText: hasFirstTx ? 'Completado' : 'Registrá 1 transacción',
     },
     {
       id: 'caza_botin',
-      title: 'Cazador de Botín',
-      description: 'Registraste tu primer ingreso de salario o botín',
+      title: 'Ingreso sostenido',
+      description: 'Registraste un ingreso por sueldo o salario',
       iconType: 'coins',
-      color: '#fbbf24',
+      color: '#E4C28F',
       unlocked: hasSalaryIncome,
-      progressText: hasSalaryIncome ? 'Completado' : 'Añadí botín o salario',
+      progressText: hasSalaryIncome ? 'Completado' : 'Registrá un sueldo o salario',
     },
     {
       id: 'expert_saver',
-      title: 'Ahorrador Experto',
-      description: 'Acumulaste $500.000 en balance total',
+      title: 'Colchón inicial',
+      description: 'Acumulaste $500.000 de balance total',
       iconType: 'piggy',
-      color: '#00FF66',
+      color: '#7FD9A4',
       unlocked: hasSaved500k,
       progressText: `${totalBalance.toLocaleString('es-AR')} / 500.000`,
     },
     {
       id: 'trotamundos',
-      title: 'Trotamundos',
+      title: 'En movimiento',
       description: 'Registraste un gasto en viajes o transporte',
       iconType: 'plane',
-      color: '#38d9f5',
+      color: '#A6B9E8',
       unlocked: hasTravelTx,
-      progressText: hasTravelTx ? 'Completado' : 'Gasto en viajes/transporte',
+      progressText: hasTravelTx ? 'Completado' : 'Gasto en viajes o transporte',
     },
     {
       id: 'whale_watcher',
-      title: 'Observador de Ballenas',
-      description: 'Llegá a $10.000.000 de balance total',
+      title: 'Patrimonio sólido',
+      description: 'Llegaste a $10.000.000 de balance total',
       iconType: 'trophy',
-      color: '#a855f7',
+      color: '#BFAEE8',
       unlocked: hasSaved10M,
       progressText: `${totalBalance.toLocaleString('es-AR')} / 10.000.000`,
     },

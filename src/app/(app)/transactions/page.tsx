@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { TransactionList } from '@/components/transactions/transaction-list'
 
-export const metadata: Metadata = { title: 'Historial · Pixel Realm' }
+export const metadata: Metadata = { title: 'Historial · Aura' }
 
 export default async function TransactionsPage() {
   const supabase = await createClient()
@@ -39,7 +39,7 @@ export default async function TransactionsPage() {
   ])
 
   return (
-    <div className="flex flex-col gap-4 max-w-md mx-auto w-full font-mono">
+    <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
       <TransactionList
         transactions={transactions ?? []}
         accounts={accounts ?? []}

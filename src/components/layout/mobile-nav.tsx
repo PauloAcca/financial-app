@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Home, BarChart2, Wallet, Bot, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
-  { href: '/dashboard',    label: 'INICIO',      icon: Home },
-  { href: '/accounts',     label: 'CUENTAS',     icon: Wallet },
-  { href: '/inversiones',  label: 'INVERSIÓN',   icon: TrendingUp },
-  { href: '/metrics',      label: 'MÉTRICAS',    icon: BarChart2 },
-  { href: '/chat',         label: 'AGENTE IA',   icon: Bot },
+  { href: '/dashboard',   label: 'Inicio',     icon: Home },
+  { href: '/accounts',    label: 'Cuentas',    icon: Wallet },
+  { href: '/inversiones', label: 'Inversión',   icon: TrendingUp },
+  { href: '/metrics',     label: 'Métricas',    icon: BarChart2 },
+  { href: '/chat',        label: 'Asistente',  icon: Bot },
 ]
 
 export function MobileNav() {
@@ -28,10 +28,11 @@ export function MobileNav() {
   return (
     <nav
       className={cn(
-        'fixed bottom-0 left-0 right-0 z-40',
-        'bg-[#111424] border-t border-[#1e233f]',
-        'flex items-center justify-around h-16 max-w-lg mx-auto',
-        'pb-[env(safe-area-inset-bottom)]'
+        'fixed left-3 right-3 z-40',
+        'bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))]',
+        'max-w-lg mx-auto',
+        'glass-strong rounded-[var(--radius-full)]',
+        'flex items-center justify-around h-16 px-2'
       )}
       aria-label="Navegación principal"
     >
@@ -45,17 +46,17 @@ export function MobileNav() {
             prefetch={true}
             onClick={() => setOptimisticPath(href)}
             className={cn(
-              'flex-1 h-full flex items-center justify-center transition-all duration-75',
-              'font-mono tracking-wider select-none active:scale-95 touch-manipulation',
+              'flex items-center justify-center rounded-[var(--radius-full)] transition-all duration-200',
+              'h-11 w-11 select-none active:scale-95 touch-manipulation',
               active
-                ? 'bg-[#00FF66] text-[#000000] font-bold shadow-[0_0_12px_rgba(0,255,102,0.4)]'
-                : 'text-[#8B92A9] hover:text-white hover:bg-[#181c31]'
+                ? 'bg-[rgba(255,255,255,0.09)] text-[var(--color-accent)] shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]'
             )}
             aria-current={active ? 'page' : undefined}
             aria-label={label}
             title={label}
           >
-            <Icon size={22} className={active ? 'text-black stroke-[2.5]' : 'stroke-[1.8]'} />
+            <Icon size={21} className={active ? 'stroke-[2.1]' : 'stroke-[1.7]'} />
           </Link>
         )
       })}

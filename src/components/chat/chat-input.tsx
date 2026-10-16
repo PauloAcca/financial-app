@@ -22,7 +22,7 @@ export function ChatInput({
   onChange,
   onSubmit,
   isLoading,
-  placeholder = 'Escribí tu mensaje o comando...',
+  placeholder = 'Escribí tu mensaje…',
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isRecording, setIsRecording] = useState(false)
@@ -87,11 +87,10 @@ export function ChatInput({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 p-1.5 rounded-[4px] font-mono',
-        'bg-[#181c31] border',
+        'flex items-center gap-2 p-1.5 rounded-[var(--radius-full)] glass-soft',
         isRecording
-          ? 'border-[#ff4d6d] shadow-[0_0_10px_rgba(255,77,109,0.3)]'
-          : 'border-[#293056] focus-within:border-[#00FF66] focus-within:shadow-[0_0_8px_rgba(0,255,102,0.2)]',
+          ? 'border-[rgba(227,160,170,0.45)]'
+          : 'focus-within:border-[rgba(143,203,176,0.5)]',
         'transition-all duration-150'
       )}
     >
@@ -100,11 +99,11 @@ export function ChatInput({
         onClick={handleMicClick}
         disabled={isLoading && !isRecording}
         className={cn(
-          'w-9 h-9 rounded-[4px] flex items-center justify-center shrink-0 cursor-pointer',
+          'w-9 h-9 rounded-[var(--radius-full)] flex items-center justify-center shrink-0 cursor-pointer',
           'transition-all duration-150',
           isRecording
-            ? 'bg-[#ff4d6d] text-white animate-pulse shadow-[0_0_12px_rgba(255,77,109,0.5)]'
-            : 'bg-[#14182b] text-[#38d9f5] border border-[#293056] hover:border-[#38d9f5] hover:bg-[#1e233d]'
+            ? 'bg-[var(--color-danger-subtle)] text-[var(--color-danger)] border border-[rgba(227,160,170,0.45)] animate-pulse'
+            : 'bg-[rgba(255,255,255,0.06)] text-[var(--color-info)] border border-[rgba(255,255,255,0.09)] hover:border-[rgba(166,185,232,0.4)] hover:bg-[rgba(255,255,255,0.1)]'
         )}
         aria-label={isRecording ? 'Detener grabación' : 'Grabar mensaje de voz'}
       >
@@ -117,12 +116,12 @@ export function ChatInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={isRecording ? 'Grabando audio...' : placeholder}
+        placeholder={isRecording ? 'Grabando…' : placeholder}
         disabled={isLoading || isRecording}
         rows={1}
         className={cn(
-          'flex-1 resize-none bg-transparent outline-none self-center',
-          'text-xs sm:text-sm text-white placeholder:text-[#5d6786]',
+          'flex-1 resize-none bg-transparent focus:outline-none outline-none self-center',
+          'text-xs sm:text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]',
           'leading-relaxed max-h-[120px] overflow-y-auto py-1 px-1',
           'disabled:opacity-50'
         )}
@@ -134,11 +133,11 @@ export function ChatInput({
         onClick={() => onSubmit()}
         disabled={!canSubmit}
         className={cn(
-          'w-9 h-9 rounded-[4px] flex items-center justify-center shrink-0 cursor-pointer',
+          'w-9 h-9 rounded-[var(--radius-full)] flex items-center justify-center shrink-0',
           'transition-all duration-150',
           canSubmit
-            ? 'bg-[#00FF66] text-black hover:bg-[#00FF66]/90 shadow-[0_0_10px_rgba(0,255,102,0.4)] active:scale-95'
-            : 'bg-[#14182b] text-[#5d6786] border border-[#293056] cursor-not-allowed'
+            ? 'bg-[var(--color-accent)] text-[#0A0E14] hover:bg-[var(--color-accent-hover)] active:scale-95 cursor-pointer'
+            : 'bg-[rgba(255,255,255,0.06)] text-[var(--color-text-muted)] border border-[rgba(255,255,255,0.09)] cursor-not-allowed'
         )}
         aria-label="Enviar mensaje"
       >

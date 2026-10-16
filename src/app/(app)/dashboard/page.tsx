@@ -6,7 +6,7 @@ import { RecentTransactions } from '@/components/dashboard/recent-transactions'
 import { calculateUserGameStats } from '@/lib/gamification'
 import { DEFAULT_CURRENCY } from '@/lib/constants'
 
-export const metadata: Metadata = { title: 'Inicio · Pixel Realm' }
+export const metadata: Metadata = { title: 'Inicio · Aura' }
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -40,17 +40,17 @@ export default async function DashboardPage() {
   const stats = calculateUserGameStats(realAccounts, realTransactions)
 
   return (
-    <div className="flex flex-col gap-4 max-w-md mx-auto w-full font-mono">
-      {/* 1. HUD Resumen de Saldo y XP Real */}
+    <div className="flex flex-col gap-4 max-w-md mx-auto w-full">
+      {/* 1. Resumen de saldo y progreso */}
       <SummaryCards stats={stats} currency={currency} />
 
-      {/* 2. Botones de Acción: AÑADIR BOTÍN, PAGAR JEFE y REGISTRO POR VOZ */}
+      {/* 2. Acciones: ingreso, gasto y registro por voz */}
       <ActionButtons
         accounts={realAccounts}
         categories={realCategories}
       />
 
-      {/* 3. Misiones Recientes Reales con Edición directa */}
+      {/* 3. Actividad reciente con edición directa */}
       <RecentTransactions
         transactions={realTransactions}
         accounts={realAccounts}

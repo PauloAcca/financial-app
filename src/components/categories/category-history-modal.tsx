@@ -84,7 +84,7 @@ export function CategoryHistoryModal({ open, onClose, category }: CategoryHistor
       size="lg"
     >
       {loading ? (
-        <div className="flex items-center justify-center py-10 text-[#8B92A9]">
+        <div className="flex items-center justify-center py-10 text-[var(--color-text-secondary)]">
           <Loader2 size={20} className="animate-spin" />
         </div>
       ) : (
@@ -105,15 +105,15 @@ export function CategoryHistoryModal({ open, onClose, category }: CategoryHistor
             </div>
 
             <div className="flex flex-col items-end gap-0.5 pb-1">
-              <span className="text-[10px] uppercase tracking-widest text-[#8B92A9]">
+              <span className="text-xs font-medium text-[var(--color-text-secondary)] tabular-nums">
                 {filtered.length} movimiento{filtered.length !== 1 ? 's' : ''}
               </span>
               {Object.entries(totalsByCurrency).map(([currency, total]) => (
                 <span
                   key={currency}
                   className={cn(
-                    'text-sm font-bold tabular-nums',
-                    kind === 'income' ? 'text-[#00FF66]' : 'text-[#ff4d6d]'
+                    'text-sm font-semibold tabular-nums',
+                    kind === 'income' ? 'text-[var(--color-income)]' : 'text-[var(--color-expense)]'
                   )}
                 >
                   {kind === 'income' ? '+' : '−'} {formatCurrency(total, currency)}
@@ -124,7 +124,7 @@ export function CategoryHistoryModal({ open, onClose, category }: CategoryHistor
 
           {/* Lista */}
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-10 text-[#5d6786]">
+            <div className="flex flex-col items-center justify-center gap-2 py-10 text-[var(--color-text-muted)]">
               <History size={22} />
               <p className="text-xs">
                 {items.length === 0
@@ -139,13 +139,13 @@ export function CategoryHistoryModal({ open, onClose, category }: CategoryHistor
                 return (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between gap-3 px-3 py-2 rounded-[4px] bg-[#14182b] border border-[#1e233f]"
+                    className="flex items-center justify-between gap-3 px-3 py-2 rounded-[var(--radius-sm)] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)]"
                   >
                     <div className="min-w-0">
-                      <p className="text-xs text-white truncate">
+                      <p className="text-xs text-[var(--color-text-primary)] truncate">
                         {tx.description || 'Sin descripción'}
                       </p>
-                      <p className="text-[10px] text-[#8B92A9] truncate flex items-center gap-1">
+                      <p className="text-[10px] text-[var(--color-text-secondary)] truncate flex items-center gap-1">
                         <CalendarDays size={10} className="shrink-0" />
                         {formatDate(tx.occurred_at, 'short')}
                         {tx.account?.name ? ` · ${tx.account.name}` : ''}
@@ -154,8 +154,8 @@ export function CategoryHistoryModal({ open, onClose, category }: CategoryHistor
                     </div>
                     <span
                       className={cn(
-                        'text-xs font-bold tabular-nums shrink-0',
-                        isIncome ? 'text-[#00FF66]' : 'text-white'
+                        'text-xs font-semibold tabular-nums shrink-0',
+                        isIncome ? 'text-[var(--color-income)]' : 'text-[var(--color-text-primary)]'
                       )}
                     >
                       {isIncome ? '+' : '−'} {formatCurrency(Number(tx.amount), tx.currency)}

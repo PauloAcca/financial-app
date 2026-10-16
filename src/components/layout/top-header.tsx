@@ -1,100 +1,90 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Bell } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Avatar } from '@/components/ui/avatar'
 
 const PAGE_TITLES: Record<string, string> = {
-  '/dashboard': 'INICIO',
-  '/transactions': 'HISTORIAL',
-  '/metas': 'METAS',
-  '/profile': 'PERFIL',
-  '/accounts': 'CUENTAS',
-  '/prestamos': 'PRÉSTAMOS',
-  '/categories': 'CATEGORÍAS',
-  '/metrics': 'MÉTRICAS',
-  '/chat': 'ASISTENTE',
-  '/recurring': 'GASTOS FIJOS',
+  '/dashboard': 'Inicio',
+  '/transactions': 'Historial',
+  '/metas': 'Metas',
+  '/profile': 'Perfil',
+  '/accounts': 'Cuentas',
+  '/inversiones': 'Inversiones',
+  '/prestamos': 'Préstamos',
+  '/categories': 'Categorías',
+  '/metrics': 'Métricas',
+  '/chat': 'Asistente',
+  '/recurring': 'Gastos fijos',
 }
 
-export function TopHeader() {
+export function TopHeader({ displayName }: { displayName?: string | null }) {
   const pathname = usePathname()
-  const [avatarUrl, setAvatarUrl] = useState('/pixel-avatar.jpg')
-
-  useEffect(() => {
-    function updateAvatar() {
-      try {
-        const saved = localStorage.getItem('app_user_avatar')
-        if (saved) setAvatarUrl(saved)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    updateAvatar()
-    window.addEventListener('avatar_changed', updateAvatar)
-    return () => window.removeEventListener('avatar_changed', updateAvatar)
-  }, [])
 
   // Buscar coincidencia de título
-  const matchingKey = Object.keys(PAGE_TITLES).find(key => 
-    pathname === key || (key !== '/dashboard' && pathname.startsWith(key))
+  const matchingKey = Object.keys(PAGE_TITLES).find(
+    (key) => pathname === key || (key !== '/dashboard' && pathname.startsWith(key))
   )
-  const title = matchingKey ? PAGE_TITLES[matchingKey] : 'INICIO'
+  const title = matchingKey ? PAGE_TITLES[matchingKey] : 'Inicio'
 
   return (
-    <header className="sticky top-0 z-30 w-full h-[57px] shrink-0 flex items-center bg-[#111424]/90 backdrop-blur-md border-b border-[#1e233f] px-4">
+    <header className="sticky top-0 z-30 w-full h-[57px] shrink-0 flex items-center bg-[rgba(10,14,20,0.55)] backdrop-blur-xl border-b border-[rgba(255,255,255,0.06)] px-4">
       <div className="max-w-lg w-full mx-auto flex items-center justify-between">
-        {/* Logo & Título */}
+        {/* Título de página */}
         <div className="flex items-center gap-3">
-          <Link href="/dashboard" prefetch={true} className="flex items-center gap-2 group">
-            <div className="relative w-8 h-8 rounded-[4px] border border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shadow-[0_0_8px_rgba(0,255,102,0.3)]">
-              <Image
-                src="/pixel-coin.jpg"
-                alt="Pixel Realm"
-                width={32}
-                height={32}
-                className="w-full h-full object-cover"
-                priority
-              />
-            </div>
-            <h1 className="text-xl font-bold font-mono text-[#00FF66] tracking-wider glow-text-green">
+          <Link href="/dashboard" prefetch={true} className="group">
+            <h1 className="font-display text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
               {title}
             </h1>
           </Link>
         </div>
 
-        {/* Acciones derecha: Notificaciones y Avatar */}
-        <div className="flex items-center gap-2.5">
-          {/* Botón Campana */}
+        {/* Acciones */}
+        <div className="flex items-center gap-2">
+          {/* Notificaciones */}
           <button
             aria-label="Notificaciones"
-            className="w-9 h-9 rounded-[4px] bg-[#1c213a] border border-[#293056] flex items-center justify-center text-[#00FF66] hover:border-[#00FF66] hover:bg-[#232845] transition-all cursor-pointer shadow-sm active:scale-95"
+            className="w-9 h-9 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:border-[rgba(143,203,176,0.35)] transition-all cursor-pointer active:scale-95"
           >
-            <Bell size={18} className="fill-[#00FF66]/20 text-[#00FF66]" />
+            <Bell size={17} />
           </button>
 
-          {/* Botón Avatar */}
+          {/* Perfil */}
           <Link
             href="/profile"
             prefetch={true}
-            aria-label="Perfil de usuario"
-            className="relative w-9 h-9 rounded-[4px] border-2 border-[#00FF66] bg-[#181c31] overflow-hidden flex items-center justify-center shadow-[0_0_10px_rgba(0,255,102,0.35)] hover:scale-105 active:scale-95 transition-transform"
+            aria-label="Perfil"
+            className="transition-transform hover:scale-105 active:scale-95"
           >
-            <Image
-              src={avatarUrl}
-              alt="Avatar de Jugador"
-              width={36}
-              height={36}
-              className="w-full h-full object-cover"
-              priority
-            />
+            <span className="block rounded-full">
+              <HeaderAvatar name={displayName} />
+            </span>
           </Link>
         </div>
       </div>
     </header>
   )
+}
+
+function HeaderAvatar({ name }: { name?: string | null }) {
+  const [avatarName, setAvatarName] = useState<string | null | undefined>(name)
+
+  useEffect(() => {
+    function updateName() {
+      try {
+        const saved = localStorage.getItem('app_user_display_name')
+        if (saved) setAvatarName(saved)
+        else if (name) setAvatarName(name)
+      } catch {
+        /* noop */
+      }
+    }
+    updateName()
+    window.addEventListener('display_name_changed', updateName)
+    return () => window.removeEventListener('display_name_changed', updateName)
+  }, [name])
+
+  return <Avatar name={avatarName} size="sm" />
 }
